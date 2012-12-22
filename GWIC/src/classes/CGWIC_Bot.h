@@ -33,6 +33,8 @@
 #include "CGWIC_GameObject.h"
 #include "CGWIC_Head.h"
 #include "CGWIC_BodyPart.h"
+#include "CGWIC_InventoryObject.h"
+#include "CGWIC_Inventory.h"
 
 namespace gwic {
 
@@ -87,6 +89,7 @@ protected:
 	ICollisionShape* basicShell;
 	CGWIC_Head* head;
 	ObjMaterial botmat;
+	CGWIC_Inventory* inventory;
 	float mHeight; // in irrUnits
 	void LogIt(irr::core::stringc msg);
 	CGWIC_Head* CreateNPC(irr::core::stringw file);

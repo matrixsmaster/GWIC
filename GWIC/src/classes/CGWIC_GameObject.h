@@ -28,6 +28,7 @@
 #include <OALWrapper/OAL_Types.h>
 #include <OALWrapper/OAL_Funcs.h>
 #include <GWICTypes.h>
+#include "CGWIC_VM.h"
 
 namespace gwic {
 
@@ -64,6 +65,7 @@ private:
 	ObjMaterial myMaterial;
 	std::vector<ICollisionShape*> pshapes;
 	std::vector<IRigidBody*> bodies;
+	CGWIC_VM* cpu;
 };
 
 }

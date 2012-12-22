@@ -9,6 +9,7 @@
 
 #include "CGWIC_GameObject.h"
 #include "CGWIC_Cell.h"
+//#include "CGWIC_InventoryObject.h"
 
 using namespace irr;
 using namespace core;

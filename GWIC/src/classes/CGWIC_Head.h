@@ -15,6 +15,7 @@
 #include <irrbullet.h>
 #include <GWICTypes.h>
 #include "CGWIC_BodyPart.h"
+#include "CGWIC_VM.h"
 
 namespace gwic {
 

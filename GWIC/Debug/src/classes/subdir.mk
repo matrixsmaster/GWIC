@@ -11,6 +11,9 @@ CPP_SRCS += \
 ../src/classes/CGWIC_Cell.cpp \
 ../src/classes/CGWIC_GameObject.cpp \
 ../src/classes/CGWIC_Head.cpp \
+../src/classes/CGWIC_Inventory.cpp \
+../src/classes/CGWIC_InventoryObject.cpp \
+../src/classes/CGWIC_VM.cpp \
 ../src/classes/CGWIC_World.cpp \
 ../src/classes/CPoint2D.cpp 
 
@@ -22,6 +25,9 @@ OBJS += \
 ./src/classes/CGWIC_Cell.o \
 ./src/classes/CGWIC_GameObject.o \
 ./src/classes/CGWIC_Head.o \
+./src/classes/CGWIC_Inventory.o \
+./src/classes/CGWIC_InventoryObject.o \
+./src/classes/CGWIC_VM.o \
 ./src/classes/CGWIC_World.o \
 ./src/classes/CPoint2D.o 
 
@@ -33,6 +39,9 @@ CPP_DEPS += \
 ./src/classes/CGWIC_Cell.d \
 ./src/classes/CGWIC_GameObject.d \
 ./src/classes/CGWIC_Head.d \
+./src/classes/CGWIC_Inventory.d \
+./src/classes/CGWIC_InventoryObject.d \
+./src/classes/CGWIC_VM.d \
 ./src/classes/CGWIC_World.d \
 ./src/classes/CPoint2D.d 
 

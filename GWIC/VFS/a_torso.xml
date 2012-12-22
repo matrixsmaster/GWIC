@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<model file="a22torso.3DS" />
+<collision type="StandardBox" file="" mass="20.0" />
+<inslot position="0.3 23.74 0.4" rotation="0 0 0" axis="0 1 0" />
+<outslot ID="1" position="5.7 23.0 0.0" rotation="0 0 0" axis="1 0 0" />
+

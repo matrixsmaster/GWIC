@@ -1,8 +1,14 @@
 /*
  * GWICTypes.h
- *
  *  Created on: 06.12.2012
- *      Author: Soloviov Dmitry
+ *
+ *	GWIC (C) Dmitry Soloviov, 2012
+ *	Licensed under the terms of GNU GPL v2
+ *	use can see LICENSE for details
+ *
+ *	Authors:
+ *	Soloviov Dmitry aka matrixsmaster
+ *
  */
 
 #include <CPoint2D.h>

@@ -1,8 +1,10 @@
 /*
  * CGWIC_Bot.h
- *
  *  Created on: Dec 3, 2012
- *      Author: lisa
+ *
+ *	Authors:
+ *	Soloviov Dmitry aka matrixsmaster
+ *
  */
 
 #ifndef CGWIC_BOT_H_

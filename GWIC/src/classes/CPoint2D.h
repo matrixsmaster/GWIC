@@ -1,8 +1,10 @@
 /*
  * CPoint2D.h
- *
  *  Created on: 06.12.2012
- *      Author: Soloviov Dmitry
+ *
+ *	Authors:
+ *	Soloviov Dmitry aka matrixsmaster
+ *
  */
 
 #ifndef CPOINT2D_H_

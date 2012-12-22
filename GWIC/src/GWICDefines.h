@@ -1,15 +1,21 @@
 /*
  * GWICDefines.h
- *
  *  Created on: 12.12.2012
- *      Author: Soloviov Dmitry
+ *
+ *  GWIC (C) Dmitry Soloviov, 2012
+ *	Licensed under the terms of GNU GPL v2
+ *	use can see LICENSE for details
+ *
+ *	Authors:
+ *	Soloviov Dmitry aka matrixsmaster
+ *
  */
 
 #ifndef GWICDEFINES_H_
 #define GWICDEFINES_H_
 
 //#define GWIC_USES_OPENAL 1
-#define GWIC_FILESYSTEMROOT "/home/lisa/workspace/GWIC/VFS"
+#define GWIC_FILESYSTEMROOT "/tmp/GWIC/VFS"
 #define GWIC_ROOTFS_TYPE irr::io::EFAT_FOLDER
 #define GWIC_MESHES_DIR "/meshes/"
 #define GWIC_TEXTURES_DIR "/textures/"

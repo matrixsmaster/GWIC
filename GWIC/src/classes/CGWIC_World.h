@@ -1,8 +1,10 @@
 /*
  * CGWIC_World.h
- *
  *  Created on: Dec 3, 2012
- *      Author: Soloviov Dmitry
+ *
+ *	Authors:
+ *	Soloviov Dmitry aka matrixsmaster
+ *
  */
 
 #ifndef CGWIC_WORLD_H_

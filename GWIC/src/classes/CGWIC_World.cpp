@@ -1,8 +1,10 @@
 /*
  * CGWIC_World.cpp
- *
  *  Created on: Dec 3, 2012
- *      Author: Soloviov Dmitry
+ *
+ *	Authors:
+ *	Soloviov Dmitry aka matrixsmaster
+ *
  */
 
 #include "CGWIC_World.h"

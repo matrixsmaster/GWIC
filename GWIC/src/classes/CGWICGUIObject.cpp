@@ -1,8 +1,10 @@
 /*
  * CGWICGUIObject.cpp
- *
  *  Created on: Dec 15, 2012
- *      Author: Soloviov Dmitry
+ *
+ *	Authors:
+ *	Soloviov Dmitry aka matrixsmaster
+ *
  */
 
 #include "CGWICGUIObject.h"

@@ -1,8 +1,10 @@
 /*
  * CGWICDebugUI.h
- *
  *  Created on: Dec 15, 2012
- *      Author: Soloviov Dmitry
+ *
+ *	Authors:
+ *	Soloviov Dmitry aka matrixsmaster
+ *
  */
 
 #ifndef CGWICDEBUGUI_H_

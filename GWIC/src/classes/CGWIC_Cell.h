@@ -1,8 +1,14 @@
 /*
  * CGWIC_Cell.h
- *
  *  Created on: Dec 3, 2012
- *      Author: Soloviov Dmitry
+ *
+ *	GWIC (C) Dmitry Soloviov, 2012
+ *	Licensed under the terms of GNU GPL v2
+ *	use can see LICENSE for details
+ *
+ *	Authors:
+ *	Soloviov Dmitry aka matrixsmaster
+ *
  */
 
 #ifndef CGWIC_CELL_H_

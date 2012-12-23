@@ -29,6 +29,7 @@ CGWIC_GameObject::CGWIC_GameObject(irr::io::path filename, CPoint2D cell, irr::I
 	physical = false;
 	was_physical = false;
 	mycell = cell;
+	cpu = NULL;
 	//FIXME: load XML description, if filename ends with xml extension
 	IMesh* rtmesh = scManager->getMesh(filename);
 	root = scManager->addMeshSceneNode(rtmesh,NULL,GWIC_PICKABLE_MASK);

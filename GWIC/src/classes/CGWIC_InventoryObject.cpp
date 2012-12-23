@@ -10,12 +10,13 @@
 
 namespace gwic {
 
-CGWIC_InventoryObject::CGWIC_InventoryObject() {
-	// TODO Auto-generated constructor stub
-
+CGWIC_InventoryObject::CGWIC_InventoryObject()
+{
+	otype = GWIC_ITYPE_DUMMY;
 }
 
-CGWIC_InventoryObject::~CGWIC_InventoryObject() {
+CGWIC_InventoryObject::~CGWIC_InventoryObject()
+{
 	// TODO Auto-generated destructor stub
 }
 

@@ -82,19 +82,11 @@ bool CGWIC_GUIObject::GetVisible()
 	return this->visible;
 }
 
-/*
- * This function updates graphical representation of GUI object
- * its position and other things
- */
 void CGWIC_GUIObject::Update()
 {
 	//
 }
 
-/*
- * This function processes all messages and events in buffer
- * after that it eventually clears the buffer
- */
 void CGWIC_GUIObject::Process()
 {
 	//

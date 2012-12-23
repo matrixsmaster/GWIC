@@ -30,7 +30,15 @@ public:
 	CPoint2D GetPos();
 	virtual void SetVisible(bool setup);
 	bool GetVisible();
+	/*
+	 * This function updates graphical representation of GUI object
+	 * its position and other things
+	 */
 	virtual void Update();
+	/*
+	 * This function processes all messages and events in buffer
+	 * after that it eventually clears the buffer
+	 */
 	virtual void Process();
 protected:
 	irr::core::stringc myname;

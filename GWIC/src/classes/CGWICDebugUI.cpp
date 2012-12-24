@@ -19,7 +19,9 @@ using namespace gui;
 namespace gwic {
 
 CGWIC_DebugUI::~CGWIC_DebugUI() {
-	// TODO Auto-generated destructor stub
+	if (input) input->remove();
+	if (fpslabel) fpslabel->remove();
+	if (loglabel) loglabel->remove();
 }
 
 void CGWIC_DebugUI::CreateHardcodedUI()
@@ -84,16 +86,6 @@ void CGWIC_DebugUI::UpdateFPS(int fps)
 	stringw out = L"FPS: ";
 	out += fps;
 	fpslabel->setText(out.c_str());
-}
-
-irr::core::stringw CGWIC_DebugUI::GetNextCommand()
-{
-	stringw cmd;
-	if (cmdfifo.size()) {
-		cmd = cmdfifo.back();
-		cmdfifo.pop_back();
-	}
-	return cmd;
 }
 
 void CGWIC_DebugUI::FlushBuffers()

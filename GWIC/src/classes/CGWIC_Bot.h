@@ -39,12 +39,10 @@
 namespace gwic {
 
 enum GWICActorType {
-	ACTOR_DUMMY,
-	ACTOR_NPC,
-	ACTOR_RC,
-	ACTOR_PLAYER,
-	ACTOR_VEHICLE,
-	ACTOR_CREATURE
+	ACTOR_DUMMY,		//test actor type, loads Sydney from Irrlicht's package
+	ACTOR_GYNOID,		//our new actor type - gynoid (or other actor) sliced to BPs
+	ACTOR_PLAYER,		//dummy type for player's character
+	ACTOR_CREATURE		//classic "skinned" actor without bodyparts
 };
 
 struct BotCreationParams {

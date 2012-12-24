@@ -50,8 +50,14 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 		botRoot->setMaterialTexture(1,irDriver->getTexture("spheremap.jpg"));
 		basicShell = new IBoxShape(botRoot,60.f,false);
 		break;
-	case ACTOR_NPC:
+	case ACTOR_GYNOID:
 		head = CreateNPC(params->filename);
+		break;
+	case ACTOR_PLAYER:
+		//TODO: create capsule and load basic model
+		break;
+	case ACTOR_CREATURE:
+		//TODO: load classic skinned rigged mesh
 		break;
 	default:
 		std::cerr << "Unsupported or invalid actor type creation requested!" << std::endl;
@@ -187,8 +193,9 @@ irr::core::stringc CGWIC_Bot::GetTypeAsString()
 {
 	switch (initParams.type) {
 	case ACTOR_DUMMY: return "Dummy";
-	case ACTOR_NPC: return "NPC";
+	case ACTOR_GYNOID: return "Gynoid";
 	case ACTOR_PLAYER: return "Player";
+	case ACTOR_CREATURE: return "Creature";
 	default: return "Unknown";
 	}
 }

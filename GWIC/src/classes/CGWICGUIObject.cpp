@@ -58,6 +58,13 @@ irr::core::stringc CGWIC_GUIObject::GetName()
 
 void CGWIC_GUIObject::SetPos(CPoint2D nwpos)
 {
+	CPoint2D delta = nwpos - basepoint;
+//	rect<s32> rct;
+	vector2d<signed int> lcorner;
+	for (u32 i=0; i<elems.size(); i++) {
+		lcorner = elems[i]->getRelativePosition().UpperLeftCorner;
+		elems[i]->setRelativePosition(position2di(lcorner.X+delta.X,lcorner.Y+delta.Y));
+	}
 	basepoint = nwpos;
 }
 
@@ -87,10 +94,19 @@ void CGWIC_GUIObject::Update()
 	//
 }
 
-void CGWIC_GUIObject::Process()
+irr::core::stringw CGWIC_GUIObject::GetNextCommand()
 {
-	//
+	stringw cmd;
+	if (cmdfifo.size()) {
+		cmd = cmdfifo.back();
+		cmdfifo.pop_back();
+	}
+	return cmd;
 }
 
+void CGWIC_GUIObject::FlushBuffers()
+{
+	cmdfifo.clear();
+}
 
 } /* namespace gwic */

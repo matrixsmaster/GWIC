@@ -196,7 +196,7 @@ bool CGWIC_World::GenerateNPC()
 	botset.height = 1.5f;
 	actors.push_back(new CGWIC_Bot(&botset,gra_world,phy_world));
 	actors.back()->SetEnabled(true);
-	botset.type = ACTOR_NPC;
+	botset.type = ACTOR_GYNOID;
 	botset.rel_pos = vector3df(110,50,110);
 	actors.push_back(new CGWIC_Bot(&botset,gra_world,phy_world));
 	//actors.back()->SetEnabled(true);

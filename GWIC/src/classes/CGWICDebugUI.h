@@ -37,11 +37,10 @@ public:
 	virtual ~CGWIC_DebugUI();
 	void LogText(irr::core::stringw text);
 	void SetVisible(bool setup);
+	void PumpMessage(const irr::SEvent& event);
 	void Update();
 	void UpdateFPS(int fps);
-	irr::core::stringw GetNextCommand();
 	void FlushBuffers();
-	void PumpMessage(const irr::SEvent& event);
 private:
 	irr::gui::IGUIStaticText* loglabel;
 	irr::gui::IGUIStaticText* fpslabel;
@@ -49,7 +48,6 @@ private:
 	irr::core::stringw buffer;
 	irr::gui::IGUIEditBox* input;
 	irr::core::position2di inppnt; //input box start point
-	std::vector<irr::core::stringw> cmdfifo;
 	void CreateHardcodedUI();
 };
 

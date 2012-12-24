@@ -20,8 +20,8 @@ public:
 	CPoint2D(const CPoint2D & nw) : X(nw.X), Y(nw.Y) {}
 	//virtual ~CPoint2D();
 	CPoint2D & operator = (const CPoint2D & other) { X=other.X; Y=other.Y; return *this; }
-	CPoint2D operator + (const CPoint2D & add) const {return (CPoint2D(X+add.X), CPoint2D(Y+add.Y));}
-	CPoint2D operator - (const CPoint2D & sub) const {return (CPoint2D(X-sub.X), CPoint2D(Y-sub.Y));}
+	CPoint2D operator + (const CPoint2D & add) const {return CPoint2D((X+add.X),(Y+add.Y));}
+	CPoint2D operator - (const CPoint2D & sub) const {return CPoint2D((X-sub.X),(Y-sub.Y));}
 	bool operator == (const CPoint2D & comp) const {return ((X==comp.X) && (Y==comp.Y));}
 	int X;
 	int Y;

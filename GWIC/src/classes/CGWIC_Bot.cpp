@@ -38,13 +38,16 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 	head = NULL;
 	initParams = *params;
 	mycell = params->cell_coord;
+	myname = params->actorname;
 	IAnimatedMesh* botmesh = NULL;
+	IAnimatedMeshSceneNode* animnode = NULL;
 	switch (params->type) {
 	case ACTOR_DUMMY:
 		// get Sydney to the scene ;)
 		botmesh = scManager->getMesh("sydney.md2");
 		if (!botmesh) return;
-		botRoot = scManager->addAnimatedMeshSceneNode(botmesh);
+		animnode = scManager->addAnimatedMeshSceneNode(botmesh);
+		botRoot = animnode;
 		botRoot->setMaterialType(EMT_REFLECTION_2_LAYER);
 		botRoot->setMaterialTexture(0,irDriver->getTexture("sydney.bmp"));
 		botRoot->setMaterialTexture(1,irDriver->getTexture("spheremap.jpg"));
@@ -62,6 +65,11 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 	default:
 		std::cerr << "Unsupported or invalid actor type creation requested!" << std::endl;
 		return;
+	}
+	if (animnode) {
+		ITriangleSelector* sel = scManager->createTriangleSelector(animnode);
+		animnode->setTriangleSelector(sel);
+		sel->drop();
 	}
 	mHeight = 1.f;
 	initDone = true;
@@ -222,6 +230,18 @@ CGWIC_Head* CGWIC_Bot::CreateNPC(irr::core::stringw file)
 	cpart->Connect(cprt2,0); //back ref
 	nhead->SetActive(true,true);
 	return nhead;
+}
+
+irr::s32 CGWIC_Bot::IsThisNodeIsMine(irr::scene::ISceneNode* node)
+{
+	if (botRoot == node) return 1;
+	if (head) return (head->RecursiveSearchForNode(node));
+	return 0;
+}
+
+irr::core::stringw CGWIC_Bot::GetName()
+{
+	return this->myname;
 }
 
 

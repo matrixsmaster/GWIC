@@ -50,7 +50,8 @@ struct BotCreationParams {
 	CPoint2D cell_coord;
 	irr::core::vector3df rel_pos;
 	float height;
-	irr::core::stringw filename;
+	irr::io::path filename;
+	irr::core::stringw actorname;
 };
 
 class CGWIC_Bot { //: public CGWIC_GameObject {
@@ -71,6 +72,8 @@ public:
 	bool GetEnabled();
 	void AutoSize();
 	irr::core::stringc GetTypeAsString();
+	irr::s32 IsThisNodeIsMine(irr::scene::ISceneNode* node);
+	irr::core::stringw GetName();
 protected:
 	bool initDone;
 	int ID;
@@ -88,6 +91,7 @@ protected:
 	CGWIC_Head* head;
 	ObjMaterial botmat;
 	CGWIC_Inventory* inventory;
+	irr::core::stringw myname;
 	float mHeight; // in irrUnits
 	void LogIt(irr::core::stringc msg);
 	CGWIC_Head* CreateNPC(irr::core::stringw file);

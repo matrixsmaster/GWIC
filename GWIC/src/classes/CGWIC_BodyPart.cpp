@@ -335,6 +335,19 @@ GWIC_BPSlot CGWIC_BodyPart::GetSlotByChild(CGWIC_BodyPart* childptr)
 	return out;
 }
 
+irr::s32 CGWIC_BodyPart::RecursiveSearchForNode(irr::scene::ISceneNode* nodeptr)
+{
+	if (nodeptr == root) return 1;
+	else {
+		int r;
+		for (u32 i=1; i<slots.size(); i++) {
+			if (slots[i]) r = slots[i]->RecursiveSearchForNode(nodeptr);
+			if (r) return (r+1);
+		}
+	}
+	return 0;
+}
+
 
 }
 

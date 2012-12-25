@@ -62,6 +62,7 @@ public:
 	IRigidBody* GetRigidBodyPtr();
 	GWIC_BPSlot GetSlotByID(int sid);
 	GWIC_BPSlot GetSlotByChild(CGWIC_BodyPart* childptr);
+	irr::s32 RecursiveSearchForNode(irr::scene::ISceneNode* nodeptr);
 protected:
 	bool success;
 	bool active;

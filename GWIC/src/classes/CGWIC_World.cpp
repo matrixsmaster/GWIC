@@ -99,7 +99,6 @@ CGWIC_World::CGWIC_World(WorldProperties* props, cOAL_Device* sndDevice)
 	selpoint_bill = NULL;
 	debugui = NULL;
 	highlited = NULL;
-	selected = NULL;
 
 	std::cout << "Creating Irrlicht device..." << std::endl;
 	gra_world = createDevice(props->videoDriver,dimension2d<u32>(props->gWidth,props->gHeight),
@@ -203,10 +202,12 @@ bool CGWIC_World::GenerateNPC()
 	botset.cell_coord = CPoint2D(2);
 	botset.rel_pos = vector3df(120,50,120);
 	botset.height = 1.5f;
+	botset.actorname = L"Sydney";
 	actors.push_back(new CGWIC_Bot(&botset,gra_world,phy_world));
 	actors.back()->SetEnabled(true);
 	botset.type = ACTOR_GYNOID;
 	botset.rel_pos = vector3df(110,50,110);
+	botset.actorname = L"A22";
 	actors.push_back(new CGWIC_Bot(&botset,gra_world,phy_world));
 	//actors.back()->SetEnabled(true);
 	return true;
@@ -282,16 +283,10 @@ void CGWIC_World::RunWorld()
 	ITimer* timer = gra_world->getTimer();
 	u32 TimeStamp = timer->getTime();
 	u32 DeltaTime = 0;
-	ISceneCollisionManager* pmgr = scManager->getSceneCollisionManager();
 	int lFPS = -1;
 	int cFPS;
 	ticker = 0;
-	line3d<f32> ray;
-	vector3df rayhit;
-	triangle3df hit_triag;
 	stringw cmdstr;
-	CGWIC_Cell* cellptr;
-	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
 	while (gra_world->run()) {
 		ticker++;
 		if (!gra_world->isWindowActive()) {
@@ -313,31 +308,7 @@ void CGWIC_World::RunWorld()
 
 		scManager->drawAll();
 
-		if (main_cam) {
-			highlited = NULL;
-			if (fps_cam) {
-				ray.start = main_cam->getPosition();
-				ray.end = ray.start + (main_cam->getTarget() - ray.start).normalize() * main_cam->getFarValue();
-			} else {
-				ray = pmgr->getRayFromScreenCoordinates(vector2di(mousepos.X,mousepos.Y),main_cam);
-			}
-			highlited = pmgr->getSceneNodeAndCollisionPointFromRay(ray,rayhit,hit_triag,GWIC_PICKABLE_MASK,0);
-			if ((highlited) && (!fps_cam)) {
-				cellptr = GetCell((rayhit.X/dim),(rayhit.Z/dim));
-				if (cellptr) {
-					selected = cellptr->GetObjectByIrrPtr(highlited);
-					if (selected) {
-//						std::cout << "Object selected. height = " << selected->GetPos().Y << std::endl;
-					}
-				}
-//				std::cerr << selected->getPosition().Y << std::endl;
-				if (selpoint_bill) selpoint_bill->setPosition(rayhit);
-//				std::cerr << rayhit.Y << std::endl;
-			} else {
-				if (selpoint_bill) selpoint_bill->setPosition(vector3df(0));
-				selected = NULL;
-			}
-		}
+		if (main_cam) ProcessSelection();
 
 		gui->drawAll();
 		driver->endScene();
@@ -440,8 +411,8 @@ void CGWIC_World::GoFPS()
 	main_cam->setPosition(oldpos);
 	main_cam->setFarValue(properties.viewDistance * GWIC_IRRUNITS_PER_METER);
 	ShowGUI(false);
+	ZeroSelect();
 	fps_cam = true;
-	selected = NULL;
 }
 
 void CGWIC_World::GoEditMode()
@@ -461,8 +432,8 @@ void CGWIC_World::GoEditMode()
 	main_cam->setTarget(oldpos);
 	main_cam->setFarValue(properties.viewDistance * GWIC_IRRUNITS_PER_METER);
 	ShowGUI(true);
+	ZeroSelect();
 	fps_cam = false;
-	selected = NULL;
 }
 
 void CGWIC_World::ShowGUI(bool show)
@@ -532,6 +503,53 @@ void CGWIC_World::ProcessEvents()
 	float a;
 	if (main_cam) a = GetTerrainHeightUnderPointAbs(main_cam->getPosition());
 //	std::cout << "a=" << a << std::endl;
+}
+
+void CGWIC_World::ProcessSelection()
+{
+	ISceneCollisionManager* pmgr = scManager->getSceneCollisionManager();
+	line3d<f32> ray;
+	vector3df rayhit;
+	triangle3df hit_triag;
+	CGWIC_Cell* cellptr;
+	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
+	u32 i;
+	highlited = NULL;
+	if (fps_cam) {
+		ray.start = main_cam->getPosition();
+		ray.end = ray.start + (main_cam->getTarget() - ray.start).normalize() * main_cam->getFarValue();
+	} else
+		ray = pmgr->getRayFromScreenCoordinates(vector2di(mousepos.X,mousepos.Y),main_cam);
+	ZeroSelect();
+	highlited = pmgr->getSceneNodeAndCollisionPointFromRay(ray,rayhit,hit_triag,GWIC_PICKABLE_MASK,0);
+	if ((highlited) && (!fps_cam)) {
+		cellptr = GetCell((rayhit.X/dim),(rayhit.Z/dim));
+		if (cellptr) {
+			//is this an object in cell?
+			selected = cellptr->GetObjectByIrrPtr(highlited);
+			if (!selected) {
+				//maybe this is an actor or part?
+				for (i=0; i<actors.size(); i++) {
+					if (actors[i]->IsThisNodeIsMine(highlited)) {
+						select_actor = actors[i];
+						stringc nm = select_actor->GetName();
+						std::cout << "Actor selected: " << nm.c_str() << std::endl;
+						break;
+					}
+				}
+			}
+		}
+		if (selpoint_bill) selpoint_bill->setPosition(rayhit);
+	}
+}
+
+void CGWIC_World::ZeroSelect()
+{
+	if (selpoint_bill) selpoint_bill->setPosition(vector3df(0));
+	selected = NULL;
+	highlited = NULL;
+	select_actor = NULL;
+	select_actor_part = NULL;
 }
 
 void CGWIC_World::CommandProcessor(irr::core::stringw cmd)

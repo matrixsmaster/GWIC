@@ -72,6 +72,8 @@ private:
 	float mousewheel;
 	irr::scene::ISceneNode* highlited;
 	CGWIC_GameObject* selected;
+	CGWIC_Bot* select_actor;
+	CGWIC_BodyPart* select_actor_part;
 	bool GenerateLand();
 	bool GenerateNPC();
 	IRigidBody* ShootSphere(irr::core::vector3df scale, irr::f32 mass);
@@ -83,6 +85,8 @@ private:
 	void ActivateCell(int x, int y);
 	float GetTerrainHeightUnderPointAbs(irr::core::vector3df pnt);
 	void ProcessEvents();
+	void ProcessSelection();
+	void ZeroSelect();
 	void CommandProcessor(irr::core::stringw cmd);
 	void CmdGetPos(CIrrStrParser parse);
 };

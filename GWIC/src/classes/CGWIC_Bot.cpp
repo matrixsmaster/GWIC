@@ -55,10 +55,10 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 		break;
 	case ACTOR_PLAYER:
 		//TODO: create capsule and load basic model
-		break;
+		return;
 	case ACTOR_CREATURE:
 		//TODO: load classic skinned rigged mesh
-		break;
+		return;
 	default:
 		std::cerr << "Unsupported or invalid actor type creation requested!" << std::endl;
 		return;
@@ -155,7 +155,7 @@ void CGWIC_Bot::SetEnabled(bool enable)
 {
 	if (enable == enabled) return;
 	if (enable) {
-		botShell = phy_world->addRigidBody(basicShell);
+		if (basicShell) botShell = phy_world->addRigidBody(basicShell);
 	} else {
 		if (botShell) phy_world->removeCollisionObject(botShell,true);
 	}

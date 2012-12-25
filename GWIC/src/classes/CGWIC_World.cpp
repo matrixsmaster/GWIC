@@ -181,8 +181,8 @@ bool CGWIC_World::GenerateLand()
 	for (int x=0; x<properties.wrldSizeX; x++)
 		for (y=0; y<properties.wrldSizeY; y++) {
 			ptr = new CGWIC_Cell(CPoint2D(x,y),gra_world,phy_world);
-			ptr->InitLand();
 			cells.push_back(ptr);
+			if (!ptr->InitLand()) return false;
 		}
 	return true;
 }
@@ -314,9 +314,9 @@ void CGWIC_World::RunWorld()
 			selected = pmgr->getSceneNodeAndCollisionPointFromRay(ray,rayhit,hit_triag,GWIC_PICKABLE_MASK,0);
 			//TODO: get selected object via cell's GetObjecyByIrrPtr()
 			if (selected) {
-	//			std::cerr << selected->getPosition().Y << std::endl;
+//				std::cerr << selected->getPosition().Y << std::endl;
 				if (selpoint_bill) selpoint_bill->setPosition(rayhit);
-	//			std::cerr << rayhit.Y << std::endl;
+//				std::cerr << rayhit.Y << std::endl;
 			} else {
 				if (selpoint_bill) selpoint_bill->setPosition(vector3df(0));
 			}
@@ -439,10 +439,6 @@ void CGWIC_World::GoEditMode()
 	if (debugui) debugui->LogText(L"Camera set to Maya mode");
 	main_cam = scManager->addCameraSceneNodeMaya();
 	main_cam->setTarget(oldpos);
-	if (selpoint_bill) {
-		selpoint_bill->remove();
-		selpoint_bill = NULL;
-	}
 	main_cam->setFarValue(properties.viewDistance * GWIC_IRRUNITS_PER_METER);
 	ShowGUI(true);
 	fps_cam = false;

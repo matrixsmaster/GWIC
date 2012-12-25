@@ -503,11 +503,19 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 {
 	stringc cons = cmd.c_str();
 	std::cout << "Command processor: cmd: " << cons.c_str() << std::endl;
-	if (cmd == L"quit") {
+	CIrrStrParser parse(cmd);
+	stringw icmd = parse.NextLex(L" ",false);
+	if (icmd == L"quit") {
 		quit_msg = true;
-	} else if (cmd == L"test") {
+	} else if (icmd == L"test") {
 		debugui->LogText(L"Test Response String");
-	} else if (cmd == L"getpos selected") {
+		irrstrwvec list = parse.ParseToList(L" ");
+		for (u32 i=1; i<list.size(); i++) {
+			stringw bvs = L"Argument: ";
+			bvs += list[i];
+			debugui->LogText(bvs);
+		}
+	} else if (icmd == L"getpos") {
 		if (selected) {
 			stringw vs = L"<";
 			vector3df ps = selected->getPosition();
@@ -520,7 +528,7 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 			debugui->LogText(vs);
 		} else
 			debugui->LogText(L"Nothing selected");
-	} else if (cmd == L"randomplace") {
+	} else if (icmd == L"randomplace") {
 		//
 	}
 }

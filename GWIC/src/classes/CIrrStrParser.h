@@ -20,6 +20,8 @@
 
 namespace gwic {
 
+typedef std::vector<irr::core::stringw> irrstrwvec;
+
 class CIrrStrParser {
 public:
 	CIrrStrParser();
@@ -28,8 +30,8 @@ public:
 	irr::core::vector3df ToVector3f();
 	irr::core::position2di ToPosition2i();
 	CPoint2D ToPoint2D();
-	irr::core::stringw NextLex(irr::core::stringw delim);
-	std::vector<irr::core::stringw> ParseToList(irr::core::stringw delim);
+	irr::core::stringw NextLex(irr::core::stringw delim, bool erase);
+	irrstrwvec ParseToList(irr::core::stringw delim);
 	irr::core::stringw GetBuff() { return this->buffer; }
 	CIrrStrParser & operator = (const CIrrStrParser & other) { buffer = other.buffer; return *this; }
 	CIrrStrParser & operator = (const irr::core::stringw & obuf) { buffer = obuf; return *this; }

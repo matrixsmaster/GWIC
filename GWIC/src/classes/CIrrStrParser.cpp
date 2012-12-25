@@ -46,14 +46,35 @@ CPoint2D CIrrStrParser::ToPoint2D()
 	return out;
 }
 
-irr::core::stringw CIrrStrParser::NextLex(irr::core::stringw delim)
+irr::core::stringw CIrrStrParser::NextLex(irr::core::stringw delim, bool erase)
 {
-	//
+	stringw out;
+	if ((!delim.size()) || (!buffer.size())) return out;
+	s32 pos = buffer.find(delim.c_str());
+	if (pos < 0) return buffer;
+	out = buffer.subString(0,pos,false);
+	pos += delim.size();
+	if (erase)
+		buffer = buffer.subString(pos,buffer.size(),false);
+	return out;
 }
 
-std::vector<irr::core::stringw> CIrrStrParser::ParseToList(irr::core::stringw delim)
+irrstrwvec CIrrStrParser::ParseToList(irr::core::stringw delim)
 {
-	//
+	irrstrwvec out;
+	if (!delim.size()) {
+		out.push_back(buffer);
+		return out;
+	}
+	stringw oldbuf = buffer;
+	stringw vs;
+	do {
+		vs = NextLex(delim,true);
+		out.push_back(vs);
+	} while (vs != buffer);
+	buffer = oldbuf;
+	oldbuf = "";
+	return out;
 }
 
 CIrrStrParser & CIrrStrParser::operator += (const irr::core::vector3df & addv)

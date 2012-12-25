@@ -61,7 +61,16 @@ bool CGWIC_GameObject::SetPos(irr::core::vector3df rel_pos)
 {
 	if (!root) return false;
 	position = rel_pos;
+	vector3df oldpos = root->getPosition();
 	root->setPosition(getAbsPosition(rel_pos));
+	if (physical) {
+		for (u32 i=0; i<bodies.size(); i++) {
+			btTransform btt = bodies[i]->getPointer()->getCenterOfMassTransform();
+			btVector3 btv = irrlichtToBulletVector(root->getPosition()-oldpos);
+			btt.setOrigin(btt.getOrigin() + btv);
+			bodies[i]->getPointer()->setCenterOfMassTransform(btt);
+		}
+	}
 	return true;
 }
 

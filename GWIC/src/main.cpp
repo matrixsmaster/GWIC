@@ -1,5 +1,7 @@
 /*
  * main.cpp
+ *  Created on: Dec 3, 2012
+ *
  *	Gynoid World Interactive Constructor entry point file
  *	GWIC (C) Dmitry Soloviov, 2012
  *	Licensed under the terms of GNU GPL v2

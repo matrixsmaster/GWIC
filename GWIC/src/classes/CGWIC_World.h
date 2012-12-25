@@ -70,7 +70,8 @@ private:
 	irr::scene::IBillboardSceneNode* selpoint_bill;
 	CPoint2D mousepos;
 	float mousewheel;
-	irr::scene::ISceneNode* selected;
+	irr::scene::ISceneNode* highlited;
+	CGWIC_GameObject* selected;
 	bool GenerateLand();
 	bool GenerateNPC();
 	IRigidBody* ShootSphere(irr::core::vector3df scale, irr::f32 mass);
@@ -80,7 +81,7 @@ private:
 	void GoEditMode();
 	void ShowGUI(bool show);
 	void ActivateCell(int x, int y);
-	float GetTerrainHeightUnderPoint(irr::core::vector3df pnt);
+	float GetTerrainHeightUnderPointAbs(irr::core::vector3df pnt);
 	void ProcessEvents();
 	void CommandProcessor(irr::core::stringw cmd);
 	void CmdGetPos(CIrrStrParser parse);

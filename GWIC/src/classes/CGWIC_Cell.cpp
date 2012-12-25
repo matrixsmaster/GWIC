@@ -153,6 +153,7 @@ void CGWIC_Cell::RandomPlaceObjects(int count, irr::io::path filename)
 		nobj->SetPhysical(true);
 //		nobj->SetScale(vector3df(100));
 //		nobj->SetPhysical(false);
+//		nobj->SetPos(rndpos+vector3df(0,70,0));
 //		nobj->SetPhysical(true);
 	}
 }

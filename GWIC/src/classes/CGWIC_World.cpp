@@ -21,48 +21,55 @@ namespace gwic {
 bool CGWIC_World::OnEvent(const irr::SEvent& event)
 {
 	if (!gra_world) return false;
-	switch(event.EventType)
-	{
+	switch(event.EventType) {
 	case EET_MOUSE_INPUT_EVENT:
-		if(event.MouseInput.Event==EMIE_LMOUSE_PRESSED_DOWN)
-		{
-			//
-			return false;
-		} else if(event.MouseInput.Event==EMIE_RMOUSE_PRESSED_DOWN) {
-			//
-			return false;
+//		if (event.MouseInput.Event==EMIE_LMOUSE_PRESSED_DOWN) {
+//			//
+//			return false;
+//		} else if(event.MouseInput.Event==EMIE_RMOUSE_PRESSED_DOWN) {
+//			//
+//			return false;
+//		}
+		if ((event.MouseInput.isLeftPressed()) && (selected)) {
+			//FIXME: this is just a test
+			vector3df rl = selected->GetPos() * GWIC_IRRUNITS_PER_METER;
+			rl.X += event.MouseInput.X - mousepos.X;
+			rl.Z += event.MouseInput.Y - mousepos.Y;
+			rl /= GWIC_IRRUNITS_PER_METER;
+			selected->SetPos(rl);
 		}
 		mousepos.X = event.MouseInput.X;
 		mousepos.Y = event.MouseInput.Y;
 		mousewheel = event.MouseInput.Wheel;
+		if (selected) return true; //absorb event if selection is active
 		break;
 	case EET_KEY_INPUT_EVENT:
 		//FIXME: more robust and nice looking processing needed!!
-		if(event.KeyInput.Key == KEY_ESCAPE && event.KeyInput.PressedDown == false) {
+		if (event.KeyInput.Key == KEY_ESCAPE && event.KeyInput.PressedDown == false) {
 //			fps_cam ^= true;
 			if (!fps_cam) GoFPS();
 			else GoEditMode();
 			return true;
 		}
 		if (!fps_cam) break;
-		if(event.KeyInput.Key == KEY_KEY_Q && event.KeyInput.PressedDown == false) {
+		if (event.KeyInput.Key == KEY_KEY_Q && event.KeyInput.PressedDown == false) {
 			quit_msg = true;
 			return true;
 		}
-		if(event.KeyInput.Key == KEY_SPACE && event.KeyInput.PressedDown == false) {
+		if (event.KeyInput.Key == KEY_SPACE && event.KeyInput.PressedDown == false) {
 			if (fps_cam) {
 				float ssize = GWIC_IRRUNITS_PER_METER / 4.f;
 				this->ShootSphere(vector3df(ssize,ssize,ssize),3.0);
 			}
 			return true;
 		}
-		if(event.KeyInput.Key == KEY_DELETE && event.KeyInput.PressedDown == false) {
+		if (event.KeyInput.Key == KEY_DELETE && event.KeyInput.PressedDown == false) {
 			std::cout << "Deleting main camera!" << std::endl;
 			main_cam->remove();
 			main_cam = NULL;
 			return true;
 		}
-		if(event.KeyInput.Key == KEY_F9 && event.KeyInput.PressedDown == false) {
+		if (event.KeyInput.Key == KEY_F9 && event.KeyInput.PressedDown == false) {
 			physicsPause ^= true;
 			if (physicsPause) debugui->LogText(L"Physics paused");
 			else debugui->LogText(L"Physics resumed");
@@ -91,6 +98,8 @@ CGWIC_World::CGWIC_World(WorldProperties* props, cOAL_Device* sndDevice)
 	physicsPause = true;
 	selpoint_bill = NULL;
 	debugui = NULL;
+	highlited = NULL;
+	selected = NULL;
 
 	std::cout << "Creating Irrlicht device..." << std::endl;
 	gra_world = createDevice(props->videoDriver,dimension2d<u32>(props->gWidth,props->gHeight),
@@ -149,7 +158,7 @@ CGWIC_Cell* CGWIC_World::GetCell(int x, int y)
 	if (r<cells.size()) {
 		ccrd = cells[r]->GetCoord();
 		if (ccrd == targ) {
-			std::cout << "Cell search complete in first phase!" << std::endl;
+//			std::cout << "Cell search complete in first phase!" << std::endl;
 			return (cells[r]);
 		}
 	}
@@ -281,6 +290,8 @@ void CGWIC_World::RunWorld()
 	vector3df rayhit;
 	triangle3df hit_triag;
 	stringw cmdstr;
+	CGWIC_Cell* cellptr;
+	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
 	while (gra_world->run()) {
 		ticker++;
 		if (!gra_world->isWindowActive()) {
@@ -303,21 +314,28 @@ void CGWIC_World::RunWorld()
 		scManager->drawAll();
 
 		if (main_cam) {
-			selected = NULL;
+			highlited = NULL;
 			if (fps_cam) {
 				ray.start = main_cam->getPosition();
 				ray.end = ray.start + (main_cam->getTarget() - ray.start).normalize() * main_cam->getFarValue();
 			} else {
 				ray = pmgr->getRayFromScreenCoordinates(vector2di(mousepos.X,mousepos.Y),main_cam);
 			}
-			selected = pmgr->getSceneNodeAndCollisionPointFromRay(ray,rayhit,hit_triag,GWIC_PICKABLE_MASK,0);
-			//TODO: get selected object via cell's GetObjecyByIrrPtr()
-			if (selected) {
+			highlited = pmgr->getSceneNodeAndCollisionPointFromRay(ray,rayhit,hit_triag,GWIC_PICKABLE_MASK,0);
+			if ((highlited) && (!fps_cam)) {
+				cellptr = GetCell((rayhit.X/dim),(rayhit.Z/dim));
+				if (cellptr) {
+					selected = cellptr->GetObjectByIrrPtr(highlited);
+					if (selected) {
+//						std::cout << "Object selected. height = " << selected->GetPos().Y << std::endl;
+					}
+				}
 //				std::cerr << selected->getPosition().Y << std::endl;
 				if (selpoint_bill) selpoint_bill->setPosition(rayhit);
 //				std::cerr << rayhit.Y << std::endl;
 			} else {
 				if (selpoint_bill) selpoint_bill->setPosition(vector3df(0));
+				selected = NULL;
 			}
 		}
 
@@ -423,6 +441,7 @@ void CGWIC_World::GoFPS()
 	main_cam->setFarValue(properties.viewDistance * GWIC_IRRUNITS_PER_METER);
 	ShowGUI(false);
 	fps_cam = true;
+	selected = NULL;
 }
 
 void CGWIC_World::GoEditMode()
@@ -443,6 +462,7 @@ void CGWIC_World::GoEditMode()
 	main_cam->setFarValue(properties.viewDistance * GWIC_IRRUNITS_PER_METER);
 	ShowGUI(true);
 	fps_cam = false;
+	selected = NULL;
 }
 
 void CGWIC_World::ShowGUI(bool show)
@@ -490,15 +510,28 @@ void CGWIC_World::ActivateCell(int x, int y)
 	center_cell.Y = y;
 }
 
-float CGWIC_World::GetTerrainHeightUnderPoint(irr::core::vector3df pnt)
+float CGWIC_World::GetTerrainHeightUnderPointAbs(irr::core::vector3df pnt)
 {
-	//TODO: find cell and use cell's terrain height func
+	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
+	s32 cx = static_cast<s32> (pnt.X/dim);
+	s32 cy = static_cast<s32> (pnt.Z/dim);
+	CGWIC_Cell* cellptr = GetCell(cx,cy);
+	if (cellptr) {
+		pnt /= GWIC_IRRUNITS_PER_METER;
+		pnt.X -= GWIC_METERS_PER_CELL * cx;
+		pnt.Z -= GWIC_METERS_PER_CELL * cy;
+		pnt.Y = cellptr->GetTerrainHeightUnderPointMetric(pnt);
+		return (pnt.Y);
+	}
 	return 0;
 }
 
 void CGWIC_World::ProcessEvents()
 {
 	//TODO: are we really wanna it? :)
+	float a;
+	if (main_cam) a = GetTerrainHeightUnderPointAbs(main_cam->getPosition());
+//	std::cout << "a=" << a << std::endl;
 }
 
 void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
@@ -544,14 +577,14 @@ void CGWIC_World::CmdGetPos(CIrrStrParser parse)
 	irrstrwvec list = parse.ParseToList(L" ");
 	if ((list.size() >= 2) && (list[1] == "selection")) {
 		if (selected) {
-			stringw vs = L"<";
-			vector3df ps = selected->getPosition();
+			stringw vs;
+			vector3df ps = selected->GetPos();
 			vs += ps.X;
-			vs += L"; ";
+			vs += L" ";
 			vs += ps.Y;
-			vs += L"; ";
+			vs += L" ";
 			vs += ps.Z;
-			vs += ">";
+			vs += L" m";
 			debugui->LogText(vs);
 		} else
 			debugui->LogText(L"Nothing selected");

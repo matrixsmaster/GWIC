@@ -97,20 +97,18 @@ void CGWIC_DebugUI::FlushBuffers()
 void CGWIC_DebugUI::PumpMessage(const irr::SEvent& event)
 {
 	s32 id = event.GUIEvent.Caller->getID();
-	switch (event.GUIEvent.EventType) {
-	case EGET_EDITBOX_ENTER:
-		if (id == GWIC_GUI_DEBUG_EDITBOX) {
-			stringw buf;
-			buf += input->getText();
-			if (!buf.empty()) {
-				cmdfifo.insert(cmdfifo.begin(),buf);
-				GUI->getRootGUIElement()->getElementFromId(GWIC_GUI_DEBUG_EDITBOX,true)->setText(L"");
-			}
+	if ((event.GUIEvent.EventType == EGET_EDITBOX_ENTER) && (id == GWIC_GUI_DEBUG_EDITBOX)) {
+		stringw buf;
+		buf += input->getText();
+		if (!buf.empty()) {
+			cmdfifo.insert(cmdfifo.begin(),buf);
+			GUI->getRootGUIElement()->getElementFromId(GWIC_GUI_DEBUG_EDITBOX,true)->setText(L"");
 		}
-		break;
-	default:
-		break;
 	}
+//	if (event.KeyInput.Key == KEY_UP) {
+//		std::cout << "UP key" << std::endl;
+//		if (id == GWIC_GUI_DEBUG_EDITBOX) std::cout << "EDIT!" << std::endl;
+//	}
 }
 
 

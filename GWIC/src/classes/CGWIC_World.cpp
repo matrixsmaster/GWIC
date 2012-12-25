@@ -73,7 +73,7 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 	}
 	//pump messages
 	if (event.EventType == EET_GUI_EVENT) {
-		debugui->PumpMessage(event);
+		if (debugui) debugui->PumpMessage(event);
 		for (u32 i=0; i<uis.size(); i++)
 			uis[i]->PumpMessage(event);
 	}
@@ -414,6 +414,7 @@ void CGWIC_World::GoFPS()
 	} else {
 		CGWIC_Cell* ptr = GetCell(center_cell.X,center_cell.Y);
 		oldpos = ptr->getIrrlichtCenter();
+		oldpos.Y = ptr->GetTerrainHeightUnderPointMetric(oldpos) * GWIC_IRRUNITS_PER_METER;
 	}
 	std::cout << "Camera set to First-Person mode" << std::endl;
 	if (debugui) debugui->LogText(L"Camera set to First-Person mode");
@@ -433,6 +434,7 @@ void CGWIC_World::GoEditMode()
 	} else {
 		CGWIC_Cell* ptr = GetCell(center_cell.X,center_cell.Y);
 		oldpos = ptr->getIrrlichtCenter();
+		oldpos.Y = ptr->GetTerrainHeightUnderPointMetric(oldpos) * GWIC_IRRUNITS_PER_METER;
 	}
 	std::cout << "Camera set to Maya mode" << std::endl;
 	if (debugui) debugui->LogText(L"Camera set to Maya mode");
@@ -526,6 +528,14 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 		CGWIC_Cell* ptr = GetCell(center_cell.X,center_cell.Y);
 		CIrrStrParser pr2(list[2]);
 		ptr->RandomPlaceObjects(pr2.ToS32(),list[1]);
+	} else if (icmd == L"tpm") {
+		debugui->LogText(L"toggle physics mode");
+		physicsPause ^= true;
+	} else if (icmd == L"tdd") {
+		debugui->LogText(L"toggle debug drawing");
+		debugDraw ^= true;
+	} else {
+		debugui->LogText("Invalid command!");
 	}
 }
 

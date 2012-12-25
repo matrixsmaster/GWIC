@@ -30,6 +30,8 @@ public:
 	irr::core::vector3df ToVector3f();
 	irr::core::position2di ToPosition2i();
 	CPoint2D ToPoint2D();
+	float ToFloat();
+	irr::s32 ToS32();
 	irr::core::stringw NextLex(irr::core::stringw delim, bool erase);
 	irrstrwvec ParseToList(irr::core::stringw delim);
 	irr::core::stringw GetBuff() { return this->buffer; }

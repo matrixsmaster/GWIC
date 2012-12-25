@@ -1,8 +1,13 @@
 /*
  * CIrrStrParser.cpp
- *
  *  Created on: 25.12.2012
- *      Author: master
+ *
+ *	GWIC (C) Dmitry Soloviov, 2012
+ *	Licensed under the terms of GNU GPL v2
+ *	use can see LICENSE for details
+ *
+ *	Authors:
+ *	Soloviov Dmitry aka matrixsmaster
  */
 
 #include "CIrrStrParser.h"
@@ -44,6 +49,22 @@ CPoint2D CIrrStrParser::ToPoint2D()
 	position2di ps = ToPosition2i();
 	CPoint2D out(ps.X,ps.Y);
 	return out;
+}
+
+float CIrrStrParser::ToFloat()
+{
+	float r = 0.0f;
+	if (buffer.size() < 1) return r;
+	swscanf(buffer.c_str(),L"%f",&r);
+	return r;
+}
+
+irr::s32 CIrrStrParser::ToS32()
+{
+	s32 r = 0;
+	if (buffer.size() < 1) return r;
+	swscanf(buffer.c_str(),L"%d",&r);
+	return r;
 }
 
 irr::core::stringw CIrrStrParser::NextLex(irr::core::stringw delim, bool erase)

@@ -516,6 +516,23 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 			debugui->LogText(bvs);
 		}
 	} else if (icmd == L"getpos") {
+		CmdGetPos(parse);
+	} else if (icmd == L"randomplace") {
+		irrstrwvec list = parse.ParseToList(L" ");
+		if (list.size() < 3) {
+			debugui->LogText(L"Insufficient arguments");
+			return;
+		}
+		CGWIC_Cell* ptr = GetCell(center_cell.X,center_cell.Y);
+		CIrrStrParser pr2(list[2]);
+		ptr->RandomPlaceObjects(pr2.ToS32(),list[1]);
+	}
+}
+
+void CGWIC_World::CmdGetPos(CIrrStrParser parse)
+{
+	irrstrwvec list = parse.ParseToList(L" ");
+	if ((list.size() >= 2) && (list[1] == "selection")) {
 		if (selected) {
 			stringw vs = L"<";
 			vector3df ps = selected->getPosition();
@@ -528,10 +545,9 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 			debugui->LogText(vs);
 		} else
 			debugui->LogText(L"Nothing selected");
-	} else if (icmd == L"randomplace") {
+	} else {
 		//
 	}
 }
-
 
 }

@@ -77,7 +77,7 @@ void CGWIC_Cell::SetActive(bool on)
 		phyterr->drop();
 		if (terra_collision)
 			ourphys.push_back(phy_world->addRigidBody(terra_collision));
-		RandomPlaceObjects(9);
+//		RandomPlaceObjects(9);
 		//TODO: check positions of all underground objects and move it above terrain
 		// (for all objects dropped below terrain in physics cell transfers)
 	} else {
@@ -136,16 +136,17 @@ void CGWIC_Cell::DeleteObjects()
 	}
 }
 
-void CGWIC_Cell::RandomPlaceObjects(int count)
+void CGWIC_Cell::RandomPlaceObjects(int count, irr::io::path filename)
 {
 	CGWIC_GameObject* nobj;
 	CPoint2D werhere(posX,posY);
 	vector3df rndpos;
+	//FIXME: check existence of file first!
 	for (int i=0; i<count; i++) {
 		rndpos.X = Random_FLOAT(GWIC_METERS_PER_CELL);
 		rndpos.Z = Random_FLOAT(GWIC_METERS_PER_CELL);
 		rndpos.Y = GetTerrainHeightUnderPointMetric(rndpos) + 1.f;
-		nobj = new CGWIC_GameObject("teapot.3ds",werhere,graphics,physics);
+		nobj = new CGWIC_GameObject(filename,werhere,graphics,physics);
 		objects.push_back(nobj);
 		nobj->SetPos(rndpos);
 		nobj->SetEnabled(true);

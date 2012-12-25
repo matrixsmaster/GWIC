@@ -12,6 +12,7 @@
  */
 
 #include <CPoint2D.h>
+#include <CIrrStrParser.h>
 
 #ifndef GWICTYPES_H_
 #define GWICTYPES_H_

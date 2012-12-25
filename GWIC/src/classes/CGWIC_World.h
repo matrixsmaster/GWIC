@@ -70,6 +70,7 @@ private:
 	irr::scene::IBillboardSceneNode* selpoint_bill;
 	CPoint2D mousepos;
 	float mousewheel;
+	irr::scene::ISceneNode* selected;
 	bool GenerateLand();
 	bool GenerateNPC();
 	IRigidBody* ShootSphere(irr::core::vector3df scale, irr::f32 mass);

@@ -87,14 +87,14 @@ void CGWIC_BodyPart::SetScale(irr::core::vector3df scal, bool childs)
 {
 	this->scale = scal;
 	if (!root) {
-		std::cerr << "Setting scale on object " << name.c_str() << "without the scene node!" << std::endl;
+		std::cerr << "Setting scale on object " << name.c_str() << " without the scene node!" << std::endl;
 		return;
 	}
 	//FIXME: scale the object ;)
-	boundbox bx1 = root->getBoundingBox();
+//	boundbox bx1 = root->getBoundingBox();
 	if (collider) collider->setLocalScaling(scal,ESP_BOTH);
 	else if (root) root->setScale(scal);
-	boundbox bx2 = root->getBoundingBox();
+//	boundbox bx2 = root->getBoundingBox();
 	if (childs) {
 		for (u32 i=1; i<slots.size(); i++)
 			if (slots[i]) slots[i]->SetScale(scal,true);
@@ -237,10 +237,8 @@ bool CGWIC_BodyPart::LoadModelFile(irr::io::path fname)
 	stringw mt_coltri(L"TriMeshShape");
 	stringw mt_colcvx(L"ConvexHull");
 	stringw mt_colgim(L"GImpact");
-	stringw str;
-	vector3df pos;
-	vector3df rot;
 	GWIC_BPSlot cslot;
+	CIrrStrParser strparse;
 	nocollision = true; //in case we can't load or found collision shape model
 	while (mio->read()) {
 		if (mt_model.equals_ignore_case(mio->getNodeName())) {
@@ -254,26 +252,20 @@ bool CGWIC_BodyPart::LoadModelFile(irr::io::path fname)
 				sel->drop();
 			}
 		} else if (mt_inslot.equals_ignore_case(mio->getNodeName())) {
-			str = mio->getAttributeValueSafe(L"position");
-			swscanf(str.c_str(),L"%f %f %f",&pos.X,&pos.Y,&pos.Z);
-			str = mio->getAttributeValueSafe(L"rotation");
-			swscanf(str.c_str(),L"%f %f %f",&rot.X,&rot.Y,&rot.Z);
-			slot_in.posit = pos;
-			slot_in.rotat = rot;
-			str = mio->getAttributeValueSafe(L"axis");
-			swscanf(str.c_str(),L"%f %f %f",&rot.X,&rot.Y,&rot.Z);
-			slot_in.axis = rot;
+			strparse = mio->getAttributeValueSafe(L"position");
+			slot_in.posit = strparse.ToVector3f();
+			strparse = mio->getAttributeValueSafe(L"rotation");
+			slot_in.rotat = strparse.ToVector3f();
+			strparse = mio->getAttributeValueSafe(L"axis");
+			slot_in.axis = strparse.ToVector3f();
 		} else if (mt_outslot.equals_ignore_case(mio->getNodeName())) {
 			cslot.ID = mio->getAttributeValueAsInt(L"ID");
-			str = mio->getAttributeValueSafe(L"position");
-			swscanf(str.c_str(),L"%f %f %f",&pos.X,&pos.Y,&pos.Z);
-			str = mio->getAttributeValueSafe(L"rotation");
-			swscanf(str.c_str(),L"%f %f %f",&rot.X,&rot.Y,&rot.Z);
-			cslot.posit = pos;
-			cslot.rotat = rot;
-			str = mio->getAttributeValueSafe(L"axis");
-			swscanf(str.c_str(),L"%f %f %f",&rot.X,&rot.Y,&rot.Z);
-			cslot.axis = rot;
+			strparse = mio->getAttributeValueSafe(L"position");
+			cslot.posit = strparse.ToVector3f();
+			strparse = mio->getAttributeValueSafe(L"rotation");
+			cslot.rotat = strparse.ToVector3f();
+			strparse = mio->getAttributeValueSafe(L"axis");
+			cslot.axis = strparse.ToVector3f();
 			slot_outs.push_back(cslot);
 		} else if (mt_collision.equals_substring_ignore_case(mio->getNodeName())) {
 			mass = mio->getAttributeValueAsFloat(L"mass");
@@ -346,51 +338,3 @@ GWIC_BPSlot CGWIC_BodyPart::GetSlotByChild(CGWIC_BodyPart* childptr)
 
 }
 
-/*
- * reference code from my test project
-ISceneNode* test = scManager->addSphereSceneNode();
-vector3df vec1(2.f,2.f,2.f);
-vector3df vec2(1.f,4.f,1.f);
-test->setScale(vec1);
-test->setPosition(vector3df(0,50.f,0));
-test->setMaterialTexture(0,irDriver->getTexture("water.jpg"));
-ICollisionShape* shape = new ISphereShape(test,10.f,false);
-IRigidBody* bod1 = phy->addRigidBody(shape);
-test = scManager->addCubeSceneNode();
-test->setScale(vec2);
-test->setPosition(vector3df(20.f,50.f,0));
-test->setMaterialTexture(0,irDriver->getTexture("water.jpg"));
-shape = new IBoxShape(test,10.f,false);
-IRigidBody* bod2 = phy->addRigidBody(shape);
-btTransform frameInA, frameInB;
-frameInA = btTransform::getIdentity();
-frameInA.setOrigin(irrlichtToBulletVector(vec1)); // it's a scale vector!!!!
-frameInB = btTransform::getIdentity();
-frameInB.setOrigin(irrlichtToBulletVector(vec2));
-btRigidBody* bbod1 = bod1->getPointer();
-btRigidBody* bbod2 = bod2->getPointer();
-//btGeneric6DofSpringConstraint* pGen6DOF = new btGeneric6DofSpringConstraint(*bbod1, *bbod2, frameInA, frameInB, true);
-//pGen6DOF->setLinearUpperLimit(btVector3(10,10,10));
-//pGen6DOF->setLinearLowerLimit(btVector3(-10,-10,-10));
-//phy->getPointer()->addConstraint(pGen6DOF, false);
-// hinge
-vec1 = vector3df(0,60,-50);
-vec2 = vector3df(0,50,-50);
-test = scManager->addCubeSceneNode(10);
-test->setPosition(vec1);
-test->setMaterialTexture(0,irDriver->getTexture("purple_grid_256.bmp"));
-shape = new IBoxShape(test,10.f,false);
-btRigidBody* bbod3 = phy->addRigidBody(shape)->getPointer();
-test = scManager->addCubeSceneNode(10);
-test->setPosition(vec2);
-test->setMaterialTexture(0,irDriver->getTexture("purple_grid_256.bmp"));
-shape = new IBoxShape(test,10.f,false);
-btRigidBody* bbod4 = phy->addRigidBody(shape)->getPointer();
-bod2->remove();
-btVector3 mypivotA(irrlichtToBulletVector(vector3df(0,-15,0)));
-btVector3 myaxisA(0,1.0f,0.0f);
-btVector3 mypivotB(irrlichtToBulletVector(vector3df(0,15,0)));
-btVector3 myaxisB(0,0.5f,0.5f);
-btHingeConstraint* sHinge = new btHingeConstraint(*bbod3,*bbod4,mypivotA,mypivotB,myaxisA,myaxisB);
-phy->getPointer()->addConstraint(sHinge,false);
-*/

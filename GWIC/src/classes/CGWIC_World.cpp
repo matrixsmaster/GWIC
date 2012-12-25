@@ -280,7 +280,6 @@ void CGWIC_World::RunWorld()
 	line3d<f32> ray;
 	vector3df rayhit;
 	triangle3df hit_triag;
-	ISceneNode* selected;
 	stringw cmdstr;
 	while (gra_world->run()) {
 		ticker++;
@@ -504,10 +503,25 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 {
 	stringc cons = cmd.c_str();
 	std::cout << "Command processor: cmd: " << cons.c_str() << std::endl;
-	if (cmd == "quit") {
+	if (cmd == L"quit") {
 		quit_msg = true;
-	} else if (cmd == "test") {
-		debugui->LogText("Test Response String");
+	} else if (cmd == L"test") {
+		debugui->LogText(L"Test Response String");
+	} else if (cmd == L"getpos selected") {
+		if (selected) {
+			stringw vs = L"<";
+			vector3df ps = selected->getPosition();
+			vs += ps.X;
+			vs += L"; ";
+			vs += ps.Y;
+			vs += L"; ";
+			vs += ps.Z;
+			vs += ">";
+			debugui->LogText(vs);
+		} else
+			debugui->LogText(L"Nothing selected");
+	} else if (cmd == L"randomplace") {
+		//
 	}
 }
 

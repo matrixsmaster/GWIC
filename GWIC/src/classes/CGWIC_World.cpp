@@ -30,13 +30,19 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 //			//
 //			return false;
 //		}
-		if ((event.MouseInput.isLeftPressed()) && (selected)) {
+		if (selected) {
 			//FIXME: this is just a test
 			vector3df rl = selected->GetPos() * GWIC_IRRUNITS_PER_METER;
-			rl.X += event.MouseInput.X - mousepos.X;
-			rl.Z += event.MouseInput.Y - mousepos.Y;
-			rl /= GWIC_IRRUNITS_PER_METER;
-			selected->SetPos(rl);
+			if (event.MouseInput.isLeftPressed()) {
+				rl.X += event.MouseInput.X - mousepos.X;
+				rl.Z += event.MouseInput.Y - mousepos.Y;
+				rl /= GWIC_IRRUNITS_PER_METER;
+				selected->SetPos(rl);
+			} else if (event.MouseInput.isRightPressed()) {
+				rl.Y -= event.MouseInput.Y - mousepos.Y;
+				rl /= GWIC_IRRUNITS_PER_METER;
+				selected->SetPos(rl);
+			}
 		}
 		mousepos.X = event.MouseInput.X;
 		mousepos.Y = event.MouseInput.Y;

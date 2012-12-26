@@ -69,6 +69,8 @@ bool CGWIC_GameObject::SetPos(irr::core::vector3df rel_pos)
 			btVector3 btv = irrlichtToBulletVector(root->getPosition()-oldpos);
 			btt.setOrigin(btt.getOrigin() + btv);
 			bodies[i]->getPointer()->setCenterOfMassTransform(btt);
+			if (bodies[i]->getActivationState() == EAS_SLEEPING)
+				bodies[i]->setActivationState(EAS_ACTIVE);
 		}
 	}
 	return true;

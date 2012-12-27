@@ -71,6 +71,7 @@ private:
 	CPoint2D mousepos;
 	float mousewheel;
 	bool mousepressed;
+//	int mousebutton;
 	irr::scene::ISceneNode* highlited;
 	CGWIC_GameObject* selected;
 	CGWIC_Bot* select_actor;
@@ -86,6 +87,7 @@ private:
 	void ShowGUI(bool show);
 	void ActivateCell(int x, int y);
 	float GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt);
+	bool SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height);
 	void ProcessEvents();
 	void ProcessSelection();
 	void ProcessActors();

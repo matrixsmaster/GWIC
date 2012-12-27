@@ -323,6 +323,26 @@ float CGWIC_Cell::GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt)
 	return res;
 }
 
+bool CGWIC_Cell::SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height)
+{
+	u32 x = ceil(pnt.X);
+	u32 z = ceil(pnt.Z);
+	if (x > 255) x = 255;
+	if (z > 255) z = 255;
+	u32 index = x * 256 + z;
+	IMesh* pMesh = terrain->getMesh();
+	const float scy = terrain->getScale().Y;
+	//FIXME: get the true position in meters
+	for (u32 n=0; n<pMesh->getMeshBufferCount(); n++) {
+		IMeshBuffer* pMeshBuffer = pMesh->getMeshBuffer(n);
+		if (pMeshBuffer->getVertexType() != EVT_2TCOORDS) continue;
+		S3DVertex2TCoords* pVertices = (S3DVertex2TCoords*)pMeshBuffer->getVertices();
+		pVertices[index].Pos.Y = height * scy;
+	}
+	TerrainChanged();
+	return true;
+}
+
 CGWIC_GameObject* CGWIC_Cell::GetObjectByIrrPtr(irr::scene::ISceneNode* ptr)
 {
 	for (u32 i=0; i<objects.size(); i++)
@@ -333,6 +353,7 @@ CGWIC_GameObject* CGWIC_Cell::GetObjectByIrrPtr(irr::scene::ISceneNode* ptr)
 void CGWIC_Cell::TerrainChanged()
 {
 	//TODO: regenerate terrain mesh
+	terrain->setPosition(terrain->getPosition());
 	terra_changed = true;
 }
 

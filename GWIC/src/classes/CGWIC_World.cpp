@@ -532,12 +532,30 @@ float CGWIC_World::GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt)
 	return 0;
 }
 
+bool CGWIC_World::SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height)
+{
+	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
+	s32 cx = static_cast<s32> (pnt.X/dim);
+	s32 cy = static_cast<s32> (pnt.Z/dim);
+	CGWIC_Cell* cellptr = GetCell(cx,cy);
+	if (cellptr) {
+		pnt /= GWIC_IRRUNITS_PER_METER;
+		pnt.X -= GWIC_METERS_PER_CELL * cx;
+		pnt.Z -= GWIC_METERS_PER_CELL * cy;
+		return (cellptr->SetTerrainHeightUnderPointMetric(pnt,height));
+	} else
+		return false;
+}
+
 void CGWIC_World::ProcessEvents()
 {
 //	std::cout << "a=" << a << std::endl;
 	if ((main_cam) && (terrain_magnet)) {
-		// testing terrain magnet mode
-		//
+		//testing terrain magnet mode
+		vector3df camvec = main_cam->getAbsolutePosition();
+		float h = GetTerrainHeightUnderPointMetric(camvec);
+		h = camvec.Y / GWIC_IRRUNITS_PER_METER;
+		std::cout << SetTerrainHeightUnderPointMetric(camvec,h) << std::endl;
 	}
 }
 

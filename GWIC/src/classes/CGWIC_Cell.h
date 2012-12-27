@@ -61,6 +61,7 @@ public:
 	//bool RemoveObjectByPtr
 	float GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt);
 	//float GetTerrainHeightUnderPointAbsolute(irr::core::vector3df pnt);
+	bool SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height);
 	CGWIC_GameObject* GetObjectByIrrPtr(irr::scene::ISceneNode* ptr);
 	void TerrainChanged();
 protected:

@@ -546,6 +546,7 @@ void CGWIC_World::ProcessSelection()
 			if (!selected) {
 				//maybe this is an actor or part?
 				u32 i,j;
+				CGWIC_BodyPart* cptr;
 				for (i=0; i<actors.size(); i++) {
 					j = actors[i]->IsThisNodeIsMine(highlited);
 					if (j) {
@@ -553,8 +554,11 @@ void CGWIC_World::ProcessSelection()
 						stringc nm = select_actor->GetName();
 						std::cout << "Actor selected: " << nm.c_str() << std::endl;
 						if (j > 1) {
-							//TODO: get the right BP
-							select_actor_part = actors[i]->GetHead();
+							select_actor_part = select_actor->GetHead()->GetBPbyNode(highlited);
+							if (select_actor_part) {
+								std::cout << nm.c_str() << "'s BP selected: " << select_actor_part->GetName().c_str();
+								std::cout << std::endl;
+							}
 						}
 						break;
 					}

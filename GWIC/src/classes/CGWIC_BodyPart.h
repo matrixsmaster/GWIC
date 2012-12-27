@@ -48,21 +48,23 @@ public:
 	CGWIC_BodyPart(irr::io::path modelfile, irr::scene::ISceneNode* parentn, irr::IrrlichtDevice* dev, irrBulletWorld* phy);
 	virtual ~CGWIC_BodyPart();
 	void SetName(irr::core::stringc nwname);
+	irr::core::stringc GetName() { return this->name; }
 	bool Connect(CGWIC_BodyPart* part, int slotnum);
 	CGWIC_BodyPart* GetNodeByName(irr::core::stringc nam);
 	void SetScale(irr::core::vector3df scal, bool childs);
-	irr::scene::ISceneNode* GetRootSceneNode();
+	irr::scene::ISceneNode* GetRootSceneNode() { return this->root; }
 	irr::core::vector3df GetMaxExtent();
 	void SetActive(bool activate, bool chain);
-	bool GetActive();
+	bool GetActive() { return this->active; }
 	void RebuildPhysics(bool chain);
 	void UpdatePosition();
 	void Move(irr::core::vector3df vec);
 	irr::core::vector3df GetPos();
-	IRigidBody* GetRigidBodyPtr();
+	IRigidBody* GetRigidBodyPtr() { return this->colbody; }
 	GWIC_BPSlot GetSlotByID(int sid);
 	GWIC_BPSlot GetSlotByChild(CGWIC_BodyPart* childptr);
 	irr::s32 RecursiveSearchForNode(irr::scene::ISceneNode* nodeptr);
+	CGWIC_BodyPart* GetBPbyNode(irr::scene::ISceneNode* nodeptr);
 protected:
 	bool success;
 	bool active;

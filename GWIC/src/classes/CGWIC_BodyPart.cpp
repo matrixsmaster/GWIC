@@ -101,11 +101,6 @@ void CGWIC_BodyPart::SetScale(irr::core::vector3df scal, bool childs)
 	}
 }
 
-irr::scene::ISceneNode* CGWIC_BodyPart::GetRootSceneNode()
-{
-	return this->root;
-}
-
 irr::core::vector3df CGWIC_BodyPart::GetMaxExtent()
 {
 	if (!root) return (vector3df(0));
@@ -160,11 +155,6 @@ void CGWIC_BodyPart::SetActive(bool activate, bool chain)
 			if (slots[i]) slots[i]->SetActive(activate,true);
 	}
 	active = activate;
-}
-
-bool CGWIC_BodyPart::GetActive()
-{
-	return this->active;
 }
 
 void CGWIC_BodyPart::RebuildPhysics(bool chain)
@@ -301,11 +291,6 @@ void CGWIC_BodyPart::SlotsGrow(irr::u32 newsize)
 	while (slots.size() < newsize) slots.push_back(NULL);
 }
 
-IRigidBody* CGWIC_BodyPart::GetRigidBodyPtr()
-{
-	return this->colbody;
-}
-
 GWIC_BPSlot CGWIC_BodyPart::GetSlotByID(int sid)
 {
 	GWIC_BPSlot out;
@@ -346,6 +331,18 @@ irr::s32 CGWIC_BodyPart::RecursiveSearchForNode(irr::scene::ISceneNode* nodeptr)
 		}
 	}
 	return 0;
+}
+
+CGWIC_BodyPart* CGWIC_BodyPart::GetBPbyNode(irr::scene::ISceneNode* nodeptr)
+{
+	if (nodeptr == root) return this;
+	CGWIC_BodyPart* ptr;
+	for (u32 i=1; i<slots.size(); i++)
+		if (slots[i]) {
+			ptr = slots[i]->GetBPbyNode(nodeptr);
+			if (ptr) return ptr;
+		}
+	return NULL;
 }
 
 

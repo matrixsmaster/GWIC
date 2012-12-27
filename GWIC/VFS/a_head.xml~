@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<model file="a22head.3DS" />
-<collision type="StandardSphere" file="" mass="2.0" />
-<outslot ID="1" position="-0.022 0.586 -3.57" rotation="0 0 0" axis="0 1 0" />
-

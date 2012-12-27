@@ -90,7 +90,6 @@ void CGWIC_Cell::SetActive(bool on)
 	std::cout << " : " << posY;
 	std::cout << " -> " << on << std::endl;
 	if (on) {
-		//FIXME: fuckin' terrain triangle selector won't work!
 		vector3df ps = getIrrlichtCenter();
 		ps.Y = 100 * GWIC_IRRUNITS_PER_METER;
 		ournodes.push_back(scManager->addLightSceneNode(NULL,ps,SColorf(1.f,1.f,1.f),1600,1));
@@ -102,9 +101,6 @@ void CGWIC_Cell::SetActive(bool on)
 		phyterr->drop();
 		if (terra_collision)
 			ourphys.push_back(phy_world->addRigidBody(terra_collision));
-//		RandomPlaceObjects(9);
-		//TODO: check positions of all underground objects and move it above terrain
-		// (for all objects dropped below terrain in physics cell transfers)
 	} else {
 		while (ourphys.size() > 0) {
 			phy_world->removeCollisionObject(ourphys.back(),true);
@@ -142,22 +138,17 @@ bool CGWIC_Cell::InitLand()
 	if (!terrain) {
 		std::cerr << "Terrain for cell " << posX << ';' << pos.Y << " not found!";
 		std::cerr << "Using default terrain mesh." << std::endl;
-	}
-	flnm = "default_terrain.bmp";
-	terrain = scManager->addTerrainSceneNode(flnm,NULL,GWIC_PICKABLE_MASK,pos,vector3df(0),csize,vcolor,maxLOD,maxPATCH,terraSmooth);
-	if (!terrain) {
-		std::cerr << "Unable to create terrain for cell " << posX << ';' << posY << std::endl;
-		return false;
+		flnm = "default_terrain.bmp";
+		terrain = scManager->addTerrainSceneNode(flnm,NULL,GWIC_PICKABLE_MASK,pos,vector3df(0),csize,vcolor,maxLOD,maxPATCH,terraSmooth);
+		if (!terrain) {
+			std::cerr << "Unable to create terrain for cell " << posX << ';' << posY << std::endl;
+			return false;
+		}
 	}
 	terrain->setMaterialFlag(EMF_LIGHTING,true);
 	terrain->setMaterialType(EMT_SOLID);
 	terrain->setMaterialTexture(0,irDriver->getTexture("synthgrass.jpg"));
 	terrain->scaleTexture(16.f,16.f);
-	//FIXME: if this code uncommented, selector works for the first terrain node created
-	/*
-	ITriangleSelector* sel = scManager->createTerrainTriangleSelector(terrain,0);
-	terrain->setTriangleSelector(sel);
-	sel->drop();*/
 	return true;
 }
 
@@ -188,10 +179,6 @@ void CGWIC_Cell::RandomPlaceObjects(int count, irr::io::path filename)
 		nobj->SetPos(rndpos);
 		nobj->SetEnabled(true);
 		nobj->SetPhysical(true);
-//		nobj->SetScale(vector3df(100));
-//		nobj->SetPhysical(false);
-//		nobj->SetPos(rndpos+vector3df(0,70,0));
-//		nobj->SetPhysical(true);
 	}
 }
 
@@ -315,7 +302,7 @@ float CGWIC_Cell::GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt)
 		if (pMeshBuffer->getVertexType() != EVT_2TCOORDS) continue;
 		S3DVertex2TCoords* pVertices = (S3DVertex2TCoords*)pMeshBuffer->getVertices();
 		res = pVertices[index].Pos.Y / scy;
-//		res += terrain->getPosition().Y;
+//		res += terrain->getPosition().Y / GWIC_IRRUNITS_PER_METER;
 //		std::cerr << "POSIT  " << res << std::endl;
 //		for (u32 k=0; k<(256*256); k++) if (pVertices[k].Pos.Y > max) max = pVertices[k].Pos.Y;
 //		std::cerr << "MAXX  " << max << std::endl;
@@ -332,7 +319,7 @@ bool CGWIC_Cell::SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, floa
 	u32 index = x * 256 + z;
 	IMesh* pMesh = terrain->getMesh();
 	const float scy = terrain->getScale().Y;
-	//FIXME: get the true position in meters
+	//FIXME: get the true position in meters and set it correctly!
 	for (u32 n=0; n<pMesh->getMeshBufferCount(); n++) {
 		IMeshBuffer* pMeshBuffer = pMesh->getMeshBuffer(n);
 		if (pMeshBuffer->getVertexType() != EVT_2TCOORDS) continue;
@@ -352,9 +339,10 @@ CGWIC_GameObject* CGWIC_Cell::GetObjectByIrrPtr(irr::scene::ISceneNode* ptr)
 
 void CGWIC_Cell::TerrainChanged()
 {
-	//TODO: regenerate terrain mesh
 	terrain->setPosition(terrain->getPosition());
-	terra_changed = true;
+	//I've decided to not regenerate physics every time vertices moving. It's too hard for CPU :)
+	//uncomment to save the map
+//	terra_changed = true;
 }
 
 

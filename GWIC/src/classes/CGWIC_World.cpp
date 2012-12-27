@@ -107,6 +107,8 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 				debugui->LogText(L"Terrain magnet activated!");
 				std::cout << "Terrain magnet activated!" << std::endl;
 			}
+			//FIXME: Reload (deactivate and then activate) cell after magnet changes
+			return true;
 		}
 		break;
 	case EET_GUI_EVENT:
@@ -554,7 +556,7 @@ void CGWIC_World::ProcessEvents()
 		//testing terrain magnet mode
 		vector3df camvec = main_cam->getAbsolutePosition();
 		float h = GetTerrainHeightUnderPointMetric(camvec);
-		h = camvec.Y / GWIC_IRRUNITS_PER_METER;
+		h = camvec.Y / GWIC_IRRUNITS_PER_METER + GWIC_IRRUNITS_PER_METER;
 		std::cout << SetTerrainHeightUnderPointMetric(camvec,h) << std::endl;
 	}
 }

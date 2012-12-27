@@ -34,7 +34,16 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 		mousepressed = event.MouseInput.isLeftPressed() || event.MouseInput.isRightPressed() || event.MouseInput.isMiddlePressed();
 		//FIXME: this is just a test. We need apply a force with a vector drawed by mouse instead of direct movement
 		if (select_actor_part && mousepressed) {
-			//
+			if (event.MouseInput.isLeftPressed()) {
+				rl.X = event.MouseInput.X - mousepos.X;
+				rl.Y = 0;
+				rl.Z = event.MouseInput.Y - mousepos.Y;
+			} else if (event.MouseInput.isRightPressed()) {
+				rl.X = 0;
+				rl.Y = mousepos.Y - event.MouseInput.Y;
+				rl.Z = 0;
+			}
+			select_actor_part->Move(rl/GWIC_IRRUNITS_PER_METER);
 		} else if ((selected || select_actor) && mousepressed) {
 			if (select_actor)
 				rl = select_actor->GetPos();
@@ -52,6 +61,7 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 				select_actor->SetPos(rl);
 			else
 				selected->SetPos(rl);
+			std::cout << rl.X << "; " << rl.Y << "; " << rl.Z << std::endl;
 		}
 		mousepos.X = event.MouseInput.X;
 		mousepos.Y = event.MouseInput.Y;

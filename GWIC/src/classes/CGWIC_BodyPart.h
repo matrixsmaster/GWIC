@@ -65,6 +65,7 @@ public:
 	GWIC_BPSlot GetSlotByChild(CGWIC_BodyPart* childptr);
 	irr::s32 RecursiveSearchForNode(irr::scene::ISceneNode* nodeptr);
 	CGWIC_BodyPart* GetBPbyNode(irr::scene::ISceneNode* nodeptr);
+	irr::core::vector3df GetRealPosition();
 protected:
 	bool success;
 	bool active;

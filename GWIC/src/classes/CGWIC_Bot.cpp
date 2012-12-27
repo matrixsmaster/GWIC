@@ -105,7 +105,10 @@ bool CGWIC_Bot::SetPos(irr::core::vector3df rel_pos)
 		if (botShell->getActivationState() == EAS_SLEEPING)
 			botShell->setActivationState(EAS_ACTIVE);
 	}
-	if (head) head->Move(getAbsPosition());
+	if (head) {
+		rel_pos = getAbsPosition() - head->GetRealPosition();
+		head->Move(rel_pos);
+	}
 	return true;
 }
 

@@ -345,6 +345,13 @@ CGWIC_BodyPart* CGWIC_BodyPart::GetBPbyNode(irr::scene::ISceneNode* nodeptr)
 	return NULL;
 }
 
+irr::core::vector3df CGWIC_BodyPart::GetRealPosition()
+{
+	vector3df out(0);
+	if (root) out = root->getPosition();
+	return out;
+}
+
 
 }
 

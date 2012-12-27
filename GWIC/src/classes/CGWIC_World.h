@@ -87,6 +87,7 @@ private:
 	float GetTerrainHeightUnderPointAbs(irr::core::vector3df pnt);
 	void ProcessEvents();
 	void ProcessSelection();
+	void ProcessActors();
 	void ZeroSelect();
 	void CommandProcessor(irr::core::stringw cmd);
 	void CmdGetPos(CIrrStrParser parse);

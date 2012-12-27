@@ -62,6 +62,7 @@ public:
 	float GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt);
 	//float GetTerrainHeightUnderPointAbsolute(irr::core::vector3df pnt);
 	CGWIC_GameObject* GetObjectByIrrPtr(irr::scene::ISceneNode* ptr);
+	void TerrainChanged();
 protected:
 	int posX;
 	int posY;
@@ -73,6 +74,7 @@ protected:
 	irr::scene::E_TERRAIN_PATCH_SIZE maxPATCH;
 	irr::s32 terraSmooth;
 	bool active;
+	bool terra_changed;
 	irr::scene::ITerrainSceneNode* terrain;
 	std::vector<irr::scene::ISceneNode*> ournodes;
 	std::vector<IRigidBody*> ourphys;

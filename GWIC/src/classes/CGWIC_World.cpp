@@ -21,6 +21,7 @@ namespace gwic {
 bool CGWIC_World::OnEvent(const irr::SEvent& event)
 {
 	if (!gra_world) return false;
+	vector3df rl;
 	switch(event.EventType) {
 	case EET_MOUSE_INPUT_EVENT:
 //		if (event.MouseInput.Event==EMIE_LMOUSE_PRESSED_DOWN) {
@@ -31,9 +32,15 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 //			return false;
 //		}
 		mousepressed = event.MouseInput.isLeftPressed() || event.MouseInput.isRightPressed() || event.MouseInput.isMiddlePressed();
-		if (selected && mousepressed) {
-			//FIXME: this is just a test
-			vector3df rl = selected->GetPos() * GWIC_IRRUNITS_PER_METER;
+		//FIXME: this is just a test. We need apply a force with a vector drawed by mouse instead of direct movement
+		if (select_actor_part && mousepressed) {
+			//
+		} else if ((selected || select_actor) && mousepressed) {
+			if (select_actor)
+				rl = select_actor->GetPos();
+			else
+				rl = selected->GetPos();
+			rl *= GWIC_IRRUNITS_PER_METER;
 			if (event.MouseInput.isLeftPressed()) {
 				rl.X += event.MouseInput.X - mousepos.X;
 				rl.Z += event.MouseInput.Y - mousepos.Y;
@@ -41,12 +48,16 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 				rl.Y -= event.MouseInput.Y - mousepos.Y;
 			}
 			rl /= GWIC_IRRUNITS_PER_METER;
-			selected->SetPos(rl);
+			if (select_actor)
+				select_actor->SetPos(rl);
+			else
+				selected->SetPos(rl);
 		}
 		mousepos.X = event.MouseInput.X;
 		mousepos.Y = event.MouseInput.Y;
 		mousewheel = event.MouseInput.Wheel;
-		if (selected && mousepressed) return true; //absorb event if selection is active
+		//absorb event if selection is active
+		if (mousepressed && (selected || select_actor || select_actor_part)) return true;
 		break;
 	case EET_KEY_INPUT_EVENT:
 		//FIXME: more robust and nice looking processing needed!!
@@ -327,12 +338,14 @@ void CGWIC_World::RunWorld()
 			debugui->UpdateFPS(cFPS);
 		}
 
+		ProcessActors(); //FIXME: separate thread
+
 		//FIXME: need more robust update scheduling (on time, and in separate thread)
 		if (ticker > 25) {
 			ticker = 0;
 			for (u32 i=0; i<cells.size(); i++)
 				cells[i]->Update();
-			CellTransfers(); //FIXME: separate thread! (sync to cell updates certainly)
+			CellTransfers();
 		}
 		//process commands (if runworld() gets threaded, this need to be sync to graphic and physics)
 		if (ticker%2) {
@@ -517,7 +530,6 @@ void CGWIC_World::ProcessSelection()
 	triangle3df hit_triag;
 	CGWIC_Cell* cellptr;
 	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
-	u32 i;
 	highlited = NULL;
 	if (fps_cam) {
 		ray.start = main_cam->getPosition();
@@ -533,11 +545,17 @@ void CGWIC_World::ProcessSelection()
 			selected = cellptr->GetObjectByIrrPtr(highlited);
 			if (!selected) {
 				//maybe this is an actor or part?
+				u32 i,j;
 				for (i=0; i<actors.size(); i++) {
-					if (actors[i]->IsThisNodeIsMine(highlited)) {
+					j = actors[i]->IsThisNodeIsMine(highlited);
+					if (j) {
 						select_actor = actors[i];
 						stringc nm = select_actor->GetName();
 						std::cout << "Actor selected: " << nm.c_str() << std::endl;
+						if (j > 1) {
+							//TODO: get the right BP
+							select_actor_part = actors[i]->GetHead();
+						}
 						break;
 					}
 				}
@@ -545,6 +563,12 @@ void CGWIC_World::ProcessSelection()
 		}
 		if (selpoint_bill) selpoint_bill->setPosition(rayhit);
 	}
+}
+
+void CGWIC_World::ProcessActors()
+{
+	//TODO: fix actors falled through terrain
+	//TODO: process brains
 }
 
 void CGWIC_World::ZeroSelect()

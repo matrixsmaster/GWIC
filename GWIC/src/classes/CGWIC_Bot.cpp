@@ -102,6 +102,8 @@ bool CGWIC_Bot::SetPos(irr::core::vector3df rel_pos)
 		btTransform btt = botShell->getPointer()->getCenterOfMassTransform();
 		btt.setOrigin(irrlichtToBulletVector(getAbsPosition()));
 		botShell->getPointer()->setCenterOfMassTransform(btt);
+		if (botShell->getActivationState() == EAS_SLEEPING)
+			botShell->setActivationState(EAS_ACTIVE);
 	}
 	if (head) head->Move(getAbsPosition());
 	return true;
@@ -118,11 +120,6 @@ bool CGWIC_Bot::SetCell(CPoint2D ncl)
 {
 	//
 	return true;
-}
-
-CPoint2D CGWIC_Bot::GetCell()
-{
-	return this->mycell;
 }
 
 irr::core::vector3df CGWIC_Bot::getAbsPosition()
@@ -237,11 +234,6 @@ irr::s32 CGWIC_Bot::IsThisNodeIsMine(irr::scene::ISceneNode* node)
 	if (botRoot == node) return 1;
 	if (head) return (head->RecursiveSearchForNode(node));
 	return 0;
-}
-
-irr::core::stringw CGWIC_Bot::GetName()
-{
-	return this->myname;
 }
 
 

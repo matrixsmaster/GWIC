@@ -61,7 +61,7 @@ public:
 	bool SetPos(irr::core::vector3df rel_pos);
 	irr::core::vector3df GetPos();
 	bool SetCell(CPoint2D ncl);
-	CPoint2D GetCell();
+	CPoint2D GetCell() { return this->mycell; }
 	irr::core::vector3df getAbsPosition();
 	//irr::core::vector3df getAbsPosition(irr::core::vector3df rel_pos);
 	bool SetRot(irr::core::vector3df rot);
@@ -73,7 +73,8 @@ public:
 	void AutoSize();
 	irr::core::stringc GetTypeAsString();
 	irr::s32 IsThisNodeIsMine(irr::scene::ISceneNode* node);
-	irr::core::stringw GetName();
+	irr::core::stringw GetName() { return this->myname; }
+	CGWIC_Head* GetHead() { return this->head; }
 protected:
 	bool initDone;
 	int ID;

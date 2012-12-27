@@ -32,6 +32,7 @@ CGWIC_Cell::CGWIC_Cell(CPoint2D pos, irr::IrrlichtDevice* dev, irrBulletWorld* p
 	active = false;
 	terrain = NULL;
 	terra_collision = NULL;
+	terra_changed = false;
 	//TODO: next inits must be get thru parametric init
 	maxLOD = 5;
 	maxPATCH = ETPS_17;
@@ -46,6 +47,9 @@ CGWIC_Cell::~CGWIC_Cell()
 {
 	std::cout << "Destroying cell [" << posX;
 	std::cout << ";" << posY << "] ..." << std::endl;
+	if (terra_changed) {
+		//TODO: save the terrain
+	}
 	if (terra_collision) delete terra_collision;
 	SetActive(false);
 	if (terrain) terrain->remove();
@@ -108,10 +112,22 @@ bool CGWIC_Cell::InitLand()
 	vector3df pos(posX*dim,waterLevel,posY*dim);
 	vector3df csize(GWIC_IRRUNITS_PER_METER,maxHeight,GWIC_IRRUNITS_PER_METER);
 	SColor vcolor(255,255,255,255);
-	//TODO: generate filename based on cell position
-	stringw flnm = "terrain0.bmp";
+	path flnm = "cell";
+	flnm += posX;
+	flnm += '-';
+	flnm += posY;
+	flnm += ".bmp";
 	terrain = scManager->addTerrainSceneNode(flnm,NULL,GWIC_PICKABLE_MASK,pos,vector3df(0),csize,vcolor,maxLOD,maxPATCH,terraSmooth);
-	if (!terrain) return false;
+	if (!terrain) {
+		std::cerr << "Terrain for cell " << posX << ';' << pos.Y << " not found!";
+		std::cerr << "Using default terrain mesh." << std::endl;
+	}
+	flnm = "default_terrain.bmp";
+	terrain = scManager->addTerrainSceneNode(flnm,NULL,GWIC_PICKABLE_MASK,pos,vector3df(0),csize,vcolor,maxLOD,maxPATCH,terraSmooth);
+	if (!terrain) {
+		std::cerr << "Unable to create terrain for cell " << posX << ';' << posY << std::endl;
+		return false;
+	}
 	terrain->setMaterialFlag(EMF_LIGHTING,true);
 	terrain->setMaterialType(EMT_SOLID);
 	terrain->setMaterialTexture(0,irDriver->getTexture("synthgrass.jpg"));
@@ -232,6 +248,8 @@ void CGWIC_Cell::Update()
 			objects.erase(objects.begin()+i);
 		}
 	}
+	//TODO: fix the objects falled through terrain
+	//TODO: process object's CPUs
 }
 
 CGWIC_GameObject* CGWIC_Cell::PopTransferObject()
@@ -289,6 +307,12 @@ CGWIC_GameObject* CGWIC_Cell::GetObjectByIrrPtr(irr::scene::ISceneNode* ptr)
 	for (u32 i=0; i<objects.size(); i++)
 		if (objects[i]->GetRootNode() == ptr) return (objects[i]);
 	return NULL;
+}
+
+void CGWIC_Cell::TerrainChanged()
+{
+	//TODO: regenerate terrain mesh
+	terra_changed = true;
 }
 
 

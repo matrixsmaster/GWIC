@@ -75,6 +75,7 @@ private:
 	CGWIC_GameObject* selected;
 	CGWIC_Bot* select_actor;
 	CGWIC_BodyPart* select_actor_part;
+	bool terrain_magnet;
 	bool GenerateLand();
 	bool GenerateNPC();
 	IRigidBody* ShootSphere(irr::core::vector3df scale, irr::f32 mass);
@@ -84,7 +85,7 @@ private:
 	void GoEditMode();
 	void ShowGUI(bool show);
 	void ActivateCell(int x, int y);
-	float GetTerrainHeightUnderPointAbs(irr::core::vector3df pnt);
+	float GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt);
 	void ProcessEvents();
 	void ProcessSelection();
 	void ProcessActors();

@@ -101,6 +101,13 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 			else debugui->LogText(L"Physics resumed");
 			return true;
 		}
+		if (event.KeyInput.Key == KEY_F8 && event.KeyInput.PressedDown == false) {
+			terrain_magnet ^= true;
+			if (terrain_magnet) {
+				debugui->LogText(L"Terrain magnet activated!");
+				std::cout << "Terrain magnet activated!" << std::endl;
+			}
+		}
 		break;
 	case EET_GUI_EVENT:
 		if (debugui) debugui->PumpMessage(event);
@@ -124,6 +131,7 @@ CGWIC_World::CGWIC_World(WorldProperties* props, cOAL_Device* sndDevice)
 	selpoint_bill = NULL;
 	debugui = NULL;
 	highlited = NULL;
+	terrain_magnet = false;
 
 	std::cout << "Creating Irrlicht device..." << std::endl;
 	gra_world = createDevice(props->videoDriver,dimension2d<u32>(props->gWidth,props->gHeight),
@@ -318,7 +326,7 @@ void CGWIC_World::RunWorld()
 			gra_world->yield();
 			continue;
 		}
-		ProcessEvents();
+		if (ticker%5) ProcessEvents();
 		DeltaTime = timer->getTime() - TimeStamp;
 		TimeStamp = timer->getTime();
 		driver->beginScene(true,true,GWIC_VOID_COLOR);
@@ -508,7 +516,7 @@ void CGWIC_World::ActivateCell(int x, int y)
 	center_cell.Y = y;
 }
 
-float CGWIC_World::GetTerrainHeightUnderPointAbs(irr::core::vector3df pnt)
+float CGWIC_World::GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt)
 {
 	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
 	s32 cx = static_cast<s32> (pnt.X/dim);
@@ -526,10 +534,11 @@ float CGWIC_World::GetTerrainHeightUnderPointAbs(irr::core::vector3df pnt)
 
 void CGWIC_World::ProcessEvents()
 {
-	//TODO: are we really wanna it? :)
-	float a;
-	if (main_cam) a = GetTerrainHeightUnderPointAbs(main_cam->getPosition());
 //	std::cout << "a=" << a << std::endl;
+	if ((main_cam) && (terrain_magnet)) {
+		// testing terrain magnet mode
+		//
+	}
 }
 
 void CGWIC_World::ProcessSelection()
@@ -556,7 +565,6 @@ void CGWIC_World::ProcessSelection()
 			if (!selected) {
 				//maybe this is an actor or part?
 				u32 i,j;
-				CGWIC_BodyPart* cptr;
 				for (i=0; i<actors.size(); i++) {
 					j = actors[i]->IsThisNodeIsMine(highlited);
 					if (j) {

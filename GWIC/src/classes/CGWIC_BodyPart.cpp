@@ -198,6 +198,8 @@ void CGWIC_BodyPart::UpdatePosition()
 	btTransform btt = colbody->getPointer()->getCenterOfMassTransform();
 	btt.setOrigin(irrlichtToBulletVector(root->getPosition()));
 	colbody->getPointer()->setCenterOfMassTransform(btt);
+	if (colbody->getActivationState() == EAS_SLEEPING)
+		colbody->setActivationState(EAS_ACTIVE);
 }
 
 void CGWIC_BodyPart::Move(irr::core::vector3df vec)

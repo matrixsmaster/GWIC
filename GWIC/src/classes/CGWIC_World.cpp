@@ -30,24 +30,23 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 //			//
 //			return false;
 //		}
-		if (selected) {
+		mousepressed = event.MouseInput.isLeftPressed() || event.MouseInput.isRightPressed() || event.MouseInput.isMiddlePressed();
+		if (selected && mousepressed) {
 			//FIXME: this is just a test
 			vector3df rl = selected->GetPos() * GWIC_IRRUNITS_PER_METER;
 			if (event.MouseInput.isLeftPressed()) {
 				rl.X += event.MouseInput.X - mousepos.X;
 				rl.Z += event.MouseInput.Y - mousepos.Y;
-				rl /= GWIC_IRRUNITS_PER_METER;
-				selected->SetPos(rl);
 			} else if (event.MouseInput.isRightPressed()) {
 				rl.Y -= event.MouseInput.Y - mousepos.Y;
-				rl /= GWIC_IRRUNITS_PER_METER;
-				selected->SetPos(rl);
 			}
+			rl /= GWIC_IRRUNITS_PER_METER;
+			selected->SetPos(rl);
 		}
 		mousepos.X = event.MouseInput.X;
 		mousepos.Y = event.MouseInput.Y;
 		mousewheel = event.MouseInput.Wheel;
-		if (selected) return true; //absorb event if selection is active
+		if (selected && mousepressed) return true; //absorb event if selection is active
 		break;
 	case EET_KEY_INPUT_EVENT:
 		//FIXME: more robust and nice looking processing needed!!
@@ -82,13 +81,12 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 			return true;
 		}
 		break;
-	default: break;
-	}
-	//pump messages
-	if (event.EventType == EET_GUI_EVENT) {
+	case EET_GUI_EVENT:
 		if (debugui) debugui->PumpMessage(event);
 		for (u32 i=0; i<uis.size(); i++)
 			uis[i]->PumpMessage(event);
+		break;
+	default: break;
 	}
 	return false;
 }
@@ -526,9 +524,9 @@ void CGWIC_World::ProcessSelection()
 		ray.end = ray.start + (main_cam->getTarget() - ray.start).normalize() * main_cam->getFarValue();
 	} else
 		ray = pmgr->getRayFromScreenCoordinates(vector2di(mousepos.X,mousepos.Y),main_cam);
-	ZeroSelect();
+	if (!mousepressed) ZeroSelect();
 	highlited = pmgr->getSceneNodeAndCollisionPointFromRay(ray,rayhit,hit_triag,GWIC_PICKABLE_MASK,0);
-	if ((highlited) && (!fps_cam)) {
+	if ((highlited) && (!fps_cam) && (mousepressed)) {
 		cellptr = GetCell((rayhit.X/dim),(rayhit.Z/dim));
 		if (cellptr) {
 			//is this an object in cell?

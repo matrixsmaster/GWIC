@@ -70,6 +70,7 @@ private:
 	irr::scene::IBillboardSceneNode* selpoint_bill;
 	CPoint2D mousepos;
 	float mousewheel;
+	bool mousepressed;
 	irr::scene::ISceneNode* highlited;
 	CGWIC_GameObject* selected;
 	CGWIC_Bot* select_actor;

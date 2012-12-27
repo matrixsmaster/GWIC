@@ -557,7 +557,7 @@ void CGWIC_World::ProcessEvents()
 		vector3df camvec = main_cam->getAbsolutePosition();
 		float h = GetTerrainHeightUnderPointMetric(camvec);
 		h = camvec.Y / GWIC_IRRUNITS_PER_METER + GWIC_IRRUNITS_PER_METER;
-		std::cout << SetTerrainHeightUnderPointMetric(camvec,h) << std::endl;
+		SetTerrainHeightUnderPointMetric(camvec,h);
 	}
 }
 

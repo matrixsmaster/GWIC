@@ -63,6 +63,8 @@ struct WorldProperties {
 	int wrldSizeY;
 	int startX;
 	int startY;
+	float minLevel;
+	float waterLevel;
 	bool debugdraw;
 	float Gforce;
 	float viewDistance;

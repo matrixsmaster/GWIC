@@ -51,6 +51,8 @@ void param_default(void)
 	wrldSettings.wrldSizeY = 3;
 	wrldSettings.startX = 2;
 	wrldSettings.startY = 2;
+	wrldSettings.minLevel = -10.f * GWIC_IRRUNITS_PER_METER;
+	wrldSettings.waterLevel = -10.f * GWIC_IRRUNITS_PER_METER;
 	// physics
 	wrldSettings.Gforce = -9.8f * GWIC_IRRUNITS_PER_METER;
 	wrldSettings.debugdraw = true;

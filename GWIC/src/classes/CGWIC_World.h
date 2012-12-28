@@ -57,11 +57,11 @@ protected:
 	std::vector<CGWIC_Cell*> cells;
 	std::vector<CGWIC_Bot*> actors;
 	std::vector<CGWIC_GameObject*> statobj;
-	irr::u32 ticker;
 	std::vector<CGWIC_GUIObject*> uis;
 	CGWIC_DebugUI* debugui;
 	CPoint2D center_cell;
 private:
+	irr::u32 ticker;
 	bool fps_cam;
 	bool quit_msg;
 	bool debugDraw;

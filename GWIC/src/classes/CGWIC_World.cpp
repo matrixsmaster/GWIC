@@ -677,26 +677,38 @@ void CGWIC_World::CmdGetPos(CIrrStrParser parse)
 void CGWIC_World::TerrainMagnet()
 {
 	//testing terrain magnet mode
+	//FIXME: discard unnecessary variables, this code produced from pure math ;)
 	vector3df camvec = main_cam->getAbsolutePosition();
-//	float h = GetTerrainHeightUnderPointMetric(camvec);
-	float h = camvec.Y / GWIC_IRRUNITS_PER_METER + 5.f;
+	float oh = GetTerrainHeightUnderPointMetric(camvec);
+	float h = fabs(camvec.Y / GWIC_IRRUNITS_PER_METER);
+//	h += properties.minLevel / GWIC_IRRUNITS_PER_METER;
 	const float b = 1.5f * GWIC_IRRUNITS_PER_METER;
 	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
 	const float step = dim / 256;
 	float cx = camvec.X - b;
-//	if (cx < 0) cx = 0;
 	float ny = camvec.Z - b;
-//	if (cy < 0) cy = 0;
 	float cy;
 	float bx = camvec.X + b;
-//	if (bx > 255) bx = 255;
 	float by = camvec.Z + b;
-//	if (by > 255) by = 255;
 	float ch;
+	float d;
+	float dx;
+	float dy;
+	const float db = ceil(b/step);
+	float dd;
+	float ff;
+	float fb;
 	while (cx < bx) {
 		cy = ny;
+		dx = camvec.X - cx;
 		while (cy < by) {
-			ch = h;
+			dy = camvec.Z - cy;
+			d = sqrt(dx*dx+dy*dy);
+			dd = floor(d/step);
+			if (dd <= 0) dd = 0.1f;
+			ff = dd / db;
+			fb = 1.f - ff;
+			ch = ff*oh + fb*h;
 			SetTerrainHeightUnderPointMetric(vector3df(cx,0,cy),ch,false);
 			cy += step;
 			std::cout << "mag: " << cx << ':' << cy << '=' << ch << std::endl;

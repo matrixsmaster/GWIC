@@ -287,8 +287,8 @@ bool CGWIC_Cell::RemoveObjectByNum(irr::u32 num)
 
 float CGWIC_Cell::GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt)
 {
-	u32 x = ceil(pnt.X);
-	u32 z = ceil(pnt.Z);
+	u32 x = floor(pnt.X);
+	u32 z = floor(pnt.Z);
 	if (x > 255) x = 255;
 	if (z > 255) z = 255;
 	u32 index = x * 256 + z;
@@ -312,8 +312,8 @@ float CGWIC_Cell::GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt)
 
 bool CGWIC_Cell::SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height, bool update)
 {
-	u32 x = ceil(pnt.X);
-	u32 z = ceil(pnt.Z);
+	u32 x = floor(pnt.X);
+	u32 z = floor(pnt.Z);
 	if (x > 255) x = 255;
 	if (z > 255) z = 255;
 	u32 index = x * 256 + z;
@@ -342,7 +342,7 @@ void CGWIC_Cell::TerrainChanged()
 	terrain->setPosition(terrain->getPosition());
 	//I've decided to not regenerate physics every time vertices moving. It's too hard for CPU :)
 	//uncomment to save the map
-//	terra_changed = true;
+	terra_changed = true;
 }
 
 

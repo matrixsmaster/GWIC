@@ -521,8 +521,8 @@ void CGWIC_World::ActivateCell(int x, int y)
 float CGWIC_World::GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt)
 {
 	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
-	s32 cx = static_cast<s32> (pnt.X/dim);
-	s32 cy = static_cast<s32> (pnt.Z/dim);
+	const s32 cx = static_cast<s32> (pnt.X/dim);
+	const s32 cy = static_cast<s32> (pnt.Z/dim);
 	CGWIC_Cell* cellptr = GetCell(cx,cy);
 	if (cellptr) {
 		pnt /= GWIC_IRRUNITS_PER_METER;
@@ -544,6 +544,7 @@ bool CGWIC_World::SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, flo
 		pnt /= GWIC_IRRUNITS_PER_METER;
 		pnt.X -= GWIC_METERS_PER_CELL * cx;
 		pnt.Z -= GWIC_METERS_PER_CELL * cy;
+		std::cout << "set:" << cx << ':' << cy << " :+ " << pnt.X << " : " << pnt.Z << std::endl;
 		return (cellptr->SetTerrainHeightUnderPointMetric(pnt,height,update));
 	} else
 		return false;

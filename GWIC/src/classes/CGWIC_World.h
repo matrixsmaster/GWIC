@@ -87,13 +87,14 @@ private:
 	void ShowGUI(bool show);
 	void ActivateCell(int x, int y);
 	float GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt);
-	bool SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height);
+	bool SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height, bool update);
 	void ProcessEvents();
 	void ProcessSelection();
 	void ProcessActors();
 	void ZeroSelect();
 	void CommandProcessor(irr::core::stringw cmd);
 	void CmdGetPos(CIrrStrParser parse);
+	void TerrainMagnet();
 };
 
 }

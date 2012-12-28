@@ -310,7 +310,7 @@ float CGWIC_Cell::GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt)
 	return res;
 }
 
-bool CGWIC_Cell::SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height)
+bool CGWIC_Cell::SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height, bool update)
 {
 	u32 x = ceil(pnt.X);
 	u32 z = ceil(pnt.Z);
@@ -326,7 +326,7 @@ bool CGWIC_Cell::SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, floa
 		S3DVertex2TCoords* pVertices = (S3DVertex2TCoords*)pMeshBuffer->getVertices();
 		pVertices[index].Pos.Y = height * scy;
 	}
-	TerrainChanged();
+	if (update) TerrainChanged();
 	return true;
 }
 

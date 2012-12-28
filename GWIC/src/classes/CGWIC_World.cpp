@@ -534,31 +534,24 @@ float CGWIC_World::GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt)
 	return 0;
 }
 
-bool CGWIC_World::SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height)
+bool CGWIC_World::SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height, bool update)
 {
 	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
-	s32 cx = static_cast<s32> (pnt.X/dim);
-	s32 cy = static_cast<s32> (pnt.Z/dim);
+	const s32 cx = static_cast<s32> (pnt.X/dim);
+	const s32 cy = static_cast<s32> (pnt.Z/dim);
 	CGWIC_Cell* cellptr = GetCell(cx,cy);
 	if (cellptr) {
 		pnt /= GWIC_IRRUNITS_PER_METER;
 		pnt.X -= GWIC_METERS_PER_CELL * cx;
 		pnt.Z -= GWIC_METERS_PER_CELL * cy;
-		return (cellptr->SetTerrainHeightUnderPointMetric(pnt,height));
+		return (cellptr->SetTerrainHeightUnderPointMetric(pnt,height,update));
 	} else
 		return false;
 }
 
 void CGWIC_World::ProcessEvents()
 {
-//	std::cout << "a=" << a << std::endl;
-	if ((main_cam) && (terrain_magnet)) {
-		//testing terrain magnet mode
-		vector3df camvec = main_cam->getAbsolutePosition();
-		float h = GetTerrainHeightUnderPointMetric(camvec);
-		h = camvec.Y / GWIC_IRRUNITS_PER_METER + GWIC_IRRUNITS_PER_METER;
-		SetTerrainHeightUnderPointMetric(camvec,h);
-	}
+	if ((main_cam) && (terrain_magnet)) TerrainMagnet();
 }
 
 void CGWIC_World::ProcessSelection()
@@ -680,5 +673,38 @@ void CGWIC_World::CmdGetPos(CIrrStrParser parse)
 		//
 	}
 }
+
+void CGWIC_World::TerrainMagnet()
+{
+	//testing terrain magnet mode
+	vector3df camvec = main_cam->getAbsolutePosition();
+//	float h = GetTerrainHeightUnderPointMetric(camvec);
+	float h = camvec.Y / GWIC_IRRUNITS_PER_METER + 5.f;
+	const float b = 1.5f * GWIC_IRRUNITS_PER_METER;
+	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
+	const float step = dim / 256;
+	float cx = camvec.X - b;
+//	if (cx < 0) cx = 0;
+	float ny = camvec.Z - b;
+//	if (cy < 0) cy = 0;
+	float cy;
+	float bx = camvec.X + b;
+//	if (bx > 255) bx = 255;
+	float by = camvec.Z + b;
+//	if (by > 255) by = 255;
+	float ch;
+	while (cx < bx) {
+		cy = ny;
+		while (cy < by) {
+			ch = h;
+			SetTerrainHeightUnderPointMetric(vector3df(cx,0,cy),ch,false);
+			cy += step;
+			std::cout << "mag: " << cx << ':' << cy << '=' << ch << std::endl;
+		}
+		cx += step;
+	}
+	SetTerrainHeightUnderPointMetric(vector3df(cx-step,0,cy),ch,true);
+}
+
 
 }

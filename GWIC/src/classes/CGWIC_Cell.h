@@ -33,6 +33,7 @@
 #include <OALWrapper/OAL_Funcs.h>
 #include <GWICTypes.h>
 #include "CGWIC_Bot.h"
+#include <algorithm>
 
 namespace gwic {
 

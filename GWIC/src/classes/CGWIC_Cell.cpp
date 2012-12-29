@@ -355,23 +355,46 @@ void CGWIC_Cell::RandomizeTerrain(float subdelta)
 		IMeshBuffer* pMeshBuffer = pMesh->getMeshBuffer(n);
 		if (pMeshBuffer->getVertexType() != EVT_2TCOORDS) continue;
 		S3DVertex2TCoords* pVertices = (S3DVertex2TCoords*)pMeshBuffer->getVertices();
-		u32 idx,x,z;
-		float nx,delta,nz;
-		float ox = pVertices[0].Pos.Y;
-		for (x=0; x<256; x++) {
-			delta = subdelta * 3;
-			nx = ox + Random_FLOAT(delta);
-			nx -= Random_FLOAT(delta);
-			delta = 0;
-			nz = nx;
-			for (z=0; z<256; z++) {
-				delta += Random_FLOAT(subdelta);
-				delta -= Random_FLOAT(subdelta);
-				nz += delta;
-				idx = x * 256 + z;
-				pVertices[idx].Pos.Y = nz;
-			}
+		//1. find the current max & min, since we don't want to escalate landscape
+		float max = -1;
+		float min = 10000;
+		u32 i;
+		for (i=0; i<(256*256); i++) {
+			if (pVertices[i].Pos.Y < min) min = pVertices[i].Pos.Y;
+			if (pVertices[i].Pos.Y > max) max = pVertices[i].Pos.Y;
 		}
+		std::cout << "RandTerr: min=" << min << ";  max=" << max << std::endl;
+		//2. create temp array & randomize it
+		std::vector<float> tmparr;
+		float cy;
+		for (i=0; i<(256*256); i++) {
+			cy = Random_FLOAT(max-min);
+//			std::cout << cy << "; ";
+			cy += min;
+			tmparr.push_back(cy);
+		}
+		std::cout << std::endl;
+		//3. apply 2D filter
+		s32 ww = static_cast<s32> (subdelta);
+		s32 edge = ww / 2;
+		s32 x,y,fx,fy;
+		float med;
+		std::vector<float> filarr;
+		filarr.resize((ww*ww),0.f);
+		for (x=edge; x<(256-edge); x++)
+			for (y=edge; y<(256-edge); y++) {
+				for (fx=0; fx<ww; fx++)
+					for (fy=0; fy<ww; fy++) {
+						i = (x+fx-edge)*256 + (y+fy-edge);
+						filarr[fx*ww+fy] = tmparr[i];
+					}
+				std::sort(filarr.begin(),filarr.end());
+				med = filarr[ww];
+				tmparr[x*256+y] = med;
+			}
+		//4. get result back
+		for (i=0; i<(256*256); i++)
+			pVertices[i].Pos.Y = tmparr[i];
 		break;
 	}
 	TerrainChanged();

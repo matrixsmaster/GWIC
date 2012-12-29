@@ -72,7 +72,11 @@ irr::core::stringw CIrrStrParser::NextLex(irr::core::stringw delim, bool erase)
 	stringw out;
 	if ((!delim.size()) || (!buffer.size())) return out;
 	s32 pos = buffer.find(delim.c_str());
-	if (pos < 0) return buffer;
+	if (pos < 0) {
+		stringw tempbuf = buffer;
+		if (erase) buffer = "";
+		return tempbuf;
+	}
 	out = buffer.subString(0,pos,false);
 	pos += delim.size();
 	if (erase)
@@ -91,8 +95,8 @@ irrstrwvec CIrrStrParser::ParseToList(irr::core::stringw delim)
 	stringw vs;
 	do {
 		vs = NextLex(delim,true);
-		out.push_back(vs);
-	} while (vs != buffer);
+		if (!vs.empty()) out.push_back(vs);
+	} while (!vs.empty());
 	buffer = oldbuf;
 	oldbuf = "";
 	return out;

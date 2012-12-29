@@ -41,6 +41,7 @@ public:
 	void Update() { }
 	void UpdateFPS(int fps);
 	void FlushBuffers();
+	void PutString(const irr::core::stringw str) { LogText(str); }
 private:
 	irr::gui::IGUIStaticText* loglabel;
 	irr::gui::IGUIStaticText* fpslabel;

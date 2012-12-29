@@ -25,8 +25,12 @@ public:
 	bool LoadFromFile(const irr::io::path filename);
 	void PumpMessage(const irr::SEvent& event);
 	void Update();
+	void PutString(const irr::core::stringw str);
+	void SetPos(CPoint2D nwpos);
 private:
 	irr::gui::IGUIWindow* window;
+	std::vector<GWICActionPointer> acts;
+	void ProcessAction(uint action, uint type);
 };
 
 } /* namespace gwic */

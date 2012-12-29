@@ -33,7 +33,11 @@ public:
 	virtual void Update() = 0;
 	virtual irr::core::stringw GetNextCommand();
 	virtual void FlushBuffers();
+	virtual void PutString(const irr::core::stringw str) = 0;
+	void SetNextID(irr::s32 nID) { currID = nID; }
+	irr::s32 IterateID() { return (++currID); }
 protected:
+	irr::s32 currID;
 	irr::core::stringc myname;
 	irr::IrrlichtDevice* irDevice;
 	irr::gui::IGUIEnvironment* GUI;
@@ -41,6 +45,14 @@ protected:
 	bool visible;
 	std::vector<irr::core::stringw> cmdfifo;
 	std::vector<irr::gui::IGUIElement*> elems;
+};
+
+struct GWICActionPointer {
+	std::vector<irr::gui::EGUI_EVENT_TYPE> type;
+	irr::s32 gid;
+	bool init_done;
+	irr::core::stringw command;
+	irr::core::stringw accept_filter;
 };
 
 } /* namespace gwic */

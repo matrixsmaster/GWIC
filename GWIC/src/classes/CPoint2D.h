@@ -22,6 +22,8 @@ public:
 	CPoint2D & operator = (const CPoint2D & other) { X=other.X; Y=other.Y; return *this; }
 	CPoint2D operator + (const CPoint2D & add) const {return CPoint2D((X+add.X),(Y+add.Y));}
 	CPoint2D operator - (const CPoint2D & sub) const {return CPoint2D((X-sub.X),(Y-sub.Y));}
+	CPoint2D & operator += (const int add) { X+=add; Y+=add; return *this; }
+	CPoint2D & operator -= (const int sub) { X-=sub; Y-=sub; return *this; }
 	bool operator == (const CPoint2D & comp) const {return ((X==comp.X) && (Y==comp.Y));}
 	int X;
 	int Y;

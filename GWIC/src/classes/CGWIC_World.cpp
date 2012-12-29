@@ -115,6 +115,9 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 		if (debugui) debugui->PumpMessage(event);
 		for (u32 i=0; i<uis.size(); i++)
 			uis[i]->PumpMessage(event);
+		if (event.GUIEvent.EventType == EGET_ELEMENT_CLOSED) {
+			return true;
+		}
 		break;
 	default: break;
 	}
@@ -302,11 +305,11 @@ bool CGWIC_World::PrepareWorld()
 	else std::cerr << "Font not found!" << std::endl;
 
 	//Add debug UI
+	//note: debugUI must be the first UI object created!
 	std::cout << "Creating debug UI" << std::endl;
 	debugui = new CGWIC_DebugUI(gra_world);
 	if (!debugui) return false;
 	debugui->SetPos(CPoint2D(150,16));
-	debugui->Update();
 
 	//we're done with it :)
 	return true;
@@ -322,7 +325,6 @@ void CGWIC_World::RunWorld()
 	int lFPS = -1;
 	int cFPS;
 	ticker = 0;
-	stringw cmdstr;
 	while (gra_world->run()) {
 		ticker++;
 		if (!gra_world->isWindowActive()) {
@@ -367,11 +369,6 @@ void CGWIC_World::RunWorld()
 			for (u32 i=0; i<cells.size(); i++)
 				cells[i]->Update();
 			CellTransfers();
-		}
-		//process commands (if runworld() gets threaded, this need to be sync to graphic and physics)
-		if (ticker%2) {
-			while (!(cmdstr = debugui->GetNextCommand()).empty())
-				CommandProcessor(cmdstr);
 		}
 	}
 	if (!quit_msg)
@@ -562,6 +559,13 @@ bool CGWIC_World::SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, flo
 void CGWIC_World::ProcessEvents()
 {
 	if ((main_cam) && (terrain_magnet)) TerrainMagnet();
+	stringw cmdstr;
+	while (!(cmdstr = debugui->GetNextCommand()).empty())
+		CommandProcessor(cmdstr);
+	for (u32 i=0; i<uis.size(); i++) {
+		while (!(cmdstr = uis[i]->GetNextCommand()).empty())
+			CommandProcessor(cmdstr);
+	}
 }
 
 void CGWIC_World::ProcessSelection()
@@ -698,6 +702,10 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 		if (!ptr)
 			std::cerr << "UI window creation failed!" << std::endl;
 		else {
+			if ((uis.size()) && (uis.back()))
+				ptr->SetNextID(uis.back()->IterateID());
+			else
+				ptr->SetNextID(GWIC_GUI_DEBUG_LAST);
 			uis.push_back(ptr);
 			ptr->LoadFromFile(list[1]);
 		}

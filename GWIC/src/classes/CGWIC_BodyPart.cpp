@@ -220,15 +220,15 @@ bool CGWIC_BodyPart::LoadModelFile(irr::io::path fname)
 	IXMLReader* mio = irDevice->getFileSystem()->createXMLReader(fname);
 	if (!mio) return false;
 	std::cout << "Reading model XML: " << fname.c_str() << std::endl;
-	stringw mt_model(L"Model");
-	stringw mt_inslot(L"InSlot");
-	stringw mt_outslot(L"OutSlot");
-	stringw mt_collision(L"Collision");
-	stringw mt_colbox(L"StandardBox");
-	stringw mt_colsph(L"StandardSphere");
-	stringw mt_coltri(L"TriMeshShape");
-	stringw mt_colcvx(L"ConvexHull");
-	stringw mt_colgim(L"GImpact");
+	const stringw mt_model(L"Model");
+	const stringw mt_inslot(L"InSlot");
+	const stringw mt_outslot(L"OutSlot");
+	const stringw mt_collision(L"Collision");
+	const stringw mt_colbox(L"StandardBox");
+	const stringw mt_colsph(L"StandardSphere");
+	const stringw mt_coltri(L"TriMeshShape");
+	const stringw mt_colcvx(L"ConvexHull");
+	const stringw mt_colgim(L"GImpact");
 	GWIC_BPSlot cslot;
 	CIrrStrParser strparse;
 	nocollision = true; //in case we can't load or found collision shape model

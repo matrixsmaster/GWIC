@@ -23,8 +23,9 @@
 #define GWIC_OBJECTS_DIR "/game_objects/"
 #define GWIC_OGGSTREAM_DIR "/music/"
 #define GWIC_SOUNDS_DIR "/sound_fx/"
+#define GWIC_UI_DIR "/ui/"
 
-#define GWIC_MAINWINDOW_CAPTION L"GWIC ver.0.0.1"
+#define GWIC_MAINWINDOW_CAPTION L"GWIC ver.0.0.2"
 
 #define GWIC_IRRUNITS_PER_METER 20
 // don't change next line!
@@ -35,5 +36,8 @@
 #define GWIC_PICKABLE_MASK (1<<30)
 
 #define GWIC_GUI_DEBUG_EDITBOX 11
+#define GWIC_GUI_DEBUG_LAST 100
+#define GWIC_GUI_WINDOW_MIN 100
+#define GWIC_GUI_WINDOW_LOWBORDER 8
 
 #endif /* GWICDEFINES_H_ */

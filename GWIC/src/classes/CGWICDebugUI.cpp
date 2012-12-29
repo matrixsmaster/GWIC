@@ -90,7 +90,7 @@ void CGWIC_DebugUI::PumpMessage(const irr::SEvent& event)
 		buf += input->getText();
 		if (!buf.empty()) {
 			cmdfifo.insert(cmdfifo.begin(),buf);
-			GUI->getRootGUIElement()->getElementFromId(GWIC_GUI_DEBUG_EDITBOX,true)->setText(L"");
+			input->setText(L"");
 		}
 	}
 //	if (event.KeyInput.Key == KEY_UP) {

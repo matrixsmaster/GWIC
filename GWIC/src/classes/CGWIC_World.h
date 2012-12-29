@@ -45,6 +45,7 @@ public:
 	virtual void RunWorld();
 	virtual bool PrepareWorld();
 	CGWIC_Cell* GetCell(int x, int y);
+	CGWIC_Cell* GetCell(CPoint2D trg) { return (GetCell(trg.X,trg.Y)); }
 //	friend class CGWIC_Cell;
 //	friend class CGWIC_Bot;
 protected:
@@ -86,6 +87,7 @@ private:
 	void GoEditMode();
 	void ShowGUI(bool show);
 	void ActivateCell(int x, int y);
+	void ActivateCell(CPoint2D trg) { ActivateCell(trg.X,trg.Y); }
 	float GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt);
 	bool SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height, bool update);
 	void ProcessEvents();
@@ -95,6 +97,17 @@ private:
 	void CommandProcessor(irr::core::stringw cmd);
 	void CmdGetPos(CIrrStrParser parse);
 	void TerrainMagnet();
+	void ReloadCell(CGWIC_Cell* cell);
+	void StitchTerrains(CGWIC_Cell* ca, CGWIC_Cell* cb);
+	void StitchWorld();
+	std::vector<CGWIC_Cell*> GetNeighbors(CPoint2D centr);
+};
+
+static const CPoint2D neighbor_array[] = {
+		CPoint2D(0,-1),
+		CPoint2D(1,0),
+		CPoint2D(0,1),
+		CPoint2D(-1,0)
 };
 
 }

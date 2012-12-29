@@ -107,7 +107,7 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 				debugui->LogText(L"Terrain magnet activated!");
 				std::cout << "Terrain magnet activated!" << std::endl;
 			}
-			//FIXME: Reload (deactivate and then activate) cell after magnet changes
+			StitchWorld();
 			return true;
 		}
 		break;
@@ -419,7 +419,7 @@ void CGWIC_World::CellTransfers()
 			optr = cells[i]->PopTransferObject();
 			if (optr) {
 				targ = optr->GetCell();
-				cptr = GetCell(targ.X,targ.Y);
+				cptr = GetCell(targ);
 				if (!cptr) {
 					std::cerr << "Object goes off world! [" << targ.X << ";";
 					std::cerr << targ.Y << "]" << std::endl;
@@ -438,7 +438,7 @@ void CGWIC_World::GoFPS()
 		main_cam->remove();
 		oldpos = (fps_cam)? main_cam->getPosition():main_cam->getTarget();
 	} else {
-		CGWIC_Cell* ptr = GetCell(center_cell.X,center_cell.Y);
+		CGWIC_Cell* ptr = GetCell(center_cell);
 		oldpos = ptr->getIrrlichtCenter();
 		oldpos.Y = ptr->GetTerrainHeightUnderPointMetric(oldpos) * GWIC_IRRUNITS_PER_METER;
 	}
@@ -459,7 +459,7 @@ void CGWIC_World::GoEditMode()
 		main_cam->remove();
 		oldpos = (fps_cam)? main_cam->getPosition():main_cam->getTarget();
 	} else {
-		CGWIC_Cell* ptr = GetCell(center_cell.X,center_cell.Y);
+		CGWIC_Cell* ptr = GetCell(center_cell);
 		oldpos = ptr->getIrrlichtCenter();
 		oldpos.Y = ptr->GetTerrainHeightUnderPointMetric(oldpos) * GWIC_IRRUNITS_PER_METER;
 	}
@@ -520,31 +520,39 @@ void CGWIC_World::ActivateCell(int x, int y)
 
 float CGWIC_World::GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt)
 {
-	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
-	const s32 cx = static_cast<s32> (pnt.X/dim);
-	const s32 cy = static_cast<s32> (pnt.Z/dim);
+	pnt /= GWIC_IRRUNITS_PER_METER;
+	const s32 cx = static_cast<s32> (pnt.X/GWIC_METERS_PER_CELL);
+	const s32 cy = static_cast<s32> (pnt.Z/GWIC_METERS_PER_CELL);
 	CGWIC_Cell* cellptr = GetCell(cx,cy);
 	if (cellptr) {
-		pnt /= GWIC_IRRUNITS_PER_METER;
 		pnt.X -= GWIC_METERS_PER_CELL * cx;
 		pnt.Z -= GWIC_METERS_PER_CELL * cy;
-		pnt.Y = cellptr->GetTerrainHeightUnderPointMetric(pnt);
-		return (pnt.Y);
+		//workaround due to different size of our cells and irrlicht's heightmaps
+		pnt.X = pnt.X * 256 / GWIC_METERS_PER_CELL;
+//		if (pnt.X > GWIC_METERS_PER_CELL) pnt.X = 255;
+		pnt.Z = pnt.Z * 256 / GWIC_METERS_PER_CELL;
+//		if (pnt.Z > GWIC_METERS_PER_CELL) pnt.Z = 255;
+//		std::cout << "get point: " << pnt.X << " : " << pnt.Z << std::endl;
+		return (cellptr->GetTerrainHeightUnderPointMetric(pnt));
 	}
 	return 0;
 }
 
 bool CGWIC_World::SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height, bool update)
 {
-	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
-	const s32 cx = static_cast<s32> (pnt.X/dim);
-	const s32 cy = static_cast<s32> (pnt.Z/dim);
+	pnt /= GWIC_IRRUNITS_PER_METER;
+	const s32 cx = static_cast<s32> (pnt.X/GWIC_METERS_PER_CELL);
+	const s32 cy = static_cast<s32> (pnt.Z/GWIC_METERS_PER_CELL);
 	CGWIC_Cell* cellptr = GetCell(cx,cy);
 	if (cellptr) {
-		pnt /= GWIC_IRRUNITS_PER_METER;
 		pnt.X -= GWIC_METERS_PER_CELL * cx;
 		pnt.Z -= GWIC_METERS_PER_CELL * cy;
-		std::cout << "set:" << cx << ':' << cy << " :+ " << pnt.X << " : " << pnt.Z << std::endl;
+		//workaround due to different size of our cells and irrlicht's heightmaps
+		pnt.X = pnt.X * 256 / GWIC_METERS_PER_CELL;
+//		if (pnt.X > GWIC_METERS_PER_CELL) pnt.X = 255;
+		pnt.Z = pnt.Z * 256 / GWIC_METERS_PER_CELL;
+//		if (pnt.Z > GWIC_METERS_PER_CELL) pnt.Z = 255;
+//		std::cout << "set:" << cx << ':' << cy << " :+ " << pnt.X << " : " << pnt.Z << std::endl;
 		return (cellptr->SetTerrainHeightUnderPointMetric(pnt,height,update));
 	} else
 		return false;
@@ -640,7 +648,7 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 			debugui->LogText(L"Insufficient arguments");
 			return;
 		}
-		CGWIC_Cell* ptr = GetCell(center_cell.X,center_cell.Y);
+		CGWIC_Cell* ptr = GetCell(center_cell);
 		CIrrStrParser pr2(list[2]);
 		ptr->RandomPlaceObjects(pr2.ToS32(),list[1]);
 	} else if (icmd == L"tpm") {
@@ -649,8 +657,38 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 	} else if (icmd == L"tdd") {
 		debugui->LogText(L"toggle debug drawing");
 		debugDraw ^= true;
+	} else if (icmd == L"reloadcell") {
+		irrstrwvec list = parse.ParseToList(L" ");
+		if (list.size() < 3) {
+			debugui->LogText(L"Insufficient args. Use: reloadcell X Y");
+			return;
+		}
+		CIrrStrParser pr2(list[1]);
+		s32 clx = pr2.ToS32();
+		pr2 = list[2];
+		s32 cly = pr2.ToS32();
+		CGWIC_Cell* clptr = GetCell(clx,cly);
+		if (!clptr) debugui->LogText(L"Cell not found!");
+		else ReloadCell(clptr);
+	} else if (icmd == L"stitch") {
+		irrstrwvec list = parse.ParseToList(L" ");
+		if (list.size() < 5) {
+			debugui->LogText(L"Insufficient args. Use: stitch Xa Ya Xb Yb");
+			return;
+		}
+		CIrrStrParser pr2(list[1]);
+		CPoint2D aa,bb;
+		aa.X = pr2.ToS32();
+		pr2 = list[2]; aa.Y = pr2.ToS32();
+		pr2 = list[3]; bb.X = pr2.ToS32();
+		pr2 = list[4]; bb.Y = pr2.ToS32();
+		StitchTerrains(GetCell(aa),GetCell(bb));
+		debugui->LogText(L"Command done!");
+	} else if (icmd == L"restitch") {
+		StitchWorld();
+		debugui->LogText(L"Command done!");
 	} else {
-		debugui->LogText("Invalid command!");
+		debugui->LogText(L"Invalid command!");
 	}
 }
 
@@ -681,7 +719,7 @@ void CGWIC_World::TerrainMagnet()
 	//FIXME: discard unnecessary variables, this code produced from pure math ;)
 	vector3df camvec = main_cam->getAbsolutePosition();
 	float oh = GetTerrainHeightUnderPointMetric(camvec);
-	float h = fabs(camvec.Y / GWIC_IRRUNITS_PER_METER) + GWIC_IRRUNITS_PER_METER;
+	float h = fabs(camvec.Y / GWIC_IRRUNITS_PER_METER);// + GWIC_IRRUNITS_PER_METER;
 	const float b = 5.f * GWIC_IRRUNITS_PER_METER;
 	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
 	const float step = dim / 256;
@@ -702,6 +740,7 @@ void CGWIC_World::TerrainMagnet()
 			dy = camvec.Z - cy;
 			dd = floor(sqrt(dx*dx+dy*dy)/step);
 			ff = dd / ceil(b/step);
+//			oh = GetTerrainHeightUnderPointMetric(camvec);
 			ch = ff*oh + (1.f-ff)*h;
 			SetTerrainHeightUnderPointMetric(vector3df(cx,0,cy),ch,false);
 			cy += step;
@@ -712,5 +751,92 @@ void CGWIC_World::TerrainMagnet()
 	SetTerrainHeightUnderPointMetric(vector3df(cx-step,0,cy),ch,true);
 }
 
-
+void CGWIC_World::ReloadCell(CGWIC_Cell* cell)
+{
+	u32 i = 1;
+	std::vector<CGWIC_Cell*>::iterator cit = cells.begin();
+	for (; cit != cells.end(); ++cit)
+		if (*cit == cell) {
+			i = 0;
+			break;
+		}
+	if (i) {
+		std::cerr << "ReloadCell(): can't find cell by ptr!" << std::endl;
+		return;
+	}
+	cit = cells.erase(cit);
+	//FIXME: if RunWorld() is threaded, we need to block the threads until cell reloaded
+	//FIXME: maybe implement operator '=' to reassign objects to the new cell
+	CPoint2D crd = cell->GetCoord();
+	delete cell;
+	cell = new CGWIC_Cell(crd,gra_world,phy_world);
+	if ((!cell) || (!cell->InitLand())) {
+		std::cerr << "ReloadCell(): can't create new cell!" << std::endl;
+		debugui->LogText("Cell reloading failed!");
+	} else
+		cells.insert(cit,cell);
 }
+
+void CGWIC_World::StitchTerrains(CGWIC_Cell* ca, CGWIC_Cell* cb)
+{
+	if ((!ca) || (!cb)) return;
+	std::cout << "Stitch " << ca->GetCoord().X << ':' << ca->GetCoord().Y;
+	std::cout << " with " << cb->GetCoord().X << ':' << cb->GetCoord().Y << std::endl;
+	CPoint2D sidei = cb->GetCoord() - ca->GetCoord();
+	vector3df sidef,shifta,shiftb;
+	if (sidei.X) {
+		sidef = vector3df(0,0,1);
+		shifta = (sidei.X > 0)? vector3df(GWIC_METERS_PER_CELL,0,0):vector3df(0);
+		shiftb = (sidei.X > 0)? vector3df(0):vector3df(GWIC_METERS_PER_CELL,0,0);
+	} else if (sidei.Y) {
+		sidef = vector3df(1,0,0);
+		shifta = (sidei.Y > 0)? vector3df(0,0,GWIC_METERS_PER_CELL):vector3df(0);
+		shiftb = (sidei.Y > 0)? vector3df(0):vector3df(0,0,GWIC_METERS_PER_CELL);
+	}
+	float ha,hb;
+	for (u32 i=0; i<256; i++) {
+		ha = ca->GetTerrainHeightUnderPointMetric(sidef*i+shifta);
+		hb = cb->GetTerrainHeightUnderPointMetric(sidef*i+shiftb);
+		ha = (ha+hb) / 2;
+		ca->SetTerrainHeightUnderPointMetric(sidef*i+shifta,ha,(i>254));
+		cb->SetTerrainHeightUnderPointMetric(sidef*i+shiftb,ha,(i>254));
+	}
+}
+
+void CGWIC_World::StitchWorld()
+{
+	CGWIC_Cell* curcentr;
+	std::vector<CGWIC_Cell*> clst;
+	CPoint2D pnt(0);
+	s32 cxd = (properties.wrldSizeX % 2)? 0:1;
+	u32 i;
+	for (i=0; i<cells.size(); i++) cells[i]->SetActive(false);
+	do {
+		curcentr = GetCell(pnt);
+		clst = GetNeighbors(pnt);
+		while (clst.size()) {
+			StitchTerrains(curcentr,clst.back());
+			clst.pop_back();
+		}
+		pnt.X += 2;
+		if (pnt.X >= properties.wrldSizeX) {
+			pnt.X -= properties.wrldSizeX - cxd;
+			pnt.Y++;
+		}
+	} while (pnt.Y < properties.wrldSizeY);
+	ActivateCell(center_cell);
+}
+
+std::vector<CGWIC_Cell*> CGWIC_World::GetNeighbors(CPoint2D centr)
+{
+	std::vector<CGWIC_Cell*> out;
+	CGWIC_Cell* ccell;
+	for (u32 i=0; i<4; i++) {
+		ccell = GetCell(centr+neighbor_array[i]);
+		if (ccell) out.push_back(ccell);
+	}
+	return out;
+}
+
+
+} // namespace gwic

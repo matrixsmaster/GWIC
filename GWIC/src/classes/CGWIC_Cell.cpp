@@ -74,6 +74,7 @@ CGWIC_Cell::~CGWIC_Cell()
 	if (terra_collision) delete terra_collision;
 	SetActive(false);
 	if (terrain) terrain->remove();
+	//TODO: save objects to XML
 	DeleteObjects();
 }
 
@@ -302,6 +303,7 @@ float CGWIC_Cell::GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt)
 		if (pMeshBuffer->getVertexType() != EVT_2TCOORDS) continue;
 		S3DVertex2TCoords* pVertices = (S3DVertex2TCoords*)pMeshBuffer->getVertices();
 		res = pVertices[index].Pos.Y / scy;
+//		res = (pVertices[index].Pos.Y + terrain->getPosition().Y) / scy;
 //		res += terrain->getPosition().Y / GWIC_IRRUNITS_PER_METER;
 //		std::cerr << "POSIT  " << res << std::endl;
 //		for (u32 k=0; k<(256*256); k++) if (pVertices[k].Pos.Y > max) max = pVertices[k].Pos.Y;

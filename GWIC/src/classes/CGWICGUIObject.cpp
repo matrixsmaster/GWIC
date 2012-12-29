@@ -25,6 +25,7 @@ CGWIC_GUIObject::CGWIC_GUIObject(irr::IrrlichtDevice* dev)
 	basepoint = CPoint2D(0);
 	myname = L"GUIObject";
 	visible = true;
+	currID = 10;
 	std::cout << "Created new GUI object" << std::endl;
 }
 

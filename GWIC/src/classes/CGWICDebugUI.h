@@ -14,6 +14,7 @@
 #include <irrlicht.h>
 #include <irrbullet.h>
 #include <GWICTypes.h>
+#include "CIrrStrParser.h"
 #include "CGWICGUIObject.h"
 
 /*
@@ -33,6 +34,7 @@ public:
 	CGWIC_DebugUI(irr::IrrlichtDevice* dev) :
 		CGWIC_GUIObject(dev) {
 		CreateHardcodedUI();
+//		hist_it = histbuf.begin();
 	}
 	virtual ~CGWIC_DebugUI() { }
 	void LogText(irr::core::stringw text);
@@ -42,11 +44,15 @@ public:
 	void UpdateFPS(int fps);
 	void FlushBuffers();
 	void PutString(const irr::core::stringw str) { LogText(str); }
+	irr::s32 GetRootID() { return -1; }
 private:
 	irr::gui::IGUIStaticText* loglabel;
 	irr::gui::IGUIStaticText* fpslabel;
 	irr::core::stringw buffer;
 	irr::gui::IGUIEditBox* input;
+	irr::gui::IGUIButton* history;
+	irrstrwvec histbuf;
+//	irrstrwvec::iterator hist_it;
 	void CreateHardcodedUI();
 };
 

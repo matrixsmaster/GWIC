@@ -31,9 +31,13 @@ void CGWIC_DebugUI::CreateHardcodedUI()
 	cp.Y += GWICDEBUG_LOGHEIGHT + 4;
 	bx = rect<s32>(cp.X,cp.Y,cp.X+GWICDEBUG_LOGWIDTH,cp.Y+20);
 	input = GUI->addEditBox(L"",bx,true,NULL,GWIC_GUI_DEBUG_EDITBOX);
+	cp.X += bx.getWidth() + 8;
+	bx = rect<s32>(cp.X,cp.Y,cp.X+70,cp.Y+20);
+	history = GUI->addButton(bx,NULL,GWIC_GUI_DEBUG_EDITBOX+1,L"^",L"History");
 	elems.push_back(loglabel);
 	elems.push_back(fpslabel);
 	elems.push_back(input);
+	elems.push_back(history);
 }
 
 void CGWIC_DebugUI::LogText(irr::core::stringw text)
@@ -85,18 +89,23 @@ void CGWIC_DebugUI::FlushBuffers()
 void CGWIC_DebugUI::PumpMessage(const irr::SEvent& event)
 {
 	s32 id = event.GUIEvent.Caller->getID();
-	if ((event.GUIEvent.EventType == EGET_EDITBOX_ENTER) && (id == GWIC_GUI_DEBUG_EDITBOX)) {
+	if ((id < GWIC_GUI_DEBUG_EDITBOX) || (id >= GWIC_GUI_DEBUG_LAST)) return;
+	if (event.GUIEvent.EventType == EGET_EDITBOX_ENTER) {
 		stringw buf;
 		buf += input->getText();
 		if (!buf.empty()) {
 			cmdfifo.insert(cmdfifo.begin(),buf);
+			histbuf.push_back(buf);
+			if (histbuf.size() > GWIC_GUI_DEBUG_HDEPTH)
+				histbuf.pop_back();
 			input->setText(L"");
 		}
+	} else if (event.GUIEvent.EventType == EGET_BUTTON_CLICKED) {
+		if (histbuf.size()) {
+			input->setText(histbuf.back().c_str());
+			histbuf.pop_back();
+		}
 	}
-//	if (event.KeyInput.Key == KEY_UP) {
-//		std::cout << "UP key" << std::endl;
-//		if (id == GWIC_GUI_DEBUG_EDITBOX) std::cout << "EDIT!" << std::endl;
-//	}
 }
 
 

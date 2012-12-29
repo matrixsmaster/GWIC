@@ -113,10 +113,21 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 		break;
 	case EET_GUI_EVENT:
 		if (debugui) debugui->PumpMessage(event);
-		for (u32 i=0; i<uis.size(); i++)
-			uis[i]->PumpMessage(event);
 		if (event.GUIEvent.EventType == EGET_ELEMENT_CLOSED) {
+			std::vector<CGWIC_GUIObject*>::iterator uisit = uis.begin();
+			CGWIC_GUIObject* ptr;
+			for (;uisit != uis.end(); ++uisit) {
+				ptr = *uisit;
+				if (ptr->GetRootID() == event.GUIEvent.Caller->getID()) {
+					delete ptr;
+					uis.erase(uisit);
+					break;
+				}
+			}
 			return true;
+		} else {
+			for (u32 i=0; i<uis.size(); i++)
+				uis[i]->PumpMessage(event);
 		}
 		break;
 	default: break;

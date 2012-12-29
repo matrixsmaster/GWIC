@@ -27,6 +27,7 @@ public:
 	void Update();
 	void PutString(const irr::core::stringw str);
 	void SetPos(CPoint2D nwpos);
+	irr::s32 GetRootID() { return this->window->getID(); }
 private:
 	irr::gui::IGUIWindow* window;
 	std::vector<GWICActionPointer> acts;

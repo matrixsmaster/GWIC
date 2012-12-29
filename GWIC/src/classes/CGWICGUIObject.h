@@ -15,6 +15,7 @@
 #include <irrlicht.h>
 #include <irrbullet.h>
 #include <GWICTypes.h>
+#include "CIrrStrParser.h"
 
 namespace gwic {
 
@@ -36,6 +37,8 @@ public:
 	virtual void PutString(const irr::core::stringw str) = 0;
 	void SetNextID(irr::s32 nID) { currID = nID; }
 	irr::s32 IterateID() { return (++currID); }
+	virtual irr::s32 GetRootID() = 0;
+//	virtual irr::gui::IGUIElement* GetRootPtr() = 0;
 protected:
 	irr::s32 currID;
 	irr::core::stringc myname;
@@ -43,7 +46,7 @@ protected:
 	irr::gui::IGUIEnvironment* GUI;
 	CPoint2D basepoint;
 	bool visible;
-	std::vector<irr::core::stringw> cmdfifo;
+	irrstrwvec cmdfifo;
 	std::vector<irr::gui::IGUIElement*> elems;
 };
 

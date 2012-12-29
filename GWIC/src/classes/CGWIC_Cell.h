@@ -64,7 +64,7 @@ public:
 	bool SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height, bool update);
 	CGWIC_GameObject* GetObjectByIrrPtr(irr::scene::ISceneNode* ptr);
 	void TerrainChanged();
-	void RandomizeTerrain();
+	void RandomizeTerrain(float subdelta);
 protected:
 	int posX;
 	int posY;

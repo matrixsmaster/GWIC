@@ -68,6 +68,7 @@ void CGWIC_DebugUI::SetVisible(bool setup)
 {
 	loglabel->setVisible(setup);
 	input->setVisible(setup);
+	history->setVisible(setup);
 	//don't hide FPS label :)
 	GUI->setFocus(input);
 	visible = setup;

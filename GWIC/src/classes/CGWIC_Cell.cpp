@@ -308,6 +308,7 @@ float CGWIC_Cell::GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt)
 //		std::cerr << "POSIT  " << res << std::endl;
 //		for (u32 k=0; k<(256*256); k++) if (pVertices[k].Pos.Y > max) max = pVertices[k].Pos.Y;
 //		std::cerr << "MAXX  " << max << std::endl;
+		break;
 	}
 	return res;
 }
@@ -321,12 +322,12 @@ bool CGWIC_Cell::SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, floa
 	u32 index = x * 256 + z;
 	IMesh* pMesh = terrain->getMesh();
 	const float scy = terrain->getScale().Y;
-	//FIXME: get the true position in meters and set it correctly!
 	for (u32 n=0; n<pMesh->getMeshBufferCount(); n++) {
 		IMeshBuffer* pMeshBuffer = pMesh->getMeshBuffer(n);
 		if (pMeshBuffer->getVertexType() != EVT_2TCOORDS) continue;
 		S3DVertex2TCoords* pVertices = (S3DVertex2TCoords*)pMeshBuffer->getVertices();
 		pVertices[index].Pos.Y = height * scy;
+		break;
 	}
 	if (update) TerrainChanged();
 	return true;
@@ -345,6 +346,35 @@ void CGWIC_Cell::TerrainChanged()
 	//I've decided to not regenerate physics every time vertices moving. It's too hard for CPU :)
 	//uncomment to save the map
 	terra_changed = true;
+}
+
+void CGWIC_Cell::RandomizeTerrain(float subdelta)
+{
+	IMesh* pMesh = terrain->getMesh();
+	for (u32 n=0; n<pMesh->getMeshBufferCount(); n++) {
+		IMeshBuffer* pMeshBuffer = pMesh->getMeshBuffer(n);
+		if (pMeshBuffer->getVertexType() != EVT_2TCOORDS) continue;
+		S3DVertex2TCoords* pVertices = (S3DVertex2TCoords*)pMeshBuffer->getVertices();
+		u32 idx,x,z;
+		float nx,delta,nz;
+		float ox = pVertices[0].Pos.Y;
+		for (x=0; x<256; x++) {
+			delta = subdelta * 3;
+			nx = ox + Random_FLOAT(delta);
+			nx -= Random_FLOAT(delta);
+			delta = 0;
+			nz = nx;
+			for (z=0; z<256; z++) {
+				delta += Random_FLOAT(subdelta);
+				delta -= Random_FLOAT(subdelta);
+				nz += delta;
+				idx = x * 256 + z;
+				pVertices[idx].Pos.Y = nz;
+			}
+		}
+		break;
+	}
+	TerrainChanged();
 }
 
 

@@ -680,8 +680,7 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 			return;
 		}
 		CIrrStrParser pr2(list[1]);
-		s32 clx = pr2.ToS32();
-		pr2 = list[2];
+		s32 clx = pr2.ToS32(); pr2 = list[2];
 		s32 cly = pr2.ToS32();
 		CGWIC_Cell* clptr = GetCell(clx,cly);
 		if (!clptr) debugui->LogText(L"Cell not found!");
@@ -719,6 +718,22 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 				ptr->SetNextID(GWIC_GUI_DEBUG_LAST);
 			uis.push_back(ptr);
 			ptr->LoadFromFile(list[1]);
+			debugui->LogText(L"Command done!");
+		}
+	} else if (icmd == L"randomterr") {
+		irrstrwvec list = parse.ParseToList(L" ");
+		if (list.size() < 4) {
+			debugui->LogText(L"Use: randomterr cellX cellY subdelta");
+			return;
+		}
+		CIrrStrParser pr2(list[1]);
+		s32 clx = pr2.ToS32(); pr2 = list[2];
+		s32 cly = pr2.ToS32(); pr2 = list[3];
+		float subd = pr2.ToFloat();
+		CGWIC_Cell* cptr = GetCell(clx,cly);
+		if (cptr) {
+			cptr->RandomizeTerrain(subd);
+			debugui->LogText(L"Command done!");
 		}
 	} else {
 		debugui->LogText(L"Invalid command!");

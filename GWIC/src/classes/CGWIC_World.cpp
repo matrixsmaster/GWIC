@@ -688,6 +688,19 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 	} else if (icmd == L"restitch") {
 		StitchWorld(false);
 		debugui->LogText(L"Command done!");
+	} else if (icmd == L"createwindow") {
+		irrstrwvec list = parse.ParseToList(L" ");
+		if (list.size() < 2) {
+			debugui->LogText(L"Use: createwindow <filename.xml>");
+			return;
+		}
+		CGWIC_UIWindow* ptr = new CGWIC_UIWindow(gra_world);
+		if (!ptr)
+			std::cerr << "UI window creation failed!" << std::endl;
+		else {
+			uis.push_back(ptr);
+			ptr->LoadFromFile(list[1]);
+		}
 	} else {
 		debugui->LogText(L"Invalid command!");
 	}

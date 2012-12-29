@@ -22,15 +22,15 @@ class CGWIC_GUIObject {
 public:
 	CGWIC_GUIObject(irr::IrrlichtDevice* dev);
 	virtual ~CGWIC_GUIObject();
-	virtual void PumpMessage(const irr::SEvent& event);
-	virtual bool LoadFromFile(const irr::core::stringw filename);
-	void SetName(irr::core::stringc nwname);
-	irr::core::stringc GetName();
-	void SetPos(CPoint2D nwpos);
-	CPoint2D GetPos();
+	virtual void PumpMessage(const irr::SEvent& event) = 0;
+	virtual bool LoadFromFile(const irr::io::path filename) { return false; }
+	void SetName(irr::core::stringc nwname) { this->myname = nwname; }
+	irr::core::stringc GetName() { return this->myname; }
+	virtual void SetPos(CPoint2D nwpos);
+	virtual CPoint2D GetPos() { return this->basepoint; }
 	virtual void SetVisible(bool setup);
-	bool GetVisible();
-	virtual void Update();
+	bool GetVisible() { return this->visible; }
+	virtual void Update() = 0;
 	virtual irr::core::stringw GetNextCommand();
 	virtual void FlushBuffers();
 protected:

@@ -18,12 +18,6 @@ using namespace gui;
 
 namespace gwic {
 
-CGWIC_DebugUI::~CGWIC_DebugUI() {
-	if (input) input->remove();
-	if (fpslabel) fpslabel->remove();
-	if (loglabel) loglabel->remove();
-}
-
 void CGWIC_DebugUI::CreateHardcodedUI()
 {
 	CPoint2D cp(basepoint.X+GWICDEBUG_LOGWIDTH,basepoint.Y+GWICDEBUG_LOGHEIGHT);
@@ -31,14 +25,15 @@ void CGWIC_DebugUI::CreateHardcodedUI()
 	loglabel = GUI->addStaticText(L"LOG",bx,true);
 	cp.X += 16;
 	cp.Y = basepoint.Y;
-	fpslp = position2di(cp.X,cp.Y);
 	bx = rect<s32>(cp.X,cp.Y,cp.X+70,cp.Y+20);
 	fpslabel = GUI->addStaticText(L"FPS",bx,false);
 	cp = basepoint;
 	cp.Y += GWICDEBUG_LOGHEIGHT + 4;
 	bx = rect<s32>(cp.X,cp.Y,cp.X+GWICDEBUG_LOGWIDTH,cp.Y+20);
 	input = GUI->addEditBox(L"",bx,true,NULL,GWIC_GUI_DEBUG_EDITBOX);
-	inppnt = position2di(cp.X,cp.Y);
+	elems.push_back(loglabel);
+	elems.push_back(fpslabel);
+	elems.push_back(input);
 }
 
 void CGWIC_DebugUI::LogText(irr::core::stringw text)
@@ -72,14 +67,6 @@ void CGWIC_DebugUI::SetVisible(bool setup)
 	//don't hide FPS label :)
 	GUI->setFocus(input);
 	visible = setup;
-}
-
-void CGWIC_DebugUI::Update()
-{
-	position2di tmp(basepoint.X,basepoint.Y);
-	loglabel->setRelativePosition(tmp);
-	fpslabel->setRelativePosition(fpslp+tmp);
-	input->setRelativePosition(inppnt+tmp);
 }
 
 void CGWIC_DebugUI::UpdateFPS(int fps)

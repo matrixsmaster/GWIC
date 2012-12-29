@@ -33,6 +33,7 @@
 #include "CGWIC_GameObject.h"
 #include "CGWICGUIObject.h"
 #include "CGWICDebugUI.h"
+#include "CGWICWindowUI.h"
 
 namespace gwic {
 

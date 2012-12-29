@@ -6,6 +6,7 @@
 CPP_SRCS += \
 ../src/classes/CGWICDebugUI.cpp \
 ../src/classes/CGWICGUIObject.cpp \
+../src/classes/CGWICWindowUI.cpp \
 ../src/classes/CGWIC_BodyPart.cpp \
 ../src/classes/CGWIC_Bot.cpp \
 ../src/classes/CGWIC_Cell.cpp \
@@ -21,6 +22,7 @@ CPP_SRCS += \
 OBJS += \
 ./src/classes/CGWICDebugUI.o \
 ./src/classes/CGWICGUIObject.o \
+./src/classes/CGWICWindowUI.o \
 ./src/classes/CGWIC_BodyPart.o \
 ./src/classes/CGWIC_Bot.o \
 ./src/classes/CGWIC_Cell.o \
@@ -36,6 +38,7 @@ OBJS += \
 CPP_DEPS += \
 ./src/classes/CGWICDebugUI.d \
 ./src/classes/CGWICGUIObject.d \
+./src/classes/CGWICWindowUI.d \
 ./src/classes/CGWIC_BodyPart.d \
 ./src/classes/CGWIC_Bot.d \
 ./src/classes/CGWIC_Cell.d \

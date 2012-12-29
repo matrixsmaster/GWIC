@@ -34,20 +34,18 @@ public:
 		CGWIC_GUIObject(dev) {
 		CreateHardcodedUI();
 	}
-	virtual ~CGWIC_DebugUI();
+	virtual ~CGWIC_DebugUI() { }
 	void LogText(irr::core::stringw text);
 	void SetVisible(bool setup);
 	void PumpMessage(const irr::SEvent& event);
-	void Update();
+	void Update() { }
 	void UpdateFPS(int fps);
 	void FlushBuffers();
 private:
 	irr::gui::IGUIStaticText* loglabel;
 	irr::gui::IGUIStaticText* fpslabel;
-	irr::core::position2di fpslp; //FPS label start point
 	irr::core::stringw buffer;
 	irr::gui::IGUIEditBox* input;
-	irr::core::position2di inppnt; //input box start point
 	void CreateHardcodedUI();
 };
 

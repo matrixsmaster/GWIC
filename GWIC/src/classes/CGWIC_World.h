@@ -98,8 +98,8 @@ private:
 	void CmdGetPos(CIrrStrParser parse);
 	void TerrainMagnet();
 	void ReloadCell(CGWIC_Cell* cell);
-	void StitchTerrains(CGWIC_Cell* ca, CGWIC_Cell* cb);
-	void StitchWorld();
+	void StitchTerrains(CGWIC_Cell* ca, CGWIC_Cell* cb, bool update);
+	void StitchWorld(bool lite);
 	std::vector<CGWIC_Cell*> GetNeighbors(CPoint2D centr);
 };
 

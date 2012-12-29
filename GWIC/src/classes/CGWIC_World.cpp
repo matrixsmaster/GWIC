@@ -32,7 +32,7 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 //			return false;
 //		}
 		mousepressed = event.MouseInput.isLeftPressed() || event.MouseInput.isRightPressed() || event.MouseInput.isMiddlePressed();
-		//FIXME: this is just a test. We need apply a force with a vector drawed by mouse instead of direct movement
+		//FIXME: this is just a test. We need apply a force with a vector drawn by mouse instead of direct movement
 		if (select_actor_part && mousepressed) {
 			if (event.MouseInput.isLeftPressed()) {
 				rl.X = event.MouseInput.X - mousepos.X;
@@ -106,8 +106,8 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 			if (terrain_magnet) {
 				debugui->LogText(L"Terrain magnet activated!");
 				std::cout << "Terrain magnet activated!" << std::endl;
-			}
-			StitchWorld();
+			} else
+				StitchWorld(false);
 			return true;
 		}
 		break;
@@ -227,6 +227,7 @@ bool CGWIC_World::GenerateLand()
 			cells.push_back(ptr);
 			if (!ptr->InitLand()) return false;
 		}
+	StitchWorld(true);
 	return true;
 }
 
@@ -682,10 +683,10 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 		pr2 = list[2]; aa.Y = pr2.ToS32();
 		pr2 = list[3]; bb.X = pr2.ToS32();
 		pr2 = list[4]; bb.Y = pr2.ToS32();
-		StitchTerrains(GetCell(aa),GetCell(bb));
+		StitchTerrains(GetCell(aa),GetCell(bb),true);
 		debugui->LogText(L"Command done!");
 	} else if (icmd == L"restitch") {
-		StitchWorld();
+		StitchWorld(false);
 		debugui->LogText(L"Command done!");
 	} else {
 		debugui->LogText(L"Invalid command!");
@@ -753,14 +754,10 @@ void CGWIC_World::TerrainMagnet()
 
 void CGWIC_World::ReloadCell(CGWIC_Cell* cell)
 {
-	u32 i = 1;
 	std::vector<CGWIC_Cell*>::iterator cit = cells.begin();
 	for (; cit != cells.end(); ++cit)
-		if (*cit == cell) {
-			i = 0;
-			break;
-		}
-	if (i) {
+		if (*cit == cell) break;
+	if (cit == cells.end()) {
 		std::cerr << "ReloadCell(): can't find cell by ptr!" << std::endl;
 		return;
 	}
@@ -777,7 +774,7 @@ void CGWIC_World::ReloadCell(CGWIC_Cell* cell)
 		cells.insert(cit,cell);
 }
 
-void CGWIC_World::StitchTerrains(CGWIC_Cell* ca, CGWIC_Cell* cb)
+void CGWIC_World::StitchTerrains(CGWIC_Cell* ca, CGWIC_Cell* cb, bool update)
 {
 	if ((!ca) || (!cb)) return;
 	std::cout << "Stitch " << ca->GetCoord().X << ':' << ca->GetCoord().Y;
@@ -798,12 +795,12 @@ void CGWIC_World::StitchTerrains(CGWIC_Cell* ca, CGWIC_Cell* cb)
 		ha = ca->GetTerrainHeightUnderPointMetric(sidef*i+shifta);
 		hb = cb->GetTerrainHeightUnderPointMetric(sidef*i+shiftb);
 		ha = (ha+hb) / 2;
-		ca->SetTerrainHeightUnderPointMetric(sidef*i+shifta,ha,(i>254));
-		cb->SetTerrainHeightUnderPointMetric(sidef*i+shiftb,ha,(i>254));
+		ca->SetTerrainHeightUnderPointMetric(sidef*i+shifta,ha,((update)&&(i>254)));
+		cb->SetTerrainHeightUnderPointMetric(sidef*i+shiftb,ha,((update)&&(i>254)));
 	}
 }
 
-void CGWIC_World::StitchWorld()
+void CGWIC_World::StitchWorld(bool lite)
 {
 	CGWIC_Cell* curcentr;
 	std::vector<CGWIC_Cell*> clst;
@@ -815,7 +812,7 @@ void CGWIC_World::StitchWorld()
 		curcentr = GetCell(pnt);
 		clst = GetNeighbors(pnt);
 		while (clst.size()) {
-			StitchTerrains(curcentr,clst.back());
+			StitchTerrains(curcentr,clst.back(),(!lite));
 			clst.pop_back();
 		}
 		pnt.X += 2;

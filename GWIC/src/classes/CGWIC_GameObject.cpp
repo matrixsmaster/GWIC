@@ -93,6 +93,24 @@ bool CGWIC_GameObject::SetRot(irr::core::vector3df rot)
 {
 	if (root) {
 		root->setRotation(rot);
+		if (physical) {
+			//FIXME: this code is wrong! we need a product between two quats, I guess
+			btTransform bto,btn;
+			btScalar rx = rot.X / PI * 180.f;
+			btScalar ry = rot.Y / PI * 180.f;
+			btScalar rz = rot.Z / PI * 180.f;
+			btQuaternion btq;
+			btq.setEulerZYX(ry,rz,rx);
+			bto.setIdentity();
+			bto.setRotation(btq);
+			for (u32 i=0; i<bodies.size(); i++) {
+				btn = bodies[i]->getPointer()->getCenterOfMassTransform();
+				bto.setOrigin(btn.getOrigin());
+				bodies[i]->getPointer()->setCenterOfMassTransform(bto);
+				if (bodies[i]->getActivationState() == EAS_SLEEPING)
+					bodies[i]->setActivationState(EAS_ACTIVE);
+			}
+		}
 		return true;
 	}
 	return false;
@@ -107,7 +125,6 @@ irr::core::vector3df CGWIC_GameObject::GetRot()
 void CGWIC_GameObject::SetScale(irr::core::vector3df scal)
 {
 	if (!root) return;
-	//FIXME: make it work just right! we need to reset physics or something
 	root->setScale(scal);
 	for (u32 i=0; i<pshapes.size(); i++) {
 		pshapes[i]->setLocalScaling(scal,ESP_COLLISIONSHAPE);

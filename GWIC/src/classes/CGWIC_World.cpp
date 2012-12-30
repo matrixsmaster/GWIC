@@ -44,37 +44,46 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 	case EET_KEY_INPUT_EVENT:
 		//FIXME: more robust and nice looking processing needed!!
 		if (gizmo) gizmo->ProcessKeyEvent(event);
-		if (event.KeyInput.Key == KEY_ESCAPE && event.KeyInput.PressedDown == false) {
+		if (event.KeyInput.PressedDown) break;
+		if (event.KeyInput.Key == KEY_ESCAPE) {
 //			fps_cam ^= true;
 			if (!fps_cam) GoFPS();
 			else GoEditMode();
 			return true;
 		}
 		if (!fps_cam) break;
-		if (event.KeyInput.Key == KEY_KEY_Q && event.KeyInput.PressedDown == false) {
+		if (event.KeyInput.Key == KEY_KEY_Q) {
 			quit_msg = true;
 			return true;
-		}
-		if (event.KeyInput.Key == KEY_SPACE && event.KeyInput.PressedDown == false) {
+		} else if (event.KeyInput.Key == KEY_KEY_X) {
+			if (selected) {
+				RemoveRegisteredObject(selected);
+				selected = NULL;
+				if (gizmo) {
+					delete gizmo;
+					gizmo = NULL;
+				}
+			}
+		} else if (event.KeyInput.Key == KEY_KEY_1) {
+			if (selected)
+				selected->SetPhysical(!selected->GetPhysical());
+		} else if (event.KeyInput.Key == KEY_SPACE) {
 			if (fps_cam) {
 				float ssize = GWIC_IRRUNITS_PER_METER / 4.f;
 				this->ShootSphere(vector3df(ssize,ssize,ssize),3.0);
 			}
 			return true;
-		}
-		if (event.KeyInput.Key == KEY_DELETE && event.KeyInput.PressedDown == false) {
+		} else if (event.KeyInput.Key == KEY_DELETE) {
 			std::cout << "Deleting main camera!" << std::endl;
 			main_cam->remove();
 			main_cam = NULL;
 			return true;
-		}
-		if (event.KeyInput.Key == KEY_F9 && event.KeyInput.PressedDown == false) {
+		} else if (event.KeyInput.Key == KEY_F9) {
 			physicsPause ^= true;
 			if (physicsPause) debugui->LogText(L"Physics paused");
 			else debugui->LogText(L"Physics resumed");
 			return true;
-		}
-		if (event.KeyInput.Key == KEY_F8 && event.KeyInput.PressedDown == false) {
+		} else if (event.KeyInput.Key == KEY_F8) {
 			terrain_magnet ^= true;
 			if (terrain_magnet) {
 				debugui->LogText(L"Terrain magnet activated!");
@@ -627,6 +636,7 @@ void CGWIC_World::ProcessSelection()
 void CGWIC_World::ProcessActors()
 {
 	//TODO: fix actors fall through terrain
+	//TODO: fix classic actors models rotations
 	//TODO: process brains
 }
 
@@ -881,6 +891,13 @@ std::vector<CGWIC_Cell*> CGWIC_World::GetNeighbors(CPoint2D centr)
 		if (ccell) out.push_back(ccell);
 	}
 	return out;
+}
+
+void CGWIC_World::RemoveRegisteredObject(CGWIC_GameObject* ptr)
+{
+	for (u32 i=0; i<cells.size(); i++)
+		if (cells[i]->RemoveObjectByPtr(ptr)) return;
+	std::cerr << "RemoveRegisteredObject(): object not found" << std::endl;
 }
 
 

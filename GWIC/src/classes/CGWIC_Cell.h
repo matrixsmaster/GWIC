@@ -59,7 +59,7 @@ public:
 	CGWIC_GameObject* PopTransferObject();
 	void PushTransferObject(CGWIC_GameObject* optr);
 	bool RemoveObjectByNum(irr::u32 num);
-	//bool RemoveObjectByPtr
+	bool RemoveObjectByPtr(CGWIC_GameObject* ptr);
 	float GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt);
 	//float GetTerrainHeightUnderPointAbsolute(irr::core::vector3df pnt);
 	bool SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height, bool update);

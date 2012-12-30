@@ -289,6 +289,14 @@ bool CGWIC_Cell::RemoveObjectByNum(irr::u32 num)
 	return true;
 }
 
+bool CGWIC_Cell::RemoveObjectByPtr(CGWIC_GameObject* ptr)
+{
+	for (u32 i=0; i<objects.size(); i++)
+		if (objects[i] == ptr)
+			return (RemoveObjectByNum(i));
+	return false;
+}
+
 float CGWIC_Cell::GetTerrainHeightUnderPointMetric(irr::core::vector3df pnt)
 {
 	u32 x = floor(pnt.X);

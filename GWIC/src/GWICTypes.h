@@ -21,6 +21,8 @@
 #include <iostream>
 #include <GWICDefines.h>
 
+typedef unsigned char uchar;
+
 namespace irr {
 
 typedef core::aabbox3d<float> boundbox;

@@ -21,53 +21,32 @@ namespace gwic {
 bool CGWIC_World::OnEvent(const irr::SEvent& event)
 {
 	if (!gra_world) return false;
-	vector3df rl;
 	switch(event.EventType) {
 	case EET_MOUSE_INPUT_EVENT:
-//		if (event.MouseInput.Event==EMIE_LMOUSE_PRESSED_DOWN) {
-//			//
-//			return false;
-//		} else if(event.MouseInput.Event==EMIE_RMOUSE_PRESSED_DOWN) {
-//			//
-//			return false;
-//		}
-		mousepressed = event.MouseInput.isLeftPressed() || event.MouseInput.isRightPressed() || event.MouseInput.isMiddlePressed();
-		//FIXME: this is just a test. We need apply a force with a vector drawn by mouse instead of direct movement
-		if (select_actor_part && mousepressed) {
-			if (event.MouseInput.isLeftPressed()) {
-				rl.X = event.MouseInput.X - mousepos.X;
-				rl.Y = 0;
-				rl.Z = event.MouseInput.Y - mousepos.Y;
-			} else if (event.MouseInput.isRightPressed()) {
-				rl.X = 0;
-				rl.Y = mousepos.Y - event.MouseInput.Y;
-				rl.Z = 0;
+		mousepressed = 0;
+		if (event.MouseInput.isLeftPressed()) mousepressed = 1;
+		if (event.MouseInput.isRightPressed()) mousepressed |= 2;
+		if (event.MouseInput.isMiddlePressed()) mousepressed |= 4;
+		if (gizmo) {
+			gizmo->ProcessEvent(event);
+			if (mousepressed) {
+				if (select_actor_part)
+					//FIXME: this is just a test. We need apply a force with a vector drawn by mouse instead of direct movement
+					select_actor_part->Move(gizmo->GetDifference());
+				else if (select_actor) {
+					select_actor->SetCell(gizmo->GetCurrentCell());
+					select_actor->SetPos(gizmo->GetCellRelativePosMetric());
+				} else if (selected) {
+					selected->SetCell(gizmo->GetCurrentCell());
+					selected->SetPos(gizmo->GetCellRelativePosMetric());
+				}
 			}
-			select_actor_part->Move(rl/GWIC_IRRUNITS_PER_METER);
-		} else if ((selected || select_actor) && mousepressed) {
-			if (select_actor)
-				rl = select_actor->GetPos();
-			else
-				rl = selected->GetPos();
-			rl *= GWIC_IRRUNITS_PER_METER;
-			if (event.MouseInput.isLeftPressed()) {
-				rl.X += event.MouseInput.X - mousepos.X;
-				rl.Z += event.MouseInput.Y - mousepos.Y;
-			} else if (event.MouseInput.isRightPressed()) {
-				rl.Y -= event.MouseInput.Y - mousepos.Y;
-			}
-			rl /= GWIC_IRRUNITS_PER_METER;
-			if (select_actor)
-				select_actor->SetPos(rl);
-			else
-				selected->SetPos(rl);
-			std::cout << rl.X << "; " << rl.Y << "; " << rl.Z << std::endl;
 		}
 		mousepos.X = event.MouseInput.X;
 		mousepos.Y = event.MouseInput.Y;
 		mousewheel = event.MouseInput.Wheel;
 		//absorb event if selection is active
-		if (mousepressed && (selected || select_actor || select_actor_part)) return true;
+		if ((mousepressed) && (gizmo)) return true;
 		break;
 	case EET_KEY_INPUT_EVENT:
 		//FIXME: more robust and nice looking processing needed!!
@@ -147,6 +126,9 @@ CGWIC_World::CGWIC_World(WorldProperties* props, cOAL_Device* sndDevice)
 	selpoint_bill = NULL;
 	debugui = NULL;
 	highlited = NULL;
+	select_actor = NULL;
+	select_actor_part = NULL;
+	gizmo = NULL;
 	terrain_magnet = false;
 
 	std::cout << "Creating Irrlicht device..." << std::endl;
@@ -233,7 +215,6 @@ bool CGWIC_World::GenerateLand()
 	std::cout << std::endl << "World height (cells): ";
 	std::cout << properties.wrldSizeY << std::endl;
 	CGWIC_Cell* ptr;
-	//cells = reinterpret_cast<CGWIC_Cell*> (malloc(sizeof(CGWIC_Cell*) * properties.wrldSizeX * properties.wrldSizeY));
 	int y;
 	for (int x=0; x<properties.wrldSizeX; x++)
 		for (y=0; y<properties.wrldSizeY; y++) {
@@ -357,7 +338,7 @@ void CGWIC_World::RunWorld()
 
 		scManager->drawAll();
 
-		if (main_cam) ProcessSelection();
+		if ((main_cam) && (mousepressed)) ProcessSelection();
 
 		gui->drawAll();
 		driver->endScene();
@@ -472,6 +453,7 @@ void CGWIC_World::GoEditMode()
 		oldpos = ptr->getIrrlichtCenter();
 		oldpos.Y = ptr->GetTerrainHeightUnderPointMetric(oldpos) * GWIC_IRRUNITS_PER_METER;
 	}
+	if (selected) oldpos = selected->GetRootNode()->getAbsolutePosition();
 	std::cout << "Camera set to Maya mode" << std::endl;
 	if (debugui) debugui->LogText(L"Camera set to Maya mode");
 	main_cam = scManager->addCameraSceneNodeMaya();
@@ -593,41 +575,43 @@ void CGWIC_World::ProcessSelection()
 		ray.end = ray.start + (main_cam->getTarget() - ray.start).normalize() * main_cam->getFarValue();
 	} else
 		ray = pmgr->getRayFromScreenCoordinates(vector2di(mousepos.X,mousepos.Y),main_cam);
-	if (!mousepressed) ZeroSelect();
 	highlited = pmgr->getSceneNodeAndCollisionPointFromRay(ray,rayhit,hit_triag,GWIC_PICKABLE_MASK,0);
-	if ((highlited) && (!fps_cam) && (mousepressed)) {
+	if (highlited) {
 		cellptr = GetCell((rayhit.X/dim),(rayhit.Z/dim));
 		if (cellptr) {
 			//is this an object in cell?
 			selected = cellptr->GetObjectByIrrPtr(highlited);
-			if (!selected) {
-				//maybe this is an actor or part?
-				u32 i,j;
-				for (i=0; i<actors.size(); i++) {
-					j = actors[i]->IsThisNodeIsMine(highlited);
-					if (j) {
-						select_actor = actors[i];
-						stringc nm = select_actor->GetName();
-						std::cout << "Actor selected: " << nm.c_str() << std::endl;
-						if (j > 1) {
-							select_actor_part = select_actor->GetHead()->GetBPbyNode(highlited);
-							if (select_actor_part) {
-								std::cout << nm.c_str() << "'s BP selected: " << select_actor_part->GetName().c_str();
-								std::cout << std::endl;
-							}
+		}
+		if (!selected) {
+			//maybe this is an actor or part?
+			u32 i,j;
+			for (i=0; i<actors.size(); i++) {
+				j = actors[i]->IsThisNodeIsMine(highlited);
+				if (j) {
+					select_actor = actors[i];
+					stringc nm = select_actor->GetName();
+					std::cout << "Actor selected: " << nm.c_str() << std::endl;
+					if (j > 1) {
+						select_actor_part = select_actor->GetHead()->GetBPbyNode(highlited);
+						if (select_actor_part) {
+							std::cout << nm.c_str() << "'s BP selected: " << select_actor_part->GetName().c_str();
+							std::cout << std::endl;
 						}
-						break;
 					}
+					break;
 				}
 			}
 		}
 		if (selpoint_bill) selpoint_bill->setPosition(rayhit);
-	}
+		if (gizmo) gizmo->SetAbsolutePosition(rayhit);
+		else gizmo = new CGWIC_Gizmo(gra_world,rayhit);
+	} else
+		ZeroSelect();
 }
 
 void CGWIC_World::ProcessActors()
 {
-	//TODO: fix actors falled through terrain
+	//TODO: fix actors fall through terrain
 	//TODO: process brains
 }
 
@@ -638,6 +622,8 @@ void CGWIC_World::ZeroSelect()
 	highlited = NULL;
 	select_actor = NULL;
 	select_actor_part = NULL;
+	if (gizmo) delete gizmo;
+	gizmo = NULL;
 }
 
 void CGWIC_World::CommandProcessor(irr::core::stringw cmd)

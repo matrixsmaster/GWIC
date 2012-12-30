@@ -27,9 +27,9 @@
 
 #define GWIC_MAINWINDOW_CAPTION L"GWIC ver.0.0.2"
 
-#define GWIC_IRRUNITS_PER_METER 20
+#define GWIC_IRRUNITS_PER_METER 20.f
 // don't change next line!
-#define GWIC_METERS_PER_CELL 240
+#define GWIC_METERS_PER_CELL 240.f
 
 #define Random_FLOAT(G) (float)rand()/((float)RAND_MAX/(float)G);
 

@@ -34,6 +34,7 @@
 #include "CGWICGUIObject.h"
 #include "CGWICDebugUI.h"
 #include "CGWICWindowUI.h"
+#include "CGWIC_Gizmo.h"
 
 namespace gwic {
 
@@ -72,12 +73,12 @@ private:
 	irr::scene::IBillboardSceneNode* selpoint_bill;
 	CPoint2D mousepos;
 	float mousewheel;
-	bool mousepressed;
-//	int mousebutton;
+	uchar mousepressed;
 	irr::scene::ISceneNode* highlited;
 	CGWIC_GameObject* selected;
 	CGWIC_Bot* select_actor;
 	CGWIC_BodyPart* select_actor_part;
+	CGWIC_Gizmo* gizmo;
 	bool terrain_magnet;
 	bool GenerateLand();
 	bool GenerateNPC();

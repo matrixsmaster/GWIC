@@ -43,12 +43,11 @@ enum ObjMaterialType {
 	MATERIAL_SIMPLE,
 	MATERIAL_TEXTURED,
 	MATERIAL_IRRLICHT
-};
+}; // I'm not sure that's needed at all =/
 
 struct ObjMaterial {
 	ObjMaterialType type;
-	bool SphericalMapped;
-	irr::io::path texture;
+	irr::video::SMaterial irrmat;
 };
 
 struct WorldProperties {

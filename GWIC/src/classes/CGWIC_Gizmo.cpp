@@ -20,18 +20,25 @@ namespace gwic {
 CGWIC_Gizmo::CGWIC_Gizmo(irr::IrrlichtDevice* dev)
 {
 	irDevice = dev;
-	curhandle = -1;
-	oldhandle = -1;
+	InitVars();
+	k_ctrl = k_shift = false;
 	CreateArrows();
 }
 
-CGWIC_Gizmo::CGWIC_Gizmo(irr::IrrlichtDevice* dev, irr::core::vector3df pos)
+CGWIC_Gizmo::CGWIC_Gizmo(irr::IrrlichtDevice* dev, const irr::core::vector3df pos)
 {
 	irDevice = dev;
+	InitVars();
+	k_ctrl = k_shift = false;
 	abspos = pos;
+	CreateArrows();
+}
+
+void CGWIC_Gizmo::InitVars()
+{
 	curhandle = -1;
 	oldhandle = -1;
-	CreateArrows();
+	cscale = vector3df(1);
 }
 
 CGWIC_Gizmo::~CGWIC_Gizmo()
@@ -40,6 +47,15 @@ CGWIC_Gizmo::~CGWIC_Gizmo()
 		handles.back()->remove();
 		handles.pop_back();
 	}
+}
+
+void CGWIC_Gizmo::ProcessKeyEvent(const irr::SEvent& event)
+{
+	EKEY_CODE key = event.KeyInput.Key;
+	k_shift = (((key==KEY_SHIFT) || (key==KEY_LSHIFT) || (key==KEY_RSHIFT)) && (event.KeyInput.PressedDown));
+	k_ctrl = (((key==KEY_CONTROL) || (key==KEY_LCONTROL) || (key==KEY_RCONTROL)) && (event.KeyInput.PressedDown));
+	if (k_ctrl) std::cout << "Gizmo.Ctrl" << std::endl;
+	if (k_shift) std::cout << "Gizmo.Shift" << std::endl;
 }
 
 void CGWIC_Gizmo::ProcessRay(irr::core::line3d<irr::f32> ray)
@@ -73,7 +89,13 @@ void CGWIC_Gizmo::ProcessRay(irr::core::line3d<irr::f32> ray)
 					ndiff.Z += (oldhit.Z < rayhit.Z)? dist:(-dist);
 					break;
 				}
-				abspos += ndiff;
+				if (k_ctrl) {
+					absrot += ndiff;
+					NormRot();
+				} else if (k_shift)
+					cscale += ndiff;
+				else
+					abspos += ndiff;
 			}
 			oldhandle = curhandle;
 			oldhit = rayhit;
@@ -109,6 +131,13 @@ irr::core::vector3df CGWIC_Gizmo::GetDifference()
 irr::core::vector3df CGWIC_Gizmo::GetDifferenceMetric()
 {
 	vector3df r = GetDifference() / GWIC_IRRUNITS_PER_METER;
+	return r;
+}
+
+irr::core::vector3df CGWIC_Gizmo::GetRelativeScale()
+{
+	vector3df r(cscale);
+	cscale = vector3df(1);
 	return r;
 }
 
@@ -177,9 +206,19 @@ void CGWIC_Gizmo::UpdateGizmo()
 
 void CGWIC_Gizmo::GizmoHandleRelease()
 {
-	curhandle = oldhandle = -1;
+	InitVars();
 	UpdateCell();
 	UpdateGizmo();
+}
+
+void CGWIC_Gizmo::NormRot()
+{
+	if (absrot.X < 360) absrot.X += 360.f;
+	if (absrot.X > 360) absrot.X -= 360.f;
+	if (absrot.Y < 360) absrot.Y += 360.f;
+	if (absrot.Y > 360) absrot.Y -= 360.f;
+	if (absrot.Z < 360) absrot.Z += 360.f;
+	if (absrot.Z > 360) absrot.Z -= 360.f;
 }
 
 

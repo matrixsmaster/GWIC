@@ -176,10 +176,13 @@ void CGWIC_Cell::RandomPlaceObjects(int count, irr::io::path filename)
 		rndpos.Z = Random_FLOAT(GWIC_METERS_PER_CELL);
 		rndpos.Y = GetTerrainHeightUnderPointMetric(rndpos) + 1.f;
 		nobj = new CGWIC_GameObject(filename,werhere,graphics,physics);
-		objects.push_back(nobj);
-		nobj->SetPos(rndpos);
-		nobj->SetEnabled(true);
-		nobj->SetPhysical(true);
+		if (nobj->GetRootNode()) {
+			objects.push_back(nobj);
+			nobj->SetPos(rndpos);
+			nobj->SetEnabled(true);
+			nobj->SetPhysical(true);
+		} else
+			std::cerr << "Couldn't load mesh for object!" << std::endl;
 	}
 }
 

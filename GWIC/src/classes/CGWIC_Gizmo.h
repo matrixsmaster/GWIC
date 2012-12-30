@@ -19,9 +19,9 @@ namespace gwic {
 class CGWIC_Gizmo {
 public:
 	CGWIC_Gizmo(irr::IrrlichtDevice* dev);
-	CGWIC_Gizmo(irr::IrrlichtDevice* dev, irr::core::vector3df pos);
+	CGWIC_Gizmo(irr::IrrlichtDevice* dev, const irr::core::vector3df pos);
 	virtual ~CGWIC_Gizmo();
-//	void ProcessEvent(const irr::SEvent& event);
+	void ProcessKeyEvent(const irr::SEvent& event);
 	void ProcessRay(irr::core::line3d<irr::f32> ray);
 	void UpdateCameraPos(const irr::core::vector3df campos);
 	irr::core::vector3df GetAbsolutePosition() { return this->abspos; }
@@ -29,21 +29,26 @@ public:
 	irr::core::vector3df GetCellRelativePosMetric();
 	irr::core::vector3df GetDifference();
 	irr::core::vector3df GetDifferenceMetric();
+	irr::core::vector3df GetRot() { return this->absrot; }
+	irr::core::vector3df GetRelativeScale();
 	void SetCell(const CPoint2D nwcell) { this->cell = nwcell; }
 	void SetCellRelativePosMetric(irr::core::vector3df vec);
 	void SetAbsolutePosition(const irr::core::vector3df vec);
 	void GizmoHandleRelease();
 protected:
 	CPoint2D cell;
-	irr::core::vector3df abspos;
+	irr::core::vector3df abspos,absrot,cscale;
 	irr::core::vector3df lastdiff;
 	irr::IrrlichtDevice* irDevice;
 	std::vector<irr::scene::ISceneNode*> handles;
 	irr::s32 curhandle,oldhandle;
 	irr::core::vector3df oldhit,oldpos;
+	bool k_ctrl,k_shift;
+	void InitVars();
 	void UpdateCell();
 	void CreateArrows();
 	void UpdateGizmo();
+	void NormRot();
 };
 
 } /* namespace gwic */

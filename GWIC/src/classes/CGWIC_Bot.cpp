@@ -51,6 +51,7 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 		botRoot->setMaterialType(EMT_REFLECTION_2_LAYER);
 		botRoot->setMaterialTexture(0,irDriver->getTexture("sydney.bmp"));
 		botRoot->setMaterialTexture(1,irDriver->getTexture("spheremap.jpg"));
+//		animnode->addShadowVolumeSceneNode();
 		basicShell = new IBoxShape(botRoot,60.f,false);
 		break;
 	case ACTOR_GYNOID:

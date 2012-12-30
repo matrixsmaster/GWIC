@@ -53,7 +53,7 @@ CGWIC_GameObject::~CGWIC_GameObject()
 		pshapes.pop_back();
 	}
 	pshapes.clear();
-	root->remove();
+	if (root) root->remove();
 	std::cout << "done!" << std::endl;
 }
 
@@ -91,13 +91,17 @@ irr::core::vector3df CGWIC_GameObject::GetPos()
 
 bool CGWIC_GameObject::SetRot(irr::core::vector3df rot)
 {
-	root->setRotation(rot);
-	return true;
+	if (root) {
+		root->setRotation(rot);
+		return true;
+	}
+	return false;
 }
 
 irr::core::vector3df CGWIC_GameObject::GetRot()
 {
-	return root->getRotation();
+	if (root) return root->getRotation();
+	else return (vector3df(0));
 }
 
 void CGWIC_GameObject::SetScale(irr::core::vector3df scal)

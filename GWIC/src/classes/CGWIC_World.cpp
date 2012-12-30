@@ -43,6 +43,7 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 		break;
 	case EET_KEY_INPUT_EVENT:
 		//FIXME: more robust and nice looking processing needed!!
+		if (gizmo) gizmo->ProcessKeyEvent(event);
 		if (event.KeyInput.Key == KEY_ESCAPE && event.KeyInput.PressedDown == false) {
 //			fps_cam ^= true;
 			if (!fps_cam) GoFPS();
@@ -82,9 +83,6 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 				StitchWorld(false);
 			return true;
 		}
-		if (event.KeyInput.Key == KEY_SPACE && event.KeyInput.PressedDown == false) {
-			if (gizmo) ZeroSelect();
-		}
 		break;
 	case EET_GUI_EVENT:
 		if (debugui) debugui->PumpMessage(event);
@@ -96,6 +94,7 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 				if (ptr->GetRootID() == event.GUIEvent.Caller->getID()) {
 					delete ptr;
 					uis.erase(uisit);
+					debugui->LogText(L"Window destroyed!");
 					break;
 				}
 			}
@@ -572,6 +571,7 @@ void CGWIC_World::ProcessSelection()
 		ray = pmgr->getRayFromScreenCoordinates(vector2di(mousepos.X,mousepos.Y),main_cam);
 	if ((gizmo) && (mousepressed == 1)) {
 		gizmo->ProcessRay(ray);
+		vector3df scal;
 		if (select_actor_part)
 			//FIXME: this is just a test. We need apply a force with a vector drawn by mouse instead of direct movement
 			select_actor_part->Move(gizmo->GetDifference());
@@ -581,6 +581,10 @@ void CGWIC_World::ProcessSelection()
 		} else if (selected) {
 			selected->SetCell(gizmo->GetCurrentCell());
 			selected->SetPos(gizmo->GetCellRelativePosMetric());
+			selected->SetRot(gizmo->GetRot());
+			scal = gizmo->GetRelativeScale();
+			if (scal.getDistanceFrom(vector3df(1)) > 0)
+				selected->SetScale(selected->GetScale() + (scal - vector3df(1)));
 		}
 	} else {
 		ZeroSelect();

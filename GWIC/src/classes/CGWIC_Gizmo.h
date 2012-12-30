@@ -43,7 +43,7 @@ protected:
 	std::vector<irr::scene::ISceneNode*> handles;
 	irr::s32 curhandle,oldhandle;
 	irr::core::vector3df oldhit,oldpos;
-	bool k_ctrl,k_shift;
+	bool k_ctrl,k_shift,k_alt;
 	void InitVars();
 	void UpdateCell();
 	void CreateArrows();

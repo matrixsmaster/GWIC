@@ -21,7 +21,7 @@ CGWIC_Gizmo::CGWIC_Gizmo(irr::IrrlichtDevice* dev)
 {
 	irDevice = dev;
 	InitVars();
-	k_ctrl = k_shift = false;
+	k_ctrl = k_shift = k_alt = false;
 	CreateArrows();
 }
 
@@ -29,7 +29,7 @@ CGWIC_Gizmo::CGWIC_Gizmo(irr::IrrlichtDevice* dev, const irr::core::vector3df po
 {
 	irDevice = dev;
 	InitVars();
-	k_ctrl = k_shift = false;
+	k_ctrl = k_shift = k_alt = false;
 	abspos = pos;
 	CreateArrows();
 }
@@ -54,8 +54,9 @@ void CGWIC_Gizmo::ProcessKeyEvent(const irr::SEvent& event)
 	EKEY_CODE key = event.KeyInput.Key;
 	k_shift = (((key==KEY_SHIFT) || (key==KEY_LSHIFT) || (key==KEY_RSHIFT)) && (event.KeyInput.PressedDown));
 	k_ctrl = (((key==KEY_CONTROL) || (key==KEY_LCONTROL) || (key==KEY_RCONTROL)) && (event.KeyInput.PressedDown));
-	if (k_ctrl) std::cout << "Gizmo.Ctrl" << std::endl;
-	if (k_shift) std::cout << "Gizmo.Shift" << std::endl;
+	k_alt = (((key==KEY_MENU) || (key==KEY_LMENU) || (key==KEY_RMENU)) && (event.KeyInput.PressedDown));
+//	if (k_ctrl) std::cout << "Gizmo.Ctrl" << std::endl;
+//	if (k_shift) std::cout << "Gizmo.Shift" << std::endl;
 }
 
 void CGWIC_Gizmo::ProcessRay(irr::core::line3d<irr::f32> ray)
@@ -93,6 +94,8 @@ void CGWIC_Gizmo::ProcessRay(irr::core::line3d<irr::f32> ray)
 					absrot += ndiff;
 					NormRot();
 				} else if (k_shift)
+					cscale += vector3df(ndiff.dotProduct(vector3df(1)));
+				else if (k_alt)
 					cscale += ndiff;
 				else
 					abspos += ndiff;

@@ -119,7 +119,7 @@ CGWIC_World::CGWIC_World(WorldProperties* props, cOAL_Device* sndDevice)
 	properties = *props;
 	debugDraw = props->debugdraw;
 	physicsPause = true;
-	selpoint_bill = NULL;
+//	selpoint_bill = NULL;
 	debugui = NULL;
 	highlited = NULL;
 	select_actor = NULL;
@@ -270,13 +270,13 @@ bool CGWIC_World::PrepareWorld()
 	main_cam = NULL;
 	GoEditMode();
 	if (!main_cam) return false;
-	selpoint_bill = scManager->addBillboardSceneNode();
-	selpoint_bill->setMaterialType(EMT_TRANSPARENT_ADD_COLOR );
-	selpoint_bill->setMaterialTexture(0,driver->getTexture("particlered.bmp"));
-	selpoint_bill->setMaterialFlag(EMF_LIGHTING,false);
-	selpoint_bill->setMaterialFlag(EMF_ZBUFFER,false);
-	selpoint_bill->setSize(dimension2d<f32>(GWIC_IRRUNITS_PER_METER,GWIC_IRRUNITS_PER_METER));
-	selpoint_bill->setID(-111);
+//	selpoint_bill = scManager->addBillboardSceneNode();
+//	selpoint_bill->setMaterialType(EMT_TRANSPARENT_ADD_COLOR );
+//	selpoint_bill->setMaterialTexture(0,driver->getTexture("particlered.bmp"));
+//	selpoint_bill->setMaterialFlag(EMF_LIGHTING,false);
+//	selpoint_bill->setMaterialFlag(EMF_ZBUFFER,false);
+//	selpoint_bill->setSize(dimension2d<f32>(GWIC_IRRUNITS_PER_METER,GWIC_IRRUNITS_PER_METER));
+//	selpoint_bill->setID(-111);
 
 	//Prepare sky
 	std::cout << "Prepare atmosphere" << std::endl;
@@ -611,7 +611,7 @@ void CGWIC_World::ProcessSelection()
 					}
 				}
 			}
-			if (selpoint_bill) selpoint_bill->setPosition(rayhit);
+//			if (selpoint_bill) selpoint_bill->setPosition(rayhit);
 			if (mousepressed == 1)
 				gizmo = new CGWIC_Gizmo(gra_world,rayhit);
 			else if (mousepressed == 2)
@@ -628,7 +628,7 @@ void CGWIC_World::ProcessActors()
 
 void CGWIC_World::ZeroSelect()
 {
-	if (selpoint_bill) selpoint_bill->setPosition(vector3df(0));
+//	if (selpoint_bill) selpoint_bill->setPosition(vector3df(0));
 	selected = NULL;
 	highlited = NULL;
 	select_actor = NULL;

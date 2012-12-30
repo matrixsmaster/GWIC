@@ -53,13 +53,14 @@ void CGWIC_Gizmo::ProcessRay(irr::core::line3d<irr::f32> ray)
 			for (u32 i=0; i<handles.size(); i++)
 				if (handles[i] == node) {
 					curhandle = static_cast<s32> (i);
+					oldpos = abspos;
 					break;
 				}
 		}
 		if (curhandle >= 0) {
 			if (oldhandle == curhandle) {
 				float dist = oldhit.getDistanceFrom(rayhit);
-				std::cout << "Handle " << curhandle << " active. Dist: " << dist << std::endl;
+//				std::cout << "Handle " << curhandle << " active. Dist: " << dist << std::endl;
 				vector3df ndiff(0);
 				switch (curhandle) {
 				case 0:
@@ -72,8 +73,6 @@ void CGWIC_Gizmo::ProcessRay(irr::core::line3d<irr::f32> ray)
 					ndiff.Z += (oldhit.Z < rayhit.Z)? dist:(-dist);
 					break;
 				}
-//				if (dist > 0)
-					lastdiff = ndiff;
 				abspos += ndiff;
 			}
 			oldhandle = curhandle;
@@ -97,6 +96,19 @@ irr::core::vector3df CGWIC_Gizmo::GetCellRelativePosMetric()
 	vector3df r = abspos / GWIC_IRRUNITS_PER_METER;
 	r.X -= (cell.X * GWIC_METERS_PER_CELL);
 	r.Z -= (cell.Y * GWIC_METERS_PER_CELL);
+	return r;
+}
+
+irr::core::vector3df CGWIC_Gizmo::GetDifference()
+{
+	lastdiff = abspos - oldpos;
+	oldpos = abspos;
+	return lastdiff;
+}
+
+irr::core::vector3df CGWIC_Gizmo::GetDifferenceMetric()
+{
+	vector3df r = GetDifference() / GWIC_IRRUNITS_PER_METER;
 	return r;
 }
 
@@ -125,8 +137,9 @@ void CGWIC_Gizmo::UpdateCell()
 void CGWIC_Gizmo::CreateArrows()
 {
 	ISceneManager* smgr = irDevice->getSceneManager();
+	IAnimatedMesh* arr;
 	//X
-	IAnimatedMesh* arr = smgr->addArrowMesh(L"X",GWIC_GIZMO_X_COLOR,GWIC_GIZMO_X_COLOR);
+	arr = smgr->addArrowMesh(L"X",GWIC_GIZMO_X_COLOR,GWIC_GIZMO_X_COLOR,GWIC_GIZMO_ARROW_PARAMS);
 	vector3df rot(0,0,-90);
 	IAnimatedMeshSceneNode* arrn = smgr->addAnimatedMeshSceneNode(arr,NULL,GWIC_GIZMO_MASK,abspos,rot);
 	ITriangleSelector* sel = smgr->createTriangleSelector(arrn);
@@ -134,7 +147,7 @@ void CGWIC_Gizmo::CreateArrows()
 	sel->drop();
 	handles.push_back(arrn);
 	//Y
-	arr = smgr->addArrowMesh(L"Y",GWIC_GIZMO_Y_COLOR,GWIC_GIZMO_Y_COLOR);
+	arr = smgr->addArrowMesh(L"Y",GWIC_GIZMO_Y_COLOR,GWIC_GIZMO_Y_COLOR,GWIC_GIZMO_ARROW_PARAMS);
 	rot = vector3df(0);
 	arrn = smgr->addAnimatedMeshSceneNode(arr,NULL,GWIC_GIZMO_MASK,abspos,rot);
 	sel = smgr->createTriangleSelector(arrn);
@@ -142,13 +155,18 @@ void CGWIC_Gizmo::CreateArrows()
 	sel->drop();
 	handles.push_back(arrn);
 	//Z
-	arr = smgr->addArrowMesh(L"Z",GWIC_GIZMO_Z_COLOR,GWIC_GIZMO_Z_COLOR);
+	arr = smgr->addArrowMesh(L"Z",GWIC_GIZMO_Z_COLOR,GWIC_GIZMO_Z_COLOR,GWIC_GIZMO_ARROW_PARAMS);
 	rot = vector3df(90,0,0);
 	arrn = smgr->addAnimatedMeshSceneNode(arr,NULL,GWIC_GIZMO_MASK,abspos,rot);
 	sel = smgr->createTriangleSelector(arrn);
 	arrn->setTriangleSelector(sel);
 	sel->drop();
 	handles.push_back(arrn);
+	//apply material
+	for (u32 i=0; i<handles.size(); i++) {
+		handles[i]->setMaterialFlag(EMF_LIGHTING,false);
+//		handles[i]->setMaterialFlag(EMF_ZWRITE_ENABLE,false);
+	}
 }
 
 void CGWIC_Gizmo::UpdateGizmo()

@@ -36,6 +36,10 @@
 #define GWIC_PICKABLE_MASK (1<<30)
 #define GWIC_GIZMO_MASK (1<<29)
 
+//u32 tesselationCylinder=4,u32 tesselationCone=8,
+//f32 height=1.f, f32 cylinderHeight=0.6f,
+//f32 widthCylinder=0.05f, f32 widthCone=0.3f
+#define GWIC_GIZMO_ARROW_PARAMS 4, 8, 1.f, 0.6f, 0.05f, 0.15f
 #define GWIC_GIZMO_X_COLOR SColor(255,255,0,0)
 #define GWIC_GIZMO_Y_COLOR SColor(255,0,255,0)
 #define GWIC_GIZMO_Z_COLOR SColor(255,0,0,255)

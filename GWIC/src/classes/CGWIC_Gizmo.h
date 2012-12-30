@@ -27,8 +27,8 @@ public:
 	irr::core::vector3df GetAbsolutePosition() { return this->abspos; }
 	CPoint2D GetCurrentCell() { return this->cell; }
 	irr::core::vector3df GetCellRelativePosMetric();
-	irr::core::vector3df GetDifference() { return this->lastdiff; }
-	irr::core::vector3df GetDifferenceMetric() { return (this->lastdiff / GWIC_IRRUNITS_PER_METER); }
+	irr::core::vector3df GetDifference();
+	irr::core::vector3df GetDifferenceMetric();
 	void SetCell(const CPoint2D nwcell) { this->cell = nwcell; }
 	void SetCellRelativePosMetric(irr::core::vector3df vec);
 	void SetAbsolutePosition(const irr::core::vector3df vec);
@@ -40,7 +40,7 @@ protected:
 	irr::IrrlichtDevice* irDevice;
 	std::vector<irr::scene::ISceneNode*> handles;
 	irr::s32 curhandle,oldhandle;
-	irr::core::vector3df oldhit;
+	irr::core::vector3df oldhit,oldpos;
 	void UpdateCell();
 	void CreateArrows();
 	void UpdateGizmo();

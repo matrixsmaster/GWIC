@@ -34,6 +34,12 @@
 #define Random_FLOAT(G) (float)rand()/((float)RAND_MAX/(float)G);
 
 #define GWIC_PICKABLE_MASK (1<<30)
+#define GWIC_GIZMO_MASK (1<<29)
+
+#define GWIC_GIZMO_X_COLOR SColor(255,255,0,0)
+#define GWIC_GIZMO_Y_COLOR SColor(255,0,255,0)
+#define GWIC_GIZMO_Z_COLOR SColor(255,0,0,255)
+#define GWIC_GIZMO_SIZE_DIVIDER 3.f
 
 #define GWIC_GUI_DEBUG_EDITBOX 11
 #define GWIC_GUI_DEBUG_HDEPTH 12

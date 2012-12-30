@@ -27,26 +27,19 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 		if (event.MouseInput.isLeftPressed()) mousepressed = 1;
 		if (event.MouseInput.isRightPressed()) mousepressed |= 2;
 		if (event.MouseInput.isMiddlePressed()) mousepressed |= 4;
-		if (gizmo) {
-			gizmo->ProcessEvent(event);
-			if (mousepressed) {
-				if (select_actor_part)
-					//FIXME: this is just a test. We need apply a force with a vector drawn by mouse instead of direct movement
-					select_actor_part->Move(gizmo->GetDifference());
-				else if (select_actor) {
-					select_actor->SetCell(gizmo->GetCurrentCell());
-					select_actor->SetPos(gizmo->GetCellRelativePosMetric());
-				} else if (selected) {
-					selected->SetCell(gizmo->GetCurrentCell());
-					selected->SetPos(gizmo->GetCellRelativePosMetric());
-				}
-			}
-		}
 		mousepos.X = event.MouseInput.X;
 		mousepos.Y = event.MouseInput.Y;
 		mousewheel = event.MouseInput.Wheel;
-		//absorb event if selection is active
-		if ((mousepressed) && (gizmo)) return true;
+		if (gizmo) {
+			//Gizmo-related actions
+			if (main_cam)
+				gizmo->UpdateCameraPos(main_cam->getPosition());
+			if (mousepressed) {
+				if (!fps_cam) return true; //absorb event to stop camera actions in Maya mode
+			} else {
+				gizmo->GizmoHandleRelease();
+			}
+		}
 		break;
 	case EET_KEY_INPUT_EVENT:
 		//FIXME: more robust and nice looking processing needed!!
@@ -88,6 +81,9 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 			} else
 				StitchWorld(false);
 			return true;
+		}
+		if (event.KeyInput.Key == KEY_SPACE && event.KeyInput.PressedDown == false) {
+			if (gizmo) ZeroSelect();
 		}
 		break;
 	case EET_GUI_EVENT:
@@ -569,44 +565,59 @@ void CGWIC_World::ProcessSelection()
 	triangle3df hit_triag;
 	CGWIC_Cell* cellptr;
 	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
-	highlited = NULL;
 	if (fps_cam) {
 		ray.start = main_cam->getPosition();
 		ray.end = ray.start + (main_cam->getTarget() - ray.start).normalize() * main_cam->getFarValue();
 	} else
 		ray = pmgr->getRayFromScreenCoordinates(vector2di(mousepos.X,mousepos.Y),main_cam);
-	highlited = pmgr->getSceneNodeAndCollisionPointFromRay(ray,rayhit,hit_triag,GWIC_PICKABLE_MASK,0);
-	if (highlited) {
-		cellptr = GetCell((rayhit.X/dim),(rayhit.Z/dim));
-		if (cellptr) {
-			//is this an object in cell?
-			selected = cellptr->GetObjectByIrrPtr(highlited);
+	if ((gizmo) && (mousepressed == 1)) {
+		gizmo->ProcessRay(ray);
+		if (select_actor_part)
+			//FIXME: this is just a test. We need apply a force with a vector drawn by mouse instead of direct movement
+			select_actor_part->Move(gizmo->GetDifference());
+		else if (select_actor) {
+			select_actor->SetCell(gizmo->GetCurrentCell());
+			select_actor->SetPos(gizmo->GetCellRelativePosMetric());
+		} else if (selected) {
+			selected->SetCell(gizmo->GetCurrentCell());
+			selected->SetPos(gizmo->GetCellRelativePosMetric());
 		}
-		if (!selected) {
-			//maybe this is an actor or part?
-			u32 i,j;
-			for (i=0; i<actors.size(); i++) {
-				j = actors[i]->IsThisNodeIsMine(highlited);
-				if (j) {
-					select_actor = actors[i];
-					stringc nm = select_actor->GetName();
-					std::cout << "Actor selected: " << nm.c_str() << std::endl;
-					if (j > 1) {
-						select_actor_part = select_actor->GetHead()->GetBPbyNode(highlited);
-						if (select_actor_part) {
-							std::cout << nm.c_str() << "'s BP selected: " << select_actor_part->GetName().c_str();
-							std::cout << std::endl;
+	} else {
+		ZeroSelect();
+		highlited = pmgr->getSceneNodeAndCollisionPointFromRay(ray,rayhit,hit_triag,GWIC_PICKABLE_MASK,0);
+		if (highlited) {
+			cellptr = GetCell((rayhit.X/dim),(rayhit.Z/dim));
+			if (cellptr) {
+				//is this an object in cell?
+				selected = cellptr->GetObjectByIrrPtr(highlited);
+			}
+			if (!selected) {
+				//maybe this is an actor or part?
+				u32 i,j;
+				for (i=0; i<actors.size(); i++) {
+					j = actors[i]->IsThisNodeIsMine(highlited);
+					if (j) {
+						select_actor = actors[i];
+						stringc nm = select_actor->GetName();
+						std::cout << "Actor selected: " << nm.c_str() << std::endl;
+						if (j > 1) {
+							select_actor_part = select_actor->GetHead()->GetBPbyNode(highlited);
+							if (select_actor_part) {
+								std::cout << nm.c_str() << "'s BP selected: " << select_actor_part->GetName().c_str();
+								std::cout << std::endl;
+							}
 						}
+						break;
 					}
-					break;
 				}
 			}
-		}
-		if (selpoint_bill) selpoint_bill->setPosition(rayhit);
-		if (gizmo) gizmo->SetAbsolutePosition(rayhit);
-		else gizmo = new CGWIC_Gizmo(gra_world,rayhit);
-	} else
-		ZeroSelect();
+			if (selpoint_bill) selpoint_bill->setPosition(rayhit);
+			if (mousepressed == 1)
+				gizmo = new CGWIC_Gizmo(gra_world,rayhit);
+			else if (mousepressed == 2)
+				std::cout << "Here'll be context menu!" << std::endl;
+		} //if highlighted
+	}
 }
 
 void CGWIC_World::ProcessActors()

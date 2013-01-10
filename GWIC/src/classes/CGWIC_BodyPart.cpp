@@ -204,8 +204,10 @@ void CGWIC_BodyPart::UpdatePosition()
 
 void CGWIC_BodyPart::Move(irr::core::vector3df vec)
 {
-	root->setPosition(root->getPosition()+vec);
-	UpdatePosition();
+	if (root) {
+		root->setPosition(root->getPosition()+vec);
+		UpdatePosition();
+	}
 	for (u32 i=1; i<slots.size(); i++)
 		if (slots[i]) slots[i]->Move(vec);
 }

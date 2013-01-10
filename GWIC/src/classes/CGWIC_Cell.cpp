@@ -385,23 +385,31 @@ void CGWIC_Cell::RandomizeTerrain(float subdelta)
 			tmparr.push_back(cy);
 		}
 		std::cout << std::endl;
-		//3. apply 2D filter
-		s32 ww = static_cast<s32> (subdelta);
-		s32 edge = ww / 2;
-		s32 x,y,fx,fy;
-		float med;
-		std::vector<float> filarr;
-		filarr.resize((ww*ww),0.f);
-		for (x=edge; x<(256-edge); x++)
-			for (y=edge; y<(256-edge); y++) {
-				for (fx=0; fx<ww; fx++)
-					for (fy=0; fy<ww; fy++) {
-						i = (x+fx-edge)*256 + (y+fy-edge);
-						filarr[fx*ww+fy] = tmparr[i];
+		//3. interpolate vertices inside big quads
+		s32 Q = static_cast<s32> (subdelta);
+		s32 A = 256 / Q + 1;
+		for (int qx=0; qx<A; qx++)
+			for (int qy=0; qy<A; qy++) {
+				int x0 = qx * Q;
+				int y0 = qy * Q;
+				int xe = x0 + Q;
+				if (xe > 255) xe = 255;
+				int ye = y0 + Q;
+				if (ye > 255) ye = 255;
+				float hx0 = tmparr[x0*256+y0];
+				float hy0 = tmparr[x0*256+y0];
+				float hxe = tmparr[xe*256+y0];
+				float hye = tmparr[x0*256+ye];
+				float lhy = hye - hy0;
+				float lhx = hxe - hx0;
+				for (int cx=x0; cx<xe; cx++)
+					for (int cy=y0; cy<ye; cy++) {
+
+						float ch = ((cx-x0)/lhx)*lhx+hx0;
+						ch += ((cy-y0)/lhy)*lhy+hy0;
+						ch /= 2;
+						tmparr[cx*256+cy] = ch;
 					}
-				std::sort(filarr.begin(),filarr.end());
-				med = filarr[ww];
-				tmparr[x*256+y] = med;
 			}
 		//4. get result back
 		for (i=0; i<(256*256); i++)

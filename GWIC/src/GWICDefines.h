@@ -31,7 +31,7 @@
 // don't change next line!
 #define GWIC_METERS_PER_CELL 240.f
 
-#define Random_FLOAT(G) (float)rand()/((float)RAND_MAX/(float)G);
+#define Random_FLOAT(G) (float)rand()/((float)RAND_MAX/(float)(G));
 
 #define GWIC_PICKABLE_MASK (1<<30)
 #define GWIC_GIZMO_MASK (1<<29)

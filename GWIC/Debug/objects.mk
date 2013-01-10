@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lXxf86vm -lGL -lXext -lX11 -lXcursor -lIrrlicht -lBulletCollision -lBulletDynamics -lBulletSoftBody -lLinearMath -lopenal -logg -lvorbis -lvorbisfile -lOALWrapper -lSDL
+LIBS := -lIrrlicht -lGL -lXxf86vm -lXext -lXcursor -lX11 -lBulletCollision -lBulletDynamics -lBulletSoftBody -lLinearMath -lOALWrapper -lSDL -lopenal -logg -lvorbis -lvorbisfile
 

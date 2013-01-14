@@ -404,7 +404,6 @@ void CGWIC_Cell::RandomizeTerrain(float subdelta)
 				float lhx = hxe - hx0;
 				for (int cx=x0; cx<xe; cx++)
 					for (int cy=y0; cy<ye; cy++) {
-
 						float ch = ((cx-x0)/lhx)*lhx+hx0;
 						ch += ((cy-y0)/lhy)*lhy+hy0;
 						ch /= 2;

@@ -47,7 +47,7 @@ all: GWIC
 GWIC: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++ -L/home/lisa/libs/irrlicht-1.8/lib/Linux -L/home/lisa/libs/bullet-2.79/install/lib -L/home/lisa/libs/OALwrapper/build -o "GWIC" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L/mnt/angar/irrlicht-1.8/lib/Linux -L/mnt/angar/bullet-2.79/install/lib -L/mnt/angar/OALwrapper/build -o "GWIC" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

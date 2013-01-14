@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?>
+
+<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="cdt.managedbuild.config.gnu.exe.debug.83540307">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.debug.83540307" moduleId="org.eclipse.cdt.core.settings" name="Debug">
@@ -27,9 +29,9 @@
 									<listOptionValue builtIn="false" value="../src"/>
 									<listOptionValue builtIn="false" value="../src/classes"/>
 									<listOptionValue builtIn="false" value="../irrBullet"/>
-									<listOptionValue builtIn="false" value="/home/lisa/libs/irrlicht-1.8/include"/>
-									<listOptionValue builtIn="false" value="/home/lisa/libs/bullet-2.79/install/include/bullet"/>
-									<listOptionValue builtIn="false" value="/home/lisa/libs/OALwrapper/include"/>
+									<listOptionValue builtIn="false" value="/mnt/angar/irrlicht-1.8/include"/>
+									<listOptionValue builtIn="false" value="/mnt/angar/bullet-2.79/install/include/bullet"/>
+									<listOptionValue builtIn="false" value="/mnt/angar/OALwrapper/include"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.813782518" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -62,9 +64,9 @@
 									<listOptionValue builtIn="false" value="vorbisfile"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.1342221358" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="/home/lisa/libs/irrlicht-1.8/lib/Linux"/>
-									<listOptionValue builtIn="false" value="/home/lisa/libs/bullet-2.79/install/lib"/>
-									<listOptionValue builtIn="false" value="/home/lisa/libs/OALwrapper/build"/>
+									<listOptionValue builtIn="false" value="/mnt/angar/irrlicht-1.8/lib/Linux"/>
+									<listOptionValue builtIn="false" value="/mnt/angar/bullet-2.79/install/lib"/>
+									<listOptionValue builtIn="false" value="/mnt/angar/OALwrapper/build"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1555565631" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

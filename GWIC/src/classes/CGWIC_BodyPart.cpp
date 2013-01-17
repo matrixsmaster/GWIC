@@ -36,6 +36,7 @@ CGWIC_BodyPart::CGWIC_BodyPart(irr::io::path modelfile, irr::scene::ISceneNode* 
 	slots.push_back(NULL); //zero slot is in-slot
 	success = LoadModelFile(modelfile);
 	active = false;
+	visible = true;
 }
 
 CGWIC_BodyPart::~CGWIC_BodyPart() {
@@ -155,6 +156,14 @@ void CGWIC_BodyPart::SetActive(bool activate, bool chain)
 			if (slots[i]) slots[i]->SetActive(activate,true);
 	}
 	active = activate;
+}
+
+void CGWIC_BodyPart::SetVisible(const bool enable)
+{
+	visible = enable;
+	for (u32 i=1; i<slots.size(); i++)
+		if (slots[i]) slots[i]->SetVisible(enable);
+	if (root) root->setVisible(enable);
 }
 
 void CGWIC_BodyPart::RebuildPhysics(bool chain)

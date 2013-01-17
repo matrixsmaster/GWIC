@@ -41,13 +41,19 @@ typedef struct SPoint2D TPoint2D;
 
 enum ObjMaterialType {
 	MATERIAL_SIMPLE,
-	MATERIAL_TEXTURED,
+	MATERIAL_TEXTURED, //??
 	MATERIAL_IRRLICHT
 }; // I'm not sure that's needed at all =/
 
 struct ObjMaterial {
 	ObjMaterialType type;
 	irr::video::SMaterial irrmat;
+};
+
+struct HardCullingProperties {
+	float ObjectCullMeters;
+	float ActorsCullMeters;
+	bool DistantLand;
 };
 
 struct WorldProperties {
@@ -70,6 +76,7 @@ struct WorldProperties {
 	float Gforce;
 	float viewDistance;
 	irr::s32 maxLOD;
+	HardCullingProperties hardcull;
 };
 
 }

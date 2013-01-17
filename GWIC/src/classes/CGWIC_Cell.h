@@ -49,8 +49,10 @@ public:
 	*/
 	CPoint2D GetCoord();
 	void SetActive(bool on);
-	bool GetActive();
+	bool GetActive() { return this->active; }
 	virtual bool InitLand();
+	void SetVisible(const bool enable);
+	bool GetVisible() { return this->visible; }
 	void DeleteObjects();
 	void RandomPlaceObjects(int count, irr::io::path filename);
 	irr::core::vector3df getIrrlichtCenter();
@@ -64,8 +66,13 @@ public:
 	//float GetTerrainHeightUnderPointAbsolute(irr::core::vector3df pnt);
 	bool SetTerrainHeightUnderPointMetric(irr::core::vector3df pnt, float height, bool update);
 	CGWIC_GameObject* GetObjectByIrrPtr(irr::scene::ISceneNode* ptr);
+	CGWIC_GameObject* GetObjectByNum(irr::u32 num);
+	irr::u32 GetObjectsCount() { return this->objects.size(); }
 	void TerrainChanged();
 	void RandomizeTerrain(float subdelta);
+	void SaveTerrainBitmap();
+	void SaveObjectStates();
+	void LoadObjectStates();
 protected:
 	int posX;
 	int posY;
@@ -78,6 +85,7 @@ protected:
 	irr::s32 terraSmooth;
 	bool active;
 	bool terra_changed;
+	bool visible;
 	irr::scene::ITerrainSceneNode* terrain;
 	std::vector<irr::scene::ISceneNode*> ournodes;
 	std::vector<IRigidBody*> ourphys;

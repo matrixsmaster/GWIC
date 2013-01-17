@@ -32,6 +32,7 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 	// init actor
 	initDone = false;
 	enabled = false;
+	visible = true;
 	basicShell = NULL;
 	botRoot = NULL;
 	botShell = NULL;
@@ -168,14 +169,22 @@ void CGWIC_Bot::SetEnabled(bool enable)
 	} else {
 		if (botShell) phy_world->removeCollisionObject(botShell,true);
 	}
-	if (botRoot) botRoot->setVisible(enable);
+	if (head) head->SetActive(enable,true);
+	else if (botRoot) botRoot->setVisible(enable);
 	enabled = enable;
 }
 
 bool CGWIC_Bot::GetEnabled()
 {
-	//
+	//FIXME: !
 	return true;
+}
+
+void CGWIC_Bot::SetVisible(const bool enable)
+{
+	visible = enable;
+	if (head) head->SetVisible(enable);
+	else if (botRoot) botRoot->setVisible(enable);
 }
 
 void CGWIC_Bot::AutoSize()

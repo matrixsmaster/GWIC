@@ -33,6 +33,7 @@ CGWIC_Cell::CGWIC_Cell(CPoint2D pos, irr::IrrlichtDevice* dev, irrBulletWorld* p
 	terrain = NULL;
 	terra_collision = NULL;
 	terra_changed = false;
+	visible = true;
 	//TODO: next inits must be get thru parametric init
 	maxLOD = 5;
 	maxPATCH = ETPS_17;
@@ -47,34 +48,12 @@ CGWIC_Cell::~CGWIC_Cell()
 {
 	std::cout << "Destroying cell [" << posX;
 	std::cout << ";" << posY << "] ..." << std::endl;
-	if (terra_changed) {
-		path flnm = "cell";
-		flnm += posX;
-		flnm += '-';
-		flnm += posY;
-		flnm += ".bmp";
-		dimension2d<u32> dim(256,256);
-		IImage *img = irDriver->createImage(ECF_R8G8B8,dim);
-		u32 VertexCount = terrain->getMesh()->getMeshBuffer(0)->getVertexCount();
-		S3DVertex2TCoords* verts = reinterpret_cast<S3DVertex2TCoords*> (terrain->getMesh()->getMeshBuffer(0)->getVertices());
-		S3DVertex2TCoords* vertex;
-		u8 y;
-		u32 x,z;
-		for (u32 i=0; i<VertexCount; i++) {
-			vertex = verts + i;
-			x = static_cast<u32> (vertex->Pos.X);
-			y = static_cast<u8> (vertex->Pos.Y);
-			z = static_cast<u32> (vertex->Pos.Z);
-			img->setPixel(x,z,SColor(0,y,y,y));
-		}
-		irDriver->writeImageToFile(img,flnm,0);
-		img->drop();
-		std::cout << "Cell " << posX << ';' << posY << " terrain bitmap saved!" << std::endl;
-	}
 	if (terra_collision) delete terra_collision;
 	SetActive(false);
-	if (terrain) terrain->remove();
-	//TODO: save objects to XML
+	if (terrain) {
+		if (terra_changed) SaveTerrainBitmap();
+		terrain->remove();
+	}
 	DeleteObjects();
 }
 
@@ -102,6 +81,7 @@ void CGWIC_Cell::SetActive(bool on)
 		phyterr->drop();
 		if (terra_collision)
 			ourphys.push_back(phy_world->addRigidBody(terra_collision));
+		LoadObjectStates();
 	} else {
 		while (ourphys.size() > 0) {
 			phy_world->removeCollisionObject(ourphys.back(),true);
@@ -113,14 +93,10 @@ void CGWIC_Cell::SetActive(bool on)
 			ournodes.pop_back();
 		}
 		terrain->setTriangleSelector(NULL);
+		SaveObjectStates();
 		DeleteObjects();
 	}
 	active = on;
-}
-
-bool CGWIC_Cell::GetActive()
-{
-	return this->active;
 }
 
 bool CGWIC_Cell::InitLand()
@@ -141,6 +117,7 @@ bool CGWIC_Cell::InitLand()
 		std::cerr << "Using default terrain mesh." << std::endl;
 		flnm = "default_terrain.bmp";
 		terrain = scManager->addTerrainSceneNode(flnm,NULL,GWIC_PICKABLE_MASK,pos,vector3df(0),csize,vcolor,maxLOD,maxPATCH,terraSmooth);
+		visible = false;
 		if (!terrain) {
 			std::cerr << "Unable to create terrain for cell " << posX << ';' << posY << std::endl;
 			return false;
@@ -151,6 +128,14 @@ bool CGWIC_Cell::InitLand()
 	terrain->setMaterialTexture(0,irDriver->getTexture("synthgrass.jpg"));
 	terrain->scaleTexture(16.f,16.f);
 	return true;
+}
+
+void CGWIC_Cell::SetVisible(const bool enable)
+{
+	if (terrain) {
+		visible = enable;
+		terrain->setVisible(enable);
+	}
 }
 
 void CGWIC_Cell::DeleteObjects()
@@ -182,7 +167,7 @@ void CGWIC_Cell::RandomPlaceObjects(int count, irr::io::path filename)
 			nobj->SetEnabled(true);
 			nobj->SetPhysical(true);
 		} else
-			std::cerr << "Couldn't load mesh for object!" << std::endl;
+			std::cerr << "Couldn't create new object!" << std::endl;
 	}
 }
 
@@ -221,6 +206,7 @@ void CGWIC_Cell::Update()
 	float dim = GWIC_METERS_PER_CELL;// * GWIC_IRRUNITS_PER_METER;
 	for (u32 i=0; i<objects.size(); i++) {
 		ptr = NULL;
+		objects[i]->QuantumUpdate();
 		cpos = objects[i]->GetPos();
 		ccl = objects[i]->GetCell();
 		if (cpos.Y < hell) {
@@ -232,6 +218,11 @@ void CGWIC_Cell::Update()
 			RemoveObjectByNum(i--);
 			continue;
 		}
+		if ((objects[i]->GetPhysical()) &&
+			(cpos.Y - GetTerrainHeightUnderPointMetric(cpos) < -GWIC_METERS_PER_CELL)) {
+				cpos.Y = GetTerrainHeightUnderPointMetric(cpos);
+				objects[i]->SetPos(cpos);
+			}
 		if (cpos.X < 0) {
 			std::cout << "transfer left" << std::endl;
 			ccl.X--;
@@ -260,8 +251,6 @@ void CGWIC_Cell::Update()
 			objects.erase(objects.begin()+i);
 		}
 	}
-	//TODO: fix the objects falled through terrain
-	//TODO: process object's CPUs
 }
 
 CGWIC_GameObject* CGWIC_Cell::PopTransferObject()
@@ -351,6 +340,12 @@ CGWIC_GameObject* CGWIC_Cell::GetObjectByIrrPtr(irr::scene::ISceneNode* ptr)
 	return NULL;
 }
 
+CGWIC_GameObject* CGWIC_Cell::GetObjectByNum(irr::u32 num)
+{
+	if (num >= objects.size()) return NULL;
+	return (objects[num]);
+}
+
 void CGWIC_Cell::TerrainChanged()
 {
 	terrain->setPosition(terrain->getPosition());
@@ -416,6 +411,42 @@ void CGWIC_Cell::RandomizeTerrain(float subdelta)
 		break;
 	}
 	TerrainChanged();
+}
+
+void CGWIC_Cell::SaveTerrainBitmap()
+{
+	path flnm = "cell";
+	flnm += posX;
+	flnm += '-';
+	flnm += posY;
+	flnm += ".bmp";
+	dimension2d<u32> dim(256,256);
+	IImage *img = irDriver->createImage(ECF_R8G8B8,dim);
+	u32 VertexCount = terrain->getMesh()->getMeshBuffer(0)->getVertexCount();
+	S3DVertex2TCoords* verts = reinterpret_cast<S3DVertex2TCoords*> (terrain->getMesh()->getMeshBuffer(0)->getVertices());
+	S3DVertex2TCoords* vertex;
+	u8 y;
+	u32 x,z;
+	for (u32 i=0; i<VertexCount; i++) {
+		vertex = verts + i;
+		x = static_cast<u32> (vertex->Pos.X);
+		y = static_cast<u8> (vertex->Pos.Y);
+		z = static_cast<u32> (vertex->Pos.Z);
+		img->setPixel(x,z,SColor(0,y,y,y));
+	}
+	irDriver->writeImageToFile(img,flnm,0);
+	img->drop();
+	std::cout << "Cell " << posX << ';' << posY << " terrain bitmap saved!" << std::endl;
+}
+
+void CGWIC_Cell::SaveObjectStates()
+{
+	//
+}
+
+void CGWIC_Cell::LoadObjectStates()
+{
+	//
 }
 
 

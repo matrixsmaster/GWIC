@@ -56,6 +56,8 @@ public:
 	irr::core::vector3df GetMaxExtent();
 	void SetActive(bool activate, bool chain);
 	bool GetActive() { return this->active; }
+	void SetVisible(const bool enable);
+	bool GetVisible() { return this->visible; }
 	void RebuildPhysics(bool chain);
 	void UpdatePosition();
 	void Move(irr::core::vector3df vec);
@@ -69,6 +71,7 @@ public:
 protected:
 	bool success;
 	bool active;
+	bool visible;
 	irr::core::stringc name;
 	irr::core::vector3df scale;
 	std::vector<CGWIC_BodyPart*> slots;

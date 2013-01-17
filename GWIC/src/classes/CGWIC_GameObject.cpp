@@ -24,23 +24,32 @@ CGWIC_GameObject::CGWIC_GameObject(irr::io::path filename, CPoint2D cell, irr::I
 	std::cout << "new GameObject created" << std::endl;
 	scManager = dev->getSceneManager();
 	irDriver = dev->getVideoDriver();
+	root = NULL;
 	phy_world = phy;
 	enabled = false;
 	physical = false;
 	was_physical = false;
+	visible = true;
 	mycell = cell;
 	cpu = NULL;
-	//FIXME: load XML description, if filename ends with xml extension
-	IMesh* rtmesh = scManager->getMesh(filename);
-	root = scManager->addMeshSceneNode(rtmesh,NULL,GWIC_PICKABLE_MASK);
-	if (!root) return;
-	ITriangleSelector* sel = scManager->createTriangleSelector(rtmesh,root);
-	root->setTriangleSelector(sel);
-	sel->drop();
-	//root->setPosition(vector3df(0,100,0));
-	vector3df scal(GWIC_IRRUNITS_PER_METER);
-	root->setScale(scal);
-	pshapes.push_back(new IBoxShape(root,1.f,false));
+	if (filename.size() < 4) return;
+	if (filename.subString(filename.size()-3,3,true).equalsn(L"xml",3))
+		LoadXMLDescription(filename);
+	else {
+		//load static mesh
+		IMesh* rtmesh = scManager->getMesh(filename);
+		root = scManager->addMeshSceneNode(rtmesh,NULL,GWIC_PICKABLE_MASK);
+		if (!root) {
+			std::cerr << "Unable to load static mesh " << filename.c_str() << std::endl;
+			return;
+		}
+		std::cout << "Static mesh created" << std::endl;
+		ITriangleSelector* sel = scManager->createTriangleSelector(rtmesh,root);
+		root->setTriangleSelector(sel);
+		sel->drop();
+		//root->setScale(vector3df(GWIC_IRRUNITS_PER_METER));
+		pshapes.push_back(new IBoxShape(root,1.f,false));
+	}
 }
 
 CGWIC_GameObject::~CGWIC_GameObject()
@@ -157,7 +166,7 @@ ObjMaterial CGWIC_GameObject::GetMaterial()
 	return this->myMaterial;
 }
 
-void CGWIC_GameObject::SetEnabled(bool enable)
+void CGWIC_GameObject::SetEnabled(const bool enable)
 {
 	if (enabled == enable) return;
 	if (enable) {
@@ -172,12 +181,7 @@ void CGWIC_GameObject::SetEnabled(bool enable)
 	enabled = enable;
 }
 
-bool CGWIC_GameObject::GetEnabled()
-{
-	return this->enabled;
-}
-
-bool CGWIC_GameObject::SetPhysical(bool enable)
+bool CGWIC_GameObject::SetPhysical(const bool enable)
 {
 	if (physical == enable) return true;
 	if (enable) {
@@ -197,9 +201,13 @@ bool CGWIC_GameObject::SetPhysical(bool enable)
 	return true;
 }
 
-bool CGWIC_GameObject::GetPhysical()
+void CGWIC_GameObject::SetVisible(const bool enable)
 {
-	return this->physical;
+	//Note: don't use this function from within object's own methods!
+	if ((enabled) && (root)) {
+		visible = enable;
+		root->setVisible(enable);
+	}
 }
 
 irr::scene::ISceneNode* CGWIC_GameObject::GetRootNode()
@@ -215,6 +223,17 @@ irr::core::vector3df CGWIC_GameObject::getAbsPosition(irr::core::vector3df rel_p
 	res.X += (dim * mycell.X);
 	res.Z += (dim * mycell.Y);
 	return res;
+}
+
+void CGWIC_GameObject::LoadXMLDescription(irr::io::path filename)
+{
+	std::cout << "Object has XML description!" << std::endl;
+	//TODO: loading xml
+}
+
+void CGWIC_GameObject::QuantumUpdate()
+{
+	//TODO: update cpu, state, etc
 }
 
 

@@ -104,6 +104,7 @@ private:
 	void StitchWorld(bool lite);
 	std::vector<CGWIC_Cell*> GetNeighbors(CPoint2D centr);
 	void RemoveRegisteredObject(CGWIC_GameObject* ptr);
+	void UpdateHardCulling();
 };
 
 static const CPoint2D neighbor_array[] = {

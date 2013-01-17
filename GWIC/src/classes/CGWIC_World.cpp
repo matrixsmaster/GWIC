@@ -178,11 +178,11 @@ CGWIC_World::~CGWIC_World()
 CGWIC_Cell* CGWIC_World::GetCell(int x, int y)
 {
 	if ((x<0) || (y<0)) {
-		std::cerr << "GetCell() X or Y below zero" << std::endl;
+//		std::cerr << "GetCell() X or Y below zero" << std::endl;
 		return NULL;
 	}
 	if ((x>=properties.wrldSizeX) || (y>=properties.wrldSizeY)) {
-		std::cerr << "GetCell() X or Y above world size limits!" << std::endl;
+//		std::cerr << "GetCell() X or Y above world size limits!" << std::endl;
 		return NULL;
 	}
 	// pass 1
@@ -327,9 +327,12 @@ void CGWIC_World::RunWorld()
 			gra_world->yield();
 			continue;
 		}
+
 		if (ticker%5) ProcessEvents();
 		DeltaTime = timer->getTime() - TimeStamp;
 		TimeStamp = timer->getTime();
+
+		if (ticker%2) UpdateHardCulling();
 		driver->beginScene(true,true,GWIC_VOID_COLOR);
 
 		//FIXME: move physics simulation to another thread
@@ -898,6 +901,38 @@ void CGWIC_World::RemoveRegisteredObject(CGWIC_GameObject* ptr)
 	for (u32 i=0; i<cells.size(); i++)
 		if (cells[i]->RemoveObjectByPtr(ptr)) return;
 	std::cerr << "RemoveRegisteredObject(): object not found" << std::endl;
+}
+
+void CGWIC_World::UpdateHardCulling()
+{
+	HardCullingProperties prp;
+	prp.ActorsCullMeters = 100;
+	prp.ObjectCullMeters = 100;
+	prp.DistantLand = false;
+	u32 i,j,k;
+	std::vector<CGWIC_Cell*> vcells = GetNeighbors(center_cell);
+	//If there's no camera, activate terrains, all hidden objects and bots
+	if (!main_cam) {
+		for (i=0; i<cells.size(); i++)
+			if (!cells[i]->GetVisible())
+				cells[i]->SetVisible(true);
+		for (i=0; i<vcells.size(); i++)
+			for (j=0; j<vcells[i]->GetObjectsCount(); j++) {
+				if (!vcells[i]->GetObjectByNum(j)->GetVisible())
+					vcells[i]->GetObjectByNum(j)->SetVisible(true);
+			}
+		for (i=0; i<actors.size(); i++) {
+			if ((actors[i]->GetEnabled()) && (!actors[i]->GetVisible()))
+				actors[i]->SetVisible(true);
+		}
+		return;
+	}
+	/*
+		1. Disable bots outside of current active cells region
+		2. Update visibility of all objects & bots in active cells
+		3. Hide all inactive cells if needed
+		4. Make sure currently active cells is visible :)
+	*/
 }
 
 

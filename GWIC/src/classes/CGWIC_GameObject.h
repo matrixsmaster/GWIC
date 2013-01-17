@@ -46,18 +46,22 @@ public:
 	void SetCell(CPoint2D ncell);
 	bool SetMaterial(ObjMaterial newmat);
 	ObjMaterial GetMaterial();
-	void SetEnabled(bool enable);
-	bool GetEnabled();
-	bool SetPhysical(bool enable);
-	bool GetPhysical();
+	void SetEnabled(const bool enable);
+	bool GetEnabled() { return this->enabled; }
+	bool SetPhysical(const bool enable);
+	bool GetPhysical() { return this->physical; }
+	void SetVisible(const bool enable);
+	bool GetVisible() { return this->visible; }
 	irr::scene::ISceneNode* GetRootNode();
 	irr::core::vector3df getAbsPosition(irr::core::vector3df rel_pos);
+	void QuantumUpdate();
 private:
 	CPoint2D mycell;
 	irr::core::vector3df position;
 	bool enabled;
 	bool physical;
 	bool was_physical;
+	bool visible;
 	irr::scene::ISceneNode* root;
 	irr::scene::ISceneManager* scManager;
 	irr::video::IVideoDriver* irDriver;
@@ -66,6 +70,7 @@ private:
 	std::vector<ICollisionShape*> pshapes;
 	std::vector<IRigidBody*> bodies;
 	CGWIC_VM* cpu;
+	void LoadXMLDescription(irr::io::path filename);
 };
 
 }

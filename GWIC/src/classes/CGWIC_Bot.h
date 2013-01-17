@@ -70,6 +70,8 @@ public:
 	ObjMaterial GetMaterial();
 	void SetEnabled(bool enable);
 	bool GetEnabled();
+	void SetVisible(const bool enable);
+	bool GetVisible() { return this->visible; }
 	void AutoSize();
 	irr::core::stringc GetTypeAsString();
 	irr::s32 IsThisNodeIsMine(irr::scene::ISceneNode* node);
@@ -81,6 +83,7 @@ protected:
 	CPoint2D mycell;
 	irr::core::vector3df position;
 	bool enabled;
+	bool visible;
 	BotCreationParams initParams;
 	irr::IrrlichtDevice* irDevice;
 	irr::scene::ISceneManager* scManager;

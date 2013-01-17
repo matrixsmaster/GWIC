@@ -73,6 +73,7 @@ public:
 	void SaveTerrainBitmap();
 	void SaveObjectStates();
 	void LoadObjectStates();
+	void RemoveChangedFlag() { this->terra_changed = false; }
 protected:
 	int posX;
 	int posY;

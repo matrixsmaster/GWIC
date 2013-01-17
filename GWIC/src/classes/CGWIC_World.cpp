@@ -1023,6 +1023,10 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 					PC->QuantumUpdate();
 				}
 			}
+	} else if (icmd == L"annulateterrachanges") {
+		for (u32 i=0; i<cells.size(); i++)
+			cells[i]->RemoveChangedFlag();
+		debugui->LogText(L"Terrain change flags removed! Terrain will not be saved.");
 	} else {
 		debugui->LogText(L"Invalid command!");
 	}

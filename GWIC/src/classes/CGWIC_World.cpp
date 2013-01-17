@@ -913,10 +913,10 @@ void CreatePlayerCharacter()
 void CGWIC_World::UpdateHardCulling()
 {
 	HardCullingProperties prp;
-	prp.ActorsCullMeters = 20 * GWIC_IRRUNITS_PER_METER;
-	prp.ObjectCullMeters = 20 * GWIC_IRRUNITS_PER_METER;
+	prp.ActorsCullMeters = 70 * GWIC_IRRUNITS_PER_METER;
+	prp.ObjectCullMeters = 70 * GWIC_IRRUNITS_PER_METER;
 	prp.DistantLand = false;
-	u32 i,j,k;
+	u32 i,j;
 	std::vector<CGWIC_Cell*> vcells = GetNeighbors(center_cell);
 	vcells.push_back(GetCell(center_cell));
 	//If there's no camera, activate terrains, all hidden objects and bots
@@ -951,14 +951,28 @@ void CGWIC_World::UpdateHardCulling()
 				if (!actors[i]->GetEnabled())
 					actors[i]->SetEnabled(true);
 				if (pcpos.getDistanceFrom(actors[i]->getAbsPosition()) < prp.ActorsCullMeters) {
-					if (!actors[i]->GetVisible())
-						actors[i]->SetVisible(true);
+					if (!actors[i]->GetVisible()) actors[i]->SetVisible(true);
 				} else if (actors[i]->GetVisible())
 					actors[i]->SetVisible(false);
 				flg_fnd = true;
 				break;
 			}
 		if (!flg_fnd) actors[i]->SetEnabled(false);
+	}
+	CGWIC_GameObject* optr;
+	for (i=0; i<vcells.size(); i++)
+		for (j=0; j<vcells[i]->GetObjectsCount(); j++) {
+			optr = vcells[i]->GetObjectByNum(j);
+			if (pcpos.getDistanceFrom(optr->getAbsPosition(optr->GetPos())) < prp.ObjectCullMeters) {
+				if (!optr->GetVisible()) optr->SetVisible(true);
+			} else if (optr->GetVisible())
+				optr->SetVisible(false);
+		}
+	for (i=0; i<cells.size(); i++) {
+		if (!cells[i]->GetActive())
+			cells[i]->SetVisible(prp.DistantLand);
+		else if (!cells[i]->GetVisible())
+			cells[i]->SetVisible(true);
 	}
 }
 

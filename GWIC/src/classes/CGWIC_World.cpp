@@ -850,9 +850,8 @@ void CGWIC_World::CreatePlayerCharacter()
 void CGWIC_World::UpdateHardCulling()
 {
 	HardCullingProperties prp = properties.hardcull;
-	prp.ActorsCullMeters = 70 * GWIC_IRRUNITS_PER_METER;
-	prp.ObjectCullMeters = 70 * GWIC_IRRUNITS_PER_METER;
-	prp.DistantLand = false;
+	prp.ActorsCullMeters *= GWIC_IRRUNITS_PER_METER;
+	prp.ObjectCullMeters *= GWIC_IRRUNITS_PER_METER;
 	u32 i,j;
 	std::vector<CGWIC_Cell*> vcells = GetNeighbors(center_cell);
 	vcells.push_back(GetCell(center_cell));
@@ -934,7 +933,7 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 	} else if (icmd == L"randomplace") {
 		irrstrwvec list = parse.ParseToList(L" ");
 		if (list.size() < 3) {
-			debugui->LogText(L"Insufficient arguments");
+			debugui->LogText(L"Use: randomplace filename count");
 			return;
 		}
 		CGWIC_Cell* ptr = GetCell(center_cell);
@@ -1027,6 +1026,19 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 		for (u32 i=0; i<cells.size(); i++)
 			cells[i]->RemoveChangedFlag();
 		debugui->LogText(L"Terrain change flags removed! Terrain will not be saved.");
+	} else if (icmd == L"setdistantland") {
+		irrstrwvec list = parse.ParseToList(L" ");
+		if (list.size() != 2) {
+			debugui->LogText(L"Use: setdistantland [true/false]");
+			return;
+		}
+		if (list[1] == L"true") {
+			debugui->LogText(L"Distant land ON");
+			properties.hardcull.DistantLand = true;
+		} else {
+			debugui->LogText(L"Distant land OFF");
+			properties.hardcull.DistantLand = false;
+		}
 	} else {
 		debugui->LogText(L"Invalid command!");
 	}

@@ -58,6 +58,10 @@ void param_default(void)
 	wrldSettings.debugdraw = true;
 	// camera
 	wrldSettings.viewDistance = 5000; //meters
+	// HardCuller settings
+	wrldSettings.hardcull.DistantLand = false;
+	wrldSettings.hardcull.ActorsCullMeters = 70;
+	wrldSettings.hardcull.ObjectCullMeters = 45;
 }
 
 void arg_parser(int argc, char * argv[])

@@ -61,7 +61,7 @@ public:
 	void RebuildPhysics(bool chain);
 	void UpdatePosition();
 	void Move(irr::core::vector3df vec);
-	irr::core::vector3df GetPos();
+	irr::core::vector3df GetAbsPos();
 	IRigidBody* GetRigidBodyPtr() { return this->colbody; }
 	GWIC_BPSlot GetSlotByID(int sid);
 	GWIC_BPSlot GetSlotByChild(CGWIC_BodyPart* childptr);

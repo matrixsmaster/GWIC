@@ -179,6 +179,7 @@ irr::core::vector3df CGWIC_Cell::getIrrlichtCenter()
 	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
 	res.X += (dim * posX);
 	res.Z += (dim * posY);
+	res.Y = terrain->getAbsolutePosition().Y + 128.f;
 	return res;
 }
 

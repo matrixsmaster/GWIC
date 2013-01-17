@@ -221,7 +221,7 @@ void CGWIC_BodyPart::Move(irr::core::vector3df vec)
 		if (slots[i]) slots[i]->Move(vec);
 }
 
-irr::core::vector3df CGWIC_BodyPart::GetPos()
+irr::core::vector3df CGWIC_BodyPart::GetAbsPos()
 {
 	return this->root->getPosition();
 }

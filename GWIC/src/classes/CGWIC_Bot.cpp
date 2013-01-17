@@ -40,6 +40,9 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 	initParams = *params;
 	mycell = params->cell_coord;
 	myname = params->actorname;
+	master_bot = NULL;
+	headcam = NULL;
+	camc_tries = 0;
 	IAnimatedMesh* botmesh = NULL;
 	IAnimatedMeshSceneNode* animnode = NULL;
 	switch (params->type) {
@@ -120,20 +123,34 @@ bool CGWIC_Bot::SetPos(irr::core::vector3df rel_pos)
 
 irr::core::vector3df CGWIC_Bot::GetPos()
 {
-	vector3df mpos(position);
-	//mpos.Y -= mHeight / 2;
-	return mpos;
+	bool chng = false;
+	if (botRoot) {
+		position = botRoot->getPosition();
+		chng = true;
+	} else if (head) {
+		position = head->GetAbsPos();
+		chng = true;
+	}
+	if (chng) {
+		position /= GWIC_IRRUNITS_PER_METER;
+		mycell.X = floor(position.X / GWIC_METERS_PER_CELL);
+		position.X -= mycell.X * GWIC_METERS_PER_CELL;
+		mycell.Y = floor(position.Z / GWIC_METERS_PER_CELL);
+		position.Z -= mycell.Y * GWIC_METERS_PER_CELL;
+	}
+	return position;
 }
 
 bool CGWIC_Bot::SetCell(CPoint2D ncl)
 {
-	//
+	mycell = ncl;
 	return true;
 }
 
+//Note: if you need more CURRENT position, call GetPos() instead!
 irr::core::vector3df CGWIC_Bot::getAbsPosition()
 {
-	vector3df res(position);
+	vector3df res(position); //there's some reason to do it this way
 	res *= GWIC_IRRUNITS_PER_METER;
 	float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
 	res.X += (dim * mycell.X);
@@ -252,6 +269,52 @@ irr::s32 CGWIC_Bot::IsThisNodeIsMine(irr::scene::ISceneNode* node)
 	if (botRoot == node) return 1;
 	if (head) return (head->RecursiveSearchForNode(node));
 	return 0;
+}
+
+void CGWIC_Bot::SetMaster(CGWIC_Bot* nwmaster)
+{
+	if (nwmaster != this) master_bot = nwmaster;
+	else master_bot = NULL;
+}
+
+/*
+ * It's recommended to use this method EVERY time you want to access
+ * to bot's head camera.
+ * This method creates the camera if bot needs one just on demand :)
+ */
+irr::scene::ICameraSceneNode* CGWIC_Bot::GetCamera()
+{
+	if (!headcam) {
+		if (camc_tries > 3) return NULL;
+		//Try to create the bot's own camera
+		headcam = scManager->addCameraSceneNode(NULL,getAbsPosition(),vector3df(0),9,false);
+		if (headcam) {
+			if (botRoot) {
+				headcam->setPosition(botRoot->getPosition()+vector3df(0,mHeight,0));
+				headcam->setRotation(botRoot->getRotation());
+				headcam->setParent(botRoot);
+			} else if (head) {
+				headcam->setPosition(head->GetRootSceneNode()->getPosition());
+				headcam->setRotation(head->GetRootSceneNode()->getRotation());
+				headcam->setParent(head->GetRootSceneNode());
+			}
+			headcam->bindTargetAndRotation(true);
+		} else {
+			camc_tries++;
+			return NULL;
+		}
+	}
+	//TODO: update camera's rotation and position according to head's state and animation
+	return headcam;
+}
+
+void CGWIC_Bot::QuantumUpdate()
+{
+	if (master_bot) {
+		mycell = master_bot->GetCell();
+		SetPos(master_bot->GetPos());
+	}
+	if (head) head->Quantum();
 }
 
 

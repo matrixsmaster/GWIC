@@ -25,8 +25,12 @@ public:
 		CGWIC_BodyPart(modelfile,parentn,dev,phy) {
 		std::cout << "Head {} creation" << std::endl;
 		name = "HEAD";
+		vmbrain = NULL;
 	}
 	virtual ~CGWIC_Head();
+	void Quantum();
+protected:
+	CGWIC_VM* vmbrain;
 };
 
 }

@@ -66,6 +66,7 @@ protected:
 private:
 	irr::u32 ticker;
 	bool fps_cam;
+	bool pchar_cam;
 	bool quit_msg;
 	bool debugDraw;
 	bool physicsPause;
@@ -88,6 +89,7 @@ private:
 //	void GoFPS(irr::core::vector3df campos);
 	void GoFPS();
 	void GoEditMode();
+	void GoPlayerMode();
 	void ShowGUI(bool show);
 	void ActivateCell(int x, int y);
 	void ActivateCell(CPoint2D trg) { ActivateCell(trg.X,trg.Y); }

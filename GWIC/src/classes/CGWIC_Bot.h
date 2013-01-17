@@ -77,6 +77,10 @@ public:
 	irr::s32 IsThisNodeIsMine(irr::scene::ISceneNode* node);
 	irr::core::stringw GetName() { return this->myname; }
 	CGWIC_Head* GetHead() { return this->head; }
+	void SetMaster(CGWIC_Bot* nwmaster);
+	CGWIC_Bot* GetMaster() { return this->master_bot; }
+	irr::scene::ICameraSceneNode* GetCamera();
+	void QuantumUpdate();
 protected:
 	bool initDone;
 	int ID;
@@ -97,6 +101,9 @@ protected:
 	CGWIC_Inventory* inventory;
 	irr::core::stringw myname;
 	float mHeight; // in irrUnits
+	CGWIC_Bot* master_bot;
+	irr::scene::ICameraSceneNode* headcam;
+	int camc_tries;
 	void LogIt(irr::core::stringc msg);
 	CGWIC_Head* CreateNPC(irr::core::stringw file);
 };

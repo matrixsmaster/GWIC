@@ -51,6 +51,10 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 			else GoEditMode();
 			return true;
 		}
+		if ((event.KeyInput.Key == KEY_F2) && (PC) && (!pchar_cam)) {
+			GoPlayerMode();
+			return true;
+		}
 		if (!fps_cam) break;
 		if (event.KeyInput.Key == KEY_KEY_Q) {
 			quit_msg = true;
@@ -136,6 +140,7 @@ CGWIC_World::CGWIC_World(WorldProperties* props, cOAL_Device* sndDevice)
 	terrain_magnet = false;
 	center_cell = CPoint2D(0);
 	PC = NULL;
+	pchar_cam = false;
 
 	std::cout << "Creating Irrlicht device..." << std::endl;
 	gra_world = createDevice(props->videoDriver,dimension2d<u32>(props->gWidth,props->gHeight),
@@ -263,13 +268,6 @@ bool CGWIC_World::PrepareWorld()
 		return false;
 	}
 
-	//Create actors
-	if (GenerateNPC()) std::cout << "NPCs generated successfully!" << std::endl;
-	else {
-		std::cerr << "Error while generating NPCs!" << std::endl;
-		return false;
-	}
-
 	//Activate start location
 	std::cout << "Activating start cell!" << std::endl;
 	ActivateCell(properties.startX,properties.startY);
@@ -308,6 +306,15 @@ bool CGWIC_World::PrepareWorld()
 	debugui = new CGWIC_DebugUI(gra_world);
 	if (!debugui) return false;
 	debugui->SetPos(CPoint2D(150,16));
+
+	//Create actors
+	CreatePlayerCharacter();
+//	if (PC) actors.push_back(PC);
+	if (GenerateNPC()) std::cout << "NPCs generated successfully!" << std::endl;
+	else {
+		std::cerr << "Error while generating NPCs!" << std::endl;
+		return false;
+	}
 
 	//we're done with it :)
 	return true;
@@ -379,6 +386,7 @@ void CGWIC_World::RunWorld()
 
 IRigidBody* CGWIC_World::ShootSphere(irr::core::vector3df scale, irr::f32 mass)
 {
+	if (!fps_cam) return NULL;
 	//this function is from irrBullet's tutorial, just for debugging early pre-pre-pre-alphas
 	vector3df pos(main_cam->getPosition().X,main_cam->getPosition().Y,main_cam->getPosition().Z);
 	ISceneNode *Node = scManager->addSphereSceneNode(5,16,NULL,GWIC_PICKABLE_MASK);
@@ -434,8 +442,8 @@ void CGWIC_World::GoFPS()
 {
 	vector3df oldpos(0);
 	if (main_cam) {
-		main_cam->remove();
 		oldpos = (fps_cam)? main_cam->getPosition():main_cam->getTarget();
+		main_cam->remove();
 	} else {
 		CGWIC_Cell* ptr = GetCell(center_cell);
 		oldpos = ptr->getIrrlichtCenter();
@@ -449,14 +457,15 @@ void CGWIC_World::GoFPS()
 	ShowGUI(false);
 	ZeroSelect();
 	fps_cam = true;
+	pchar_cam = false;
 }
 
 void CGWIC_World::GoEditMode()
 {
 	vector3df oldpos(0);
 	if (main_cam) {
-		main_cam->remove();
 		oldpos = (fps_cam)? main_cam->getPosition():main_cam->getTarget();
+		main_cam->remove();
 	} else {
 		CGWIC_Cell* ptr = GetCell(center_cell);
 		oldpos = ptr->getIrrlichtCenter();
@@ -471,6 +480,25 @@ void CGWIC_World::GoEditMode()
 	ShowGUI(true);
 	ZeroSelect();
 	fps_cam = false;
+	pchar_cam = false;
+}
+
+void CGWIC_World::GoPlayerMode()
+{
+	if (!PC) {
+		GoEditMode();
+		std::cerr << "Can't switch to player mode because PC isn't exists!" << std::endl;
+		if (debugui) debugui->LogText(L"Can't switch! PC == NULL");
+		return;
+	}
+	if (main_cam) {
+		main_cam->remove();
+		main_cam = NULL;
+	}
+	fps_cam = true;
+	pchar_cam = true;
+	PC->GetCamera()->setFarValue(properties.viewDistance * GWIC_IRRUNITS_PER_METER);
+	scManager->setActiveCamera(PC->GetCamera());
 }
 
 void CGWIC_World::ShowGUI(bool show)
@@ -642,7 +670,6 @@ void CGWIC_World::ProcessActors()
 {
 	//TODO: fix actors fall through terrain
 	//TODO: fix classic actors models rotations
-	//TODO: process brains
 }
 
 void CGWIC_World::ZeroSelect()
@@ -654,106 +681,6 @@ void CGWIC_World::ZeroSelect()
 	select_actor_part = NULL;
 	if (gizmo) delete gizmo;
 	gizmo = NULL;
-}
-
-void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
-{
-	stringc cons = cmd.c_str();
-	std::cout << "Command processor: cmd: " << cons.c_str() << std::endl;
-	CIrrStrParser parse(cmd);
-	stringw icmd = parse.NextLex(L" ",false);
-	if (icmd == L"quit") {
-		quit_msg = true;
-	} else if (icmd == L"test") {
-		debugui->LogText(L"Test Response String");
-		irrstrwvec list = parse.ParseToList(L" ");
-		for (u32 i=1; i<list.size(); i++) {
-			stringw bvs = L"Argument: ";
-			bvs += list[i];
-			debugui->LogText(bvs);
-		}
-	} else if (icmd == L"getpos") {
-		CmdGetPos(parse);
-	} else if (icmd == L"randomplace") {
-		irrstrwvec list = parse.ParseToList(L" ");
-		if (list.size() < 3) {
-			debugui->LogText(L"Insufficient arguments");
-			return;
-		}
-		CGWIC_Cell* ptr = GetCell(center_cell);
-		CIrrStrParser pr2(list[2]);
-		ptr->RandomPlaceObjects(pr2.ToS32(),list[1]);
-	} else if (icmd == L"tpm") {
-		debugui->LogText(L"toggle physics mode");
-		physicsPause ^= true;
-	} else if (icmd == L"tdd") {
-		debugui->LogText(L"toggle debug drawing");
-		debugDraw ^= true;
-	} else if (icmd == L"reloadcell") {
-		irrstrwvec list = parse.ParseToList(L" ");
-		if (list.size() < 3) {
-			debugui->LogText(L"Insufficient args. Use: reloadcell X Y");
-			return;
-		}
-		CIrrStrParser pr2(list[1]);
-		s32 clx = pr2.ToS32(); pr2 = list[2];
-		s32 cly = pr2.ToS32();
-		CGWIC_Cell* clptr = GetCell(clx,cly);
-		if (!clptr) debugui->LogText(L"Cell not found!");
-		else ReloadCell(clptr);
-	} else if (icmd == L"stitch") {
-		irrstrwvec list = parse.ParseToList(L" ");
-		if (list.size() < 5) {
-			debugui->LogText(L"Insufficient args. Use: stitch Xa Ya Xb Yb");
-			return;
-		}
-		CIrrStrParser pr2(list[1]);
-		CPoint2D aa,bb;
-		aa.X = pr2.ToS32();
-		pr2 = list[2]; aa.Y = pr2.ToS32();
-		pr2 = list[3]; bb.X = pr2.ToS32();
-		pr2 = list[4]; bb.Y = pr2.ToS32();
-		StitchTerrains(GetCell(aa),GetCell(bb),true);
-		debugui->LogText(L"Command done!");
-	} else if (icmd == L"restitch") {
-		StitchWorld(false);
-		debugui->LogText(L"Command done!");
-	} else if (icmd == L"createwindow") {
-		irrstrwvec list = parse.ParseToList(L" ");
-		if (list.size() < 2) {
-			debugui->LogText(L"Use: createwindow <filename.xml>");
-			return;
-		}
-		CGWIC_UIWindow* ptr = new CGWIC_UIWindow(gra_world);
-		if (!ptr)
-			std::cerr << "UI window creation failed!" << std::endl;
-		else {
-			if ((uis.size()) && (uis.back()))
-				ptr->SetNextID(uis.back()->IterateID());
-			else
-				ptr->SetNextID(GWIC_GUI_DEBUG_LAST);
-			uis.push_back(ptr);
-			ptr->LoadFromFile(list[1]);
-			debugui->LogText(L"Command done!");
-		}
-	} else if (icmd == L"randomterr") {
-		irrstrwvec list = parse.ParseToList(L" ");
-		if (list.size() < 4) {
-			debugui->LogText(L"Use: randomterr cellX cellY subdelta");
-			return;
-		}
-		CIrrStrParser pr2(list[1]);
-		s32 clx = pr2.ToS32(); pr2 = list[2];
-		s32 cly = pr2.ToS32(); pr2 = list[3];
-		float subd = pr2.ToFloat();
-		CGWIC_Cell* cptr = GetCell(clx,cly);
-		if (cptr) {
-			cptr->RandomizeTerrain(subd);
-			debugui->LogText(L"Command done!");
-		}
-	} else {
-		debugui->LogText(L"Invalid command!");
-	}
 }
 
 void CGWIC_World::CmdGetPos(CIrrStrParser parse)
@@ -905,22 +832,32 @@ void CGWIC_World::RemoveRegisteredObject(CGWIC_GameObject* ptr)
 	std::cerr << "RemoveRegisteredObject(): object not found" << std::endl;
 }
 
-void CreatePlayerCharacter()
+void CGWIC_World::CreatePlayerCharacter()
 {
-	//TODO: implement!!!
+	BotCreationParams pcbparams;
+	pcbparams.actorname = L"_PLAYER_";
+	pcbparams.type = ACTOR_PLAYER;
+	pcbparams.height = 1.8f;
+	pcbparams.cell_coord.X = properties.startX;
+	pcbparams.cell_coord.Y = properties.startY;
+	vector3df spos(128,0,128);
+	spos.Y = GetTerrainHeightUnderPointMetric(spos);
+	pcbparams.rel_pos = spos;
+	PC = new CGWIC_Bot(&pcbparams,gra_world,phy_world);
+	if (!PC) return;
 }
 
 void CGWIC_World::UpdateHardCulling()
 {
-	HardCullingProperties prp;
+	HardCullingProperties prp = properties.hardcull;
 	prp.ActorsCullMeters = 70 * GWIC_IRRUNITS_PER_METER;
 	prp.ObjectCullMeters = 70 * GWIC_IRRUNITS_PER_METER;
 	prp.DistantLand = false;
 	u32 i,j;
 	std::vector<CGWIC_Cell*> vcells = GetNeighbors(center_cell);
 	vcells.push_back(GetCell(center_cell));
-	//If there's no camera, activate terrains, all hidden objects and bots
-	if (!main_cam) {
+	//If there's no camera (menuMode), activate terrains, all hidden objects and bots
+	if ((!main_cam) && (!pchar_cam)) {
 		for (i=0; i<cells.size(); i++)
 			if (!cells[i]->GetVisible())
 				cells[i]->SetVisible(true);
@@ -942,7 +879,7 @@ void CGWIC_World::UpdateHardCulling()
 		4. Make sure currently active cells is visible :)
 	*/
 	vector3df pcpos(GetCell(center_cell)->getIrrlichtCenter());
-	if (PC) pcpos = PC->getAbsPosition();
+	if ((pchar_cam) && (PC)) pcpos = PC->getAbsPosition();
 	else if (fps_cam) pcpos = main_cam->getPosition();
 	for (i=0; i<actors.size(); i++) {
 		bool flg_fnd = false;
@@ -976,5 +913,119 @@ void CGWIC_World::UpdateHardCulling()
 	}
 }
 
+void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
+{
+	stringc cons = cmd.c_str();
+	std::cout << "Command processor: cmd: " << cons.c_str() << std::endl;
+	CIrrStrParser parse(cmd);
+	stringw icmd = parse.NextLex(L" ",false);
+	if (icmd == L"quit") {
+		quit_msg = true;
+	} else if (icmd == L"test") {
+		debugui->LogText(L"Test Response String");
+		irrstrwvec list = parse.ParseToList(L" ");
+		for (u32 i=1; i<list.size(); i++) {
+			stringw bvs = L"Argument: ";
+			bvs += list[i];
+			debugui->LogText(bvs);
+		}
+	} else if (icmd == L"getpos") {
+		CmdGetPos(parse);
+	} else if (icmd == L"randomplace") {
+		irrstrwvec list = parse.ParseToList(L" ");
+		if (list.size() < 3) {
+			debugui->LogText(L"Insufficient arguments");
+			return;
+		}
+		CGWIC_Cell* ptr = GetCell(center_cell);
+		CIrrStrParser pr2(list[2]);
+		ptr->RandomPlaceObjects(pr2.ToS32(),list[1]);
+	} else if (icmd == L"tpm") {
+		debugui->LogText(L"toggle physics mode");
+		physicsPause ^= true;
+	} else if (icmd == L"tdd") {
+		debugui->LogText(L"toggle debug drawing");
+		debugDraw ^= true;
+	} else if (icmd == L"reloadcell") {
+		irrstrwvec list = parse.ParseToList(L" ");
+		if (list.size() < 3) {
+			debugui->LogText(L"Insufficient args. Use: reloadcell X Y");
+			return;
+		}
+		CIrrStrParser pr2(list[1]);
+		s32 clx = pr2.ToS32(); pr2 = list[2];
+		s32 cly = pr2.ToS32();
+		CGWIC_Cell* clptr = GetCell(clx,cly);
+		if (!clptr) debugui->LogText(L"Cell not found!");
+		else ReloadCell(clptr);
+	} else if (icmd == L"stitch") {
+		irrstrwvec list = parse.ParseToList(L" ");
+		if (list.size() < 5) {
+			debugui->LogText(L"Insufficient args. Use: stitch Xa Ya Xb Yb");
+			return;
+		}
+		CIrrStrParser pr2(list[1]);
+		CPoint2D aa,bb;
+		aa.X = pr2.ToS32();
+		pr2 = list[2]; aa.Y = pr2.ToS32();
+		pr2 = list[3]; bb.X = pr2.ToS32();
+		pr2 = list[4]; bb.Y = pr2.ToS32();
+		StitchTerrains(GetCell(aa),GetCell(bb),true);
+		debugui->LogText(L"Command done!");
+	} else if (icmd == L"restitch") {
+		StitchWorld(false);
+		debugui->LogText(L"Command done!");
+	} else if (icmd == L"createwindow") {
+		irrstrwvec list = parse.ParseToList(L" ");
+		if (list.size() < 2) {
+			debugui->LogText(L"Use: createwindow <filename.xml>");
+			return;
+		}
+		CGWIC_UIWindow* ptr = new CGWIC_UIWindow(gra_world);
+		if (!ptr)
+			std::cerr << "UI window creation failed!" << std::endl;
+		else {
+			if ((uis.size()) && (uis.back()))
+				ptr->SetNextID(uis.back()->IterateID());
+			else
+				ptr->SetNextID(GWIC_GUI_DEBUG_LAST);
+			uis.push_back(ptr);
+			ptr->LoadFromFile(list[1]);
+			debugui->LogText(L"Command done!");
+		}
+	} else if (icmd == L"randomterr") {
+		irrstrwvec list = parse.ParseToList(L" ");
+		if (list.size() < 4) {
+			debugui->LogText(L"Use: randomterr cellX cellY subdelta");
+			return;
+		}
+		CIrrStrParser pr2(list[1]);
+		s32 clx = pr2.ToS32(); pr2 = list[2];
+		s32 cly = pr2.ToS32(); pr2 = list[3];
+		float subd = pr2.ToFloat();
+		CGWIC_Cell* cptr = GetCell(clx,cly);
+		if (cptr) {
+			cptr->RandomizeTerrain(subd);
+			debugui->LogText(L"Command done!");
+		}
+	} else if (icmd == L"attachplayername") {
+		irrstrwvec list = parse.ParseToList(L" ");
+		if (list.size() != 2) {
+			debugui->LogText(L"Use: attachplayername [actor's name to attach to]");
+			return;
+		}
+		for (u32 i=0; i<actors.size(); i++)
+			if (actors[i]->GetName().equals_ignore_case(list[1])) {
+				debugui->LogText(L"Attaching to");
+				debugui->LogText(list[1]);
+				if (PC) {
+					PC->SetMaster(actors[i]);
+					PC->QuantumUpdate();
+				}
+			}
+	} else {
+		debugui->LogText(L"Invalid command!");
+	}
+}
 
 } // namespace gwic

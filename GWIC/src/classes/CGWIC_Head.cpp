@@ -15,4 +15,10 @@ CGWIC_Head::~CGWIC_Head() {
 	// TODO Auto-generated destructor stub
 }
 
+void CGWIC_Head::Quantum()
+{
+//	if (vmbrain) vmbrain-
+}
+
+
 }

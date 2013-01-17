@@ -134,6 +134,8 @@ CGWIC_World::CGWIC_World(WorldProperties* props, cOAL_Device* sndDevice)
 	select_actor_part = NULL;
 	gizmo = NULL;
 	terrain_magnet = false;
+	center_cell = CPoint2D(0);
+	PC = NULL;
 
 	std::cout << "Creating Irrlicht device..." << std::endl;
 	gra_world = createDevice(props->videoDriver,dimension2d<u32>(props->gWidth,props->gHeight),
@@ -903,14 +905,20 @@ void CGWIC_World::RemoveRegisteredObject(CGWIC_GameObject* ptr)
 	std::cerr << "RemoveRegisteredObject(): object not found" << std::endl;
 }
 
+void CreatePlayerCharacter()
+{
+	//TODO: implement!!!
+}
+
 void CGWIC_World::UpdateHardCulling()
 {
 	HardCullingProperties prp;
-	prp.ActorsCullMeters = 100;
-	prp.ObjectCullMeters = 100;
+	prp.ActorsCullMeters = 20 * GWIC_IRRUNITS_PER_METER;
+	prp.ObjectCullMeters = 20 * GWIC_IRRUNITS_PER_METER;
 	prp.DistantLand = false;
 	u32 i,j,k;
 	std::vector<CGWIC_Cell*> vcells = GetNeighbors(center_cell);
+	vcells.push_back(GetCell(center_cell));
 	//If there's no camera, activate terrains, all hidden objects and bots
 	if (!main_cam) {
 		for (i=0; i<cells.size(); i++)
@@ -933,6 +941,25 @@ void CGWIC_World::UpdateHardCulling()
 		3. Hide all inactive cells if needed
 		4. Make sure currently active cells is visible :)
 	*/
+	vector3df pcpos(GetCell(center_cell)->getIrrlichtCenter());
+	if (PC) pcpos = PC->getAbsPosition();
+	else if (fps_cam) pcpos = main_cam->getPosition();
+	for (i=0; i<actors.size(); i++) {
+		bool flg_fnd = false;
+		for (j=0; j<vcells.size(); j++)
+			if (actors[i]->GetCell() == vcells[j]->GetCoord()) {
+				if (!actors[i]->GetEnabled())
+					actors[i]->SetEnabled(true);
+				if (pcpos.getDistanceFrom(actors[i]->getAbsPosition()) < prp.ActorsCullMeters) {
+					if (!actors[i]->GetVisible())
+						actors[i]->SetVisible(true);
+				} else if (actors[i]->GetVisible())
+					actors[i]->SetVisible(false);
+				flg_fnd = true;
+				break;
+			}
+		if (!flg_fnd) actors[i]->SetEnabled(false);
+	}
 }
 
 

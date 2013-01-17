@@ -59,7 +59,11 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 		head = CreateNPC(params->filename);
 		break;
 	case ACTOR_PLAYER:
-		//TODO: create capsule and load basic model
+		//TODO: implement!
+		/*
+		 * Player char is not a graphical and/or physical one!
+		 * We can attach PC to any other actor on demand
+		 */
 		return;
 	case ACTOR_CREATURE:
 		//TODO: load classic skinned rigged mesh
@@ -176,8 +180,9 @@ void CGWIC_Bot::SetEnabled(bool enable)
 
 bool CGWIC_Bot::GetEnabled()
 {
-	//FIXME: !
-	return true;
+	if (head) return head->GetActive();
+	else if (botRoot) return botRoot->isVisible();
+	else return false;
 }
 
 void CGWIC_Bot::SetVisible(const bool enable)

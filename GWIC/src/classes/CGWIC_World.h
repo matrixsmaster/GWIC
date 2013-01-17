@@ -79,6 +79,7 @@ private:
 	CGWIC_Bot* select_actor;
 	CGWIC_BodyPart* select_actor_part;
 	CGWIC_Gizmo* gizmo;
+	CGWIC_Bot* PC;
 	bool terrain_magnet;
 	bool GenerateLand();
 	bool GenerateNPC();
@@ -104,6 +105,7 @@ private:
 	void StitchWorld(bool lite);
 	std::vector<CGWIC_Cell*> GetNeighbors(CPoint2D centr);
 	void RemoveRegisteredObject(CGWIC_GameObject* ptr);
+	void CreatePlayerCharacter();
 	void UpdateHardCulling();
 };
 

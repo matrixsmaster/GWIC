@@ -363,8 +363,8 @@ void CGWIC_Cell::RandomizeTerrain(float subdelta)
 		if (pMeshBuffer->getVertexType() != EVT_2TCOORDS) continue;
 		S3DVertex2TCoords* pVertices = (S3DVertex2TCoords*)pMeshBuffer->getVertices();
 		//1. find the current max & min, since we don't want to escalate landscape
-		float max = -1;
-		float min = 10000;
+		float max = 256;
+		float min = 0;
 		u32 i;
 		for (i=0; i<(256*256); i++) {
 			if (pVertices[i].Pos.Y < min) min = pVertices[i].Pos.Y;
@@ -393,15 +393,15 @@ void CGWIC_Cell::RandomizeTerrain(float subdelta)
 				int ye = y0 + Q;
 				if (ye > 255) ye = 255;
 				float hx0 = tmparr[x0*256+y0];
-				float hy0 = tmparr[x0*256+y0];
+				float hy0 = (qx%2==0)? hx0:tmparr[xe*256+ye];
 				float hxe = tmparr[xe*256+y0];
 				float hye = tmparr[x0*256+ye];
 				float lhy = hye - hy0;
 				float lhx = hxe - hx0;
 				for (int cx=x0; cx<xe; cx++)
 					for (int cy=y0; cy<ye; cy++) {
-						float ch = ((cx-x0)/lhx)*lhx+hx0;
-						ch += ((cy-y0)/lhy)*lhy+hy0;
+						float ch = (((qx%2)?(x0-cx):(cx-x0))/lhx)*lhx+hx0;
+						ch += (((qy%2)?(y0-cy):(cy-y0))/lhy)*lhy+hy0;
 						ch /= 2;
 						tmparr[cx*256+cy] = ch;
 					}

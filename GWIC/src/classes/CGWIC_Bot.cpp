@@ -142,6 +142,7 @@ irr::core::vector3df CGWIC_Bot::GetPos()
 		position.X -= mycell.X * GWIC_METERS_PER_CELL;
 		mycell.Y = floor(position.Z / GWIC_METERS_PER_CELL);
 		position.Z -= mycell.Y * GWIC_METERS_PER_CELL;
+		position.Y -= GetMetricHeight() / 2;
 	}
 	return position;
 }
@@ -305,6 +306,7 @@ irr::scene::ICameraSceneNode* CGWIC_Bot::GetCamera()
 			return NULL;
 		}
 	}
+//	headcam->bindTargetAndRotation(false);
 	if (botRoot) {
 		headcam->setPosition(botRoot->getPosition());//+vector3df(0,mHeight,0));
 //		headcam->setRotation(botRoot->getRotation());
@@ -315,6 +317,7 @@ irr::scene::ICameraSceneNode* CGWIC_Bot::GetCamera()
 //		headcam->setRotation(head->GetRootSceneNode()->getRotation());
 //		headcam->setParent(head->GetRootSceneNode());
 	}
+//	headcam->bindTargetAndRotation(true);
 	return headcam;
 }
 
@@ -322,7 +325,10 @@ void CGWIC_Bot::QuantumUpdate()
 {
 	if (master_bot) {
 		mycell = master_bot->GetCell();
-		SetPos(master_bot->GetPos());
+		vector3df hshift(0,master_bot->GetMetricHeight(),0);
+		if (master_bot->GetType() == ACTOR_GYNOID)
+			hshift.Y /= 2;
+		SetPos(master_bot->GetPos()+hshift);
 //		if ((initParams.type == ACTOR_PLAYER) && (headcam)) {
 //			std::cout << botRoot->getPosition().X << "  " << botRoot->getPosition().Y << std::endl;
 //			std::cout << headcam->getPosition().X << "  " << headcam->getPosition().Y << std::endl;
@@ -334,29 +340,30 @@ void CGWIC_Bot::QuantumUpdate()
 
 bool CGWIC_Bot::ProcessEvent(const irr::SEvent& event)
 {
+	if (GetType() != ACTOR_PLAYER) return false;
 	if (!GetCamera()) return false;
 	if (event.EventType == EET_MOUSE_INPUT_EVENT) {
 		vector3df orot(headcam->getRotation());
-		orot.X -= event.MouseInput.Y-mousepos.Y;
-		orot.Y += event.MouseInput.X-mousepos.X;
+		orot.X -= (event.MouseInput.Y-mousepos.Y) / 2;
+		orot.Y += (event.MouseInput.X-mousepos.X) / 2;
 		orot.Z = 0;
 		headcam->setRotation(orot);
 		mousepos.X = event.MouseInput.X;
 		mousepos.Y = event.MouseInput.Y;
 	} else if ((event.EventType == EET_KEY_INPUT_EVENT)) {// && (!event.KeyInput.PressedDown)) {
 		QuantumUpdate();
-		vector3df pos = GetPos();
-//		pos.Y -= mHeight / 2;
-		switch (event.KeyInput.Key) {
-		case KEY_KEY_W: pos.X += 0.8f; break;
-		case KEY_KEY_A: pos.Z += 0.8f; break;
-		case KEY_KEY_S: pos.X -= 0.8f; break;
-		case KEY_KEY_D: pos.Z -= 0.8f; break;
-		default: return false;
+		if (master_bot) {
+			vector3df pos = master_bot->GetPos();
+			switch (event.KeyInput.Key) {
+			case KEY_KEY_W: pos.X += 0.8f; break;
+			case KEY_KEY_A: pos.Z += 0.8f; break;
+			case KEY_KEY_S: pos.X -= 0.8f; break;
+			case KEY_KEY_D: pos.Z -= 0.8f; break;
+			default: return false;
+			}
+			master_bot->SetPos(pos);
+			std::cout << pos.X << "  " << pos.Z << std::endl;
 		}
-		if (master_bot) master_bot->SetPos(pos);
-		else SetPos(pos);
-		std::cout << pos.X << "  " << pos.Z << std::endl;
 		return true;
 	}
 	return false;

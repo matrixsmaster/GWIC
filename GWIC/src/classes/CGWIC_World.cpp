@@ -458,6 +458,8 @@ void CGWIC_World::GoFPS()
 		oldpos = ptr->getIrrlichtCenter();
 		oldpos.Y = ptr->GetTerrainHeightUnderPointMetric(oldpos) * GWIC_IRRUNITS_PER_METER;
 	}
+	gra_world->getCursorControl()->setVisible(true);
+	gra_world->getCursorControl()->setActiveIcon(ECI_CROSS);
 	std::cout << "Camera set to First-Person mode" << std::endl;
 	if (debugui) debugui->LogText(L"Camera set to First-Person mode");
 	main_cam = scManager->addCameraSceneNodeFPS();
@@ -481,6 +483,8 @@ void CGWIC_World::GoEditMode()
 		oldpos = ptr->getIrrlichtCenter();
 		oldpos.Y = ptr->GetTerrainHeightUnderPointMetric(oldpos) * GWIC_IRRUNITS_PER_METER;
 	}
+	gra_world->getCursorControl()->setVisible(true);
+	gra_world->getCursorControl()->setActiveIcon(ECI_NORMAL);
 	if (selected) oldpos = selected->GetRootNode()->getAbsolutePosition();
 	std::cout << "Camera set to Maya mode" << std::endl;
 	if (debugui) debugui->LogText(L"Camera set to Maya mode");
@@ -506,6 +510,8 @@ void CGWIC_World::GoPlayerMode()
 		main_cam->remove();
 		main_cam = NULL;
 	}
+	gra_world->getCursorControl()->setVisible(false);
+//	gra_world->getCursorControl()->setPosition(320,240);
 	std::cout << "Camera set to Player mode" << std::endl;
 	if (debugui) debugui->LogText(L"Camera set to Player mode");
 	ShowGUI(false);

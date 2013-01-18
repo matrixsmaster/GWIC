@@ -64,6 +64,8 @@ public:
 	CPoint2D GetCell() { return this->mycell; }
 	irr::core::vector3df getAbsPosition();
 	//irr::core::vector3df getAbsPosition(irr::core::vector3df rel_pos);
+	float GetRealHeight() { return this->mHeight; }
+	float GetMetricHeight() { return (this->mHeight/GWIC_IRRUNITS_PER_METER); }
 	bool SetRot(irr::core::vector3df rot);
 	irr::core::vector3df GetRot();
 	bool SetMaterial(ObjMaterial newmat);
@@ -73,6 +75,7 @@ public:
 	void SetVisible(const bool enable);
 	bool GetVisible() { return this->visible; }
 	void AutoSize();
+	GWICActorType GetType() { return this->initParams.type; }
 	irr::core::stringc GetTypeAsString();
 	irr::s32 IsThisNodeIsMine(irr::scene::ISceneNode* node);
 	irr::core::stringw GetName() { return this->myname; }

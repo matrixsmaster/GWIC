@@ -2,7 +2,7 @@
  * GWICTypes.h
  *  Created on: 06.12.2012
  *
- *	GWIC (C) Dmitry Soloviov, 2012
+ *	GWIC (C) Dmitry Soloviov, 2012-2013
  *	Licensed under the terms of GNU GPL v2
  *	use can see LICENSE for details
  *

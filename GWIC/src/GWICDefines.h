@@ -2,7 +2,7 @@
  * GWICDefines.h
  *  Created on: 12.12.2012
  *
- *  GWIC (C) Dmitry Soloviov, 2012
+ *  GWIC (C) Dmitry Soloviov, 2012-2013
  *	Licensed under the terms of GNU GPL v2
  *	use can see LICENSE for details
  *
@@ -25,7 +25,7 @@
 #define GWIC_SOUNDS_DIR "/sound_fx/"
 #define GWIC_UI_DIR "/ui/"
 
-#define GWIC_MAINWINDOW_CAPTION L"GWIC ver.0.0.2"
+#define GWIC_MAINWINDOW_CAPTION L"GWIC ver.0.0.2.57"
 
 #define GWIC_VOID_COLOR SColor(255,100,100,100)
 

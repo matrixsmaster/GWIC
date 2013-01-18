@@ -2,6 +2,7 @@
  * main.h
  *  Created on: Dec 3, 2012
  *
+ *  GWIC (C) Dmitry Soloviov, 2012-2013
  *	Authors:
  *	Soloviov Dmitry aka matrixsmaster
  *

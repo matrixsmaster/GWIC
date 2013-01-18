@@ -105,6 +105,7 @@ protected:
 	CGWIC_Bot* master_bot;
 	irr::scene::ICameraSceneNode* headcam;
 	int camc_tries;
+	CPoint2D mousepos;
 	void LogIt(irr::core::stringc msg);
 	CGWIC_Head* CreateNPC(irr::core::stringw file);
 };

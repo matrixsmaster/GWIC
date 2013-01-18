@@ -43,6 +43,7 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 	master_bot = NULL;
 	headcam = NULL;
 	camc_tries = 0;
+	mHeight = 1.f;
 	IAnimatedMesh* botmesh = NULL;
 	IAnimatedMeshSceneNode* animnode = NULL;
 	switch (params->type) {
@@ -67,7 +68,9 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 		 * Player char is not a graphical and/or physical one!
 		 * We can attach PC to any other actor on demand
 		 */
+		mHeight = 0.001f;
 		botRoot = scManager->addEmptySceneNode(NULL,0);
+		botRoot->setScale(vector3df(1.f/GWIC_IRRUNITS_PER_METER));
 		break;
 	case ACTOR_CREATURE:
 		//TODO: load classic skinned rigged mesh
@@ -81,9 +84,9 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 		animnode->setTriangleSelector(sel);
 		sel->drop();
 	}
-	mHeight = 1.7f;
 	initDone = true;
-	AutoSize();
+	if (params->type != ACTOR_PLAYER)
+		AutoSize();
 	SetPos(params->rel_pos);
 	if (head) head->RebuildPhysics(true);
 }
@@ -107,7 +110,7 @@ bool CGWIC_Bot::SetPos(irr::core::vector3df rel_pos)
 {
 	if (!initDone) return false;
 	position = rel_pos; //remember it in meters
-	//position.Y += mHeight / 2;
+//	position.Y -= mHeight / 2;
 	if (botRoot) botRoot->setPosition(getAbsPosition());
 	if (botShell) {
 		btTransform btt = botShell->getPointer()->getCenterOfMassTransform();
@@ -303,12 +306,13 @@ irr::scene::ICameraSceneNode* CGWIC_Bot::GetCamera()
 		}
 	}
 	if (botRoot) {
-		headcam->setPosition(botRoot->getPosition()+vector3df(0,mHeight,0));
-		headcam->setRotation(botRoot->getRotation());
+		headcam->setPosition(botRoot->getPosition());//+vector3df(0,mHeight,0));
+//		headcam->setRotation(botRoot->getRotation());
 //		headcam->setParent(botRoot);
 	} else if (head) {
-		headcam->setPosition(head->GetRootSceneNode()->getPosition());
-		headcam->setRotation(head->GetRootSceneNode()->getRotation());
+		head->GetRootSceneNode()->updateAbsolutePosition();
+		headcam->setPosition(head->GetRootSceneNode()->getAbsolutePosition());
+//		headcam->setRotation(head->GetRootSceneNode()->getRotation());
 //		headcam->setParent(head->GetRootSceneNode());
 	}
 	return headcam;
@@ -330,7 +334,31 @@ void CGWIC_Bot::QuantumUpdate()
 
 bool CGWIC_Bot::ProcessEvent(const irr::SEvent& event)
 {
-	//TODO
+	if (!GetCamera()) return false;
+	if (event.EventType == EET_MOUSE_INPUT_EVENT) {
+		vector3df orot(headcam->getRotation());
+		orot.X -= event.MouseInput.Y-mousepos.Y;
+		orot.Y += event.MouseInput.X-mousepos.X;
+		orot.Z = 0;
+		headcam->setRotation(orot);
+		mousepos.X = event.MouseInput.X;
+		mousepos.Y = event.MouseInput.Y;
+	} else if ((event.EventType == EET_KEY_INPUT_EVENT)) {// && (!event.KeyInput.PressedDown)) {
+		QuantumUpdate();
+		vector3df pos = GetPos();
+//		pos.Y -= mHeight / 2;
+		switch (event.KeyInput.Key) {
+		case KEY_KEY_W: pos.X += 0.8f; break;
+		case KEY_KEY_A: pos.Z += 0.8f; break;
+		case KEY_KEY_S: pos.X -= 0.8f; break;
+		case KEY_KEY_D: pos.Z -= 0.8f; break;
+		default: return false;
+		}
+		if (master_bot) master_bot->SetPos(pos);
+		else SetPos(pos);
+		std::cout << pos.X << "  " << pos.Z << std::endl;
+		return true;
+	}
 	return false;
 }
 

@@ -296,22 +296,21 @@ irr::scene::ICameraSceneNode* CGWIC_Bot::GetCamera()
 		headcam = scManager->addCameraSceneNode(NULL,getAbsPosition(),vector3df(0),9,false);
 		if (headcam) {
 			headcam->bindTargetAndRotation(true);
-			if (botRoot) {
-				headcam->setPosition(botRoot->getPosition()+vector3df(0,mHeight,0));
-				headcam->setRotation(botRoot->getRotation());
-				headcam->setParent(botRoot);
-			} else if (head) {
-				headcam->setPosition(head->GetRootSceneNode()->getPosition());
-				headcam->setRotation(head->GetRootSceneNode()->getRotation());
-				headcam->setParent(head->GetRootSceneNode());
-			}
 			camc_tries = 0;
 		} else {
 			camc_tries++;
 			return NULL;
 		}
 	}
-	//TODO: update camera's rotation and position according to head's state and animation
+	if (botRoot) {
+		headcam->setPosition(botRoot->getPosition()+vector3df(0,mHeight,0));
+		headcam->setRotation(botRoot->getRotation());
+//		headcam->setParent(botRoot);
+	} else if (head) {
+		headcam->setPosition(head->GetRootSceneNode()->getPosition());
+		headcam->setRotation(head->GetRootSceneNode()->getRotation());
+//		headcam->setParent(head->GetRootSceneNode());
+	}
 	return headcam;
 }
 
@@ -320,13 +319,19 @@ void CGWIC_Bot::QuantumUpdate()
 	if (master_bot) {
 		mycell = master_bot->GetCell();
 		SetPos(master_bot->GetPos());
-		if ((initParams.type == ACTOR_PLAYER) && (headcam)) {
-			std::cout << botRoot->getPosition().X << "  " << botRoot->getPosition().Y << std::endl;
-			std::cout << headcam->getPosition().X << "  " << headcam->getPosition().Y << std::endl;
-		}
+//		if ((initParams.type == ACTOR_PLAYER) && (headcam)) {
+//			std::cout << botRoot->getPosition().X << "  " << botRoot->getPosition().Y << std::endl;
+//			std::cout << headcam->getPosition().X << "  " << headcam->getPosition().Y << std::endl;
+//		}
 	}
 	//TODO: fix classic actors models rotations
 	if (head) head->Quantum();
+}
+
+bool CGWIC_Bot::ProcessEvent(const irr::SEvent& event)
+{
+	//TODO
+	return false;
 }
 
 

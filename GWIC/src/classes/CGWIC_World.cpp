@@ -18,112 +18,6 @@ using namespace gui;
 
 namespace gwic {
 
-bool CGWIC_World::OnEvent(const irr::SEvent& event)
-{
-	if (!gra_world) return false;
-	switch(event.EventType) {
-	case EET_MOUSE_INPUT_EVENT:
-		mousepressed = 0;
-		if (event.MouseInput.isLeftPressed()) mousepressed = 1;
-		if (event.MouseInput.isRightPressed()) mousepressed |= 2;
-		if (event.MouseInput.isMiddlePressed()) mousepressed |= 4;
-		mousepos.X = event.MouseInput.X;
-		mousepos.Y = event.MouseInput.Y;
-		mousewheel = event.MouseInput.Wheel;
-		if (gizmo) {
-			//Gizmo-related actions
-			if (main_cam)
-				gizmo->UpdateCameraPos(main_cam->getPosition());
-			if (mousepressed) {
-				if (!fps_cam) return true; //absorb event to stop camera actions in Maya mode
-			} else {
-				gizmo->GizmoHandleRelease();
-			}
-		}
-		break;
-	case EET_KEY_INPUT_EVENT:
-		//FIXME: more robust and nice looking processing needed!!
-		if (gizmo) gizmo->ProcessKeyEvent(event);
-		if (event.KeyInput.PressedDown) break;
-		if (event.KeyInput.Key == KEY_ESCAPE) {
-//			fps_cam ^= true;
-			if (!fps_cam) GoFPS();
-			else GoEditMode();
-			return true;
-		}
-		if ((event.KeyInput.Key == KEY_F2) && (PC) && (!pchar_cam)) {
-			GoPlayerMode();
-			return true;
-		}
-		if (!fps_cam) break;
-		if (event.KeyInput.Key == KEY_KEY_Q) {
-			quit_msg = true;
-			return true;
-		} else if (event.KeyInput.Key == KEY_KEY_X) {
-			if (selected) {
-				RemoveRegisteredObject(selected);
-				selected = NULL;
-				if (gizmo) {
-					delete gizmo;
-					gizmo = NULL;
-				}
-			}
-		} else if (event.KeyInput.Key == KEY_KEY_1) {
-			if (selected)
-				selected->SetPhysical(!selected->GetPhysical());
-		} else if (event.KeyInput.Key == KEY_SPACE) {
-			if (fps_cam) {
-				float ssize = GWIC_IRRUNITS_PER_METER / 4.f;
-				this->ShootSphere(vector3df(ssize,ssize,ssize),3.0);
-			}
-			return true;
-		} else if (event.KeyInput.Key == KEY_DELETE) {
-			if (main_cam) {
-				std::cout << "Deleting main camera!" << std::endl;
-				main_cam->remove();
-				main_cam = NULL;
-			}
-			return true;
-		} else if (event.KeyInput.Key == KEY_F9) {
-			physicsPause ^= true;
-			if (physicsPause) debugui->LogText(L"Physics paused");
-			else debugui->LogText(L"Physics resumed");
-			return true;
-		} else if (event.KeyInput.Key == KEY_F8) {
-			terrain_magnet ^= true;
-			if (terrain_magnet) {
-				debugui->LogText(L"Terrain magnet activated!");
-				std::cout << "Terrain magnet activated!" << std::endl;
-			} else
-				StitchWorld(false);
-			return true;
-		}
-		break;
-	case EET_GUI_EVENT:
-		if (debugui) debugui->PumpMessage(event);
-		if (event.GUIEvent.EventType == EGET_ELEMENT_CLOSED) {
-			std::vector<CGWIC_GUIObject*>::iterator uisit = uis.begin();
-			CGWIC_GUIObject* ptr;
-			for (;uisit != uis.end(); ++uisit) {
-				ptr = *uisit;
-				if (ptr->GetRootID() == event.GUIEvent.Caller->getID()) {
-					delete ptr;
-					uis.erase(uisit);
-					debugui->LogText(L"Window destroyed!");
-					break;
-				}
-			}
-			return true;
-		} else {
-			for (u32 i=0; i<uis.size(); i++)
-				uis[i]->PumpMessage(event);
-		}
-		break;
-	default: break;
-	}
-	return false;
-}
-
 CGWIC_World::CGWIC_World(WorldProperties* props, cOAL_Device* sndDevice)
 {
 	gra_world = NULL;
@@ -183,79 +77,6 @@ CGWIC_World::~CGWIC_World()
 	}
 	if (phy_world) delete phy_world;
 	if (gra_world) gra_world->drop();
-}
-
-CGWIC_Cell* CGWIC_World::GetCell(int x, int y)
-{
-	if ((x<0) || (y<0)) {
-//		std::cerr << "GetCell() X or Y below zero" << std::endl;
-		return NULL;
-	}
-	if ((x>=properties.wrldSizeX) || (y>=properties.wrldSizeY)) {
-//		std::cerr << "GetCell() X or Y above world size limits!" << std::endl;
-		return NULL;
-	}
-	// pass 1
-	unsigned int r = x * properties.wrldSizeX + y;
-	CPoint2D ccrd;
-	CPoint2D targ(x,y);
-	if (r<cells.size()) {
-		ccrd = cells[r]->GetCoord();
-		if (ccrd == targ) {
-//			std::cout << "Cell search complete in first phase!" << std::endl;
-			return (cells[r]);
-		}
-	}
-	// pass 2
-	std::cerr << "Search for cell [" << x;
-	std::cerr << ";" << y;
-	std::cerr << "] failed on first phase. Doing bruteforce search!" << std::endl;
-	for (r=0; r<cells.size(); r++) {
-		ccrd = cells[r]->GetCoord();
-		if (ccrd == targ) {
-			std::cout << "Cell search complete on second phase!" << std::endl;
-			return (cells[r]);
-		}
-	}
-	std::cerr << "Search for cell [" << x;
-	std::cerr << ";" << y;
-	std::cerr << "] failed on second phase! CELL buffer lost some data!!!" << std::endl;
-	return NULL;
-}
-
-bool CGWIC_World::GenerateLand()
-{
-	std::cout << "World width (cells): " << properties.wrldSizeX;
-	std::cout << std::endl << "World height (cells): ";
-	std::cout << properties.wrldSizeY << std::endl;
-	CGWIC_Cell* ptr;
-	int y;
-	for (int x=0; x<properties.wrldSizeX; x++)
-		for (y=0; y<properties.wrldSizeY; y++) {
-			ptr = new CGWIC_Cell(CPoint2D(x,y),gra_world,phy_world);
-			cells.push_back(ptr);
-			if (!ptr->InitLand()) return false;
-		}
-	StitchWorld(true);
-	return true;
-}
-
-bool CGWIC_World::GenerateNPC()
-{
-	BotCreationParams botset;
-	botset.type = ACTOR_DUMMY;
-	botset.cell_coord = CPoint2D(2);
-	botset.rel_pos = vector3df(120,50,120);
-	botset.height = 1.5f;
-	botset.actorname = L"Sydney";
-	actors.push_back(new CGWIC_Bot(&botset,gra_world,phy_world));
-	actors.back()->SetEnabled(true);
-	botset.type = ACTOR_GYNOID;
-	botset.rel_pos = vector3df(110,50,110);
-	botset.actorname = L"A22";
-	actors.push_back(new CGWIC_Bot(&botset,gra_world,phy_world));
-	//actors.back()->SetEnabled(true);
-	return true;
 }
 
 bool CGWIC_World::PrepareWorld()
@@ -386,6 +207,190 @@ void CGWIC_World::RunWorld()
 	if (!quit_msg)
 		std::cerr << "Exit without quit_msg flag!" << std::endl;
 	std::cout << "RunWorld() done!" << std::endl;
+}
+
+bool CGWIC_World::OnEvent(const irr::SEvent& event)
+{
+	if (!gra_world) return false;
+//	for (u32 a=0; a<actors.size(); a++)
+//		if (actors[a]->ProcessEvent(event)) return true;
+	if ((PC) && (pchar_cam)) {
+		if (PC->ProcessEvent(event)) return true;
+	}
+	switch(event.EventType) {
+	case EET_MOUSE_INPUT_EVENT:
+		mousepressed = 0;
+		if (event.MouseInput.isLeftPressed()) mousepressed = 1;
+		if (event.MouseInput.isRightPressed()) mousepressed |= 2;
+		if (event.MouseInput.isMiddlePressed()) mousepressed |= 4;
+		mousepos.X = event.MouseInput.X;
+		mousepos.Y = event.MouseInput.Y;
+		mousewheel = event.MouseInput.Wheel;
+		if (gizmo) {
+			//Gizmo-related actions
+			if (main_cam)
+				gizmo->UpdateCameraPos(main_cam->getPosition());
+			if (mousepressed) {
+				if (!fps_cam) return true; //absorb event to stop camera actions in Maya mode
+			} else {
+				gizmo->GizmoHandleRelease();
+			}
+		}
+		break;
+	case EET_KEY_INPUT_EVENT:
+		//FIXME: more robust and nice looking processing needed!!
+		if (gizmo) gizmo->ProcessKeyEvent(event);
+		if (event.KeyInput.PressedDown) break;
+		if (event.KeyInput.Key == KEY_ESCAPE) {
+//			fps_cam ^= true;
+			if (!fps_cam) GoFPS();
+			else GoEditMode();
+			return true;
+		}
+		if ((event.KeyInput.Key == KEY_F2) && (PC) && (!pchar_cam)) {
+			GoPlayerMode();
+			return true;
+		}
+		if (!fps_cam) break;
+		if (event.KeyInput.Key == KEY_KEY_Q) {
+			quit_msg = true;
+			return true;
+		} else if (event.KeyInput.Key == KEY_KEY_X) {
+			if (selected) {
+				RemoveRegisteredObject(selected);
+				selected = NULL;
+				if (gizmo) {
+					delete gizmo;
+					gizmo = NULL;
+				}
+			}
+		} else if (event.KeyInput.Key == KEY_KEY_1) {
+			if (selected)
+				selected->SetPhysical(!selected->GetPhysical());
+		} else if (event.KeyInput.Key == KEY_SPACE) {
+			if (fps_cam) {
+				float ssize = GWIC_IRRUNITS_PER_METER / 4.f;
+				this->ShootSphere(vector3df(ssize,ssize,ssize),3.0);
+			}
+			return true;
+		} else if (event.KeyInput.Key == KEY_DELETE) {
+			if (main_cam) {
+				std::cout << "Deleting main camera!" << std::endl;
+				main_cam->remove();
+				main_cam = NULL;
+			}
+			return true;
+		} else if (event.KeyInput.Key == KEY_F9) {
+			physicsPause ^= true;
+			if (physicsPause) debugui->LogText(L"Physics paused");
+			else debugui->LogText(L"Physics resumed");
+			return true;
+		} else if (event.KeyInput.Key == KEY_F8) {
+			terrain_magnet ^= true;
+			if (terrain_magnet) {
+				debugui->LogText(L"Terrain magnet activated!");
+				std::cout << "Terrain magnet activated!" << std::endl;
+			} else
+				StitchWorld(false);
+			return true;
+		}
+		break;
+	case EET_GUI_EVENT:
+		if (debugui) debugui->PumpMessage(event);
+		if (event.GUIEvent.EventType == EGET_ELEMENT_CLOSED) {
+			std::vector<CGWIC_GUIObject*>::iterator uisit = uis.begin();
+			CGWIC_GUIObject* ptr;
+			for (;uisit != uis.end(); ++uisit) {
+				ptr = *uisit;
+				if (ptr->GetRootID() == event.GUIEvent.Caller->getID()) {
+					delete ptr;
+					uis.erase(uisit);
+					debugui->LogText(L"Window destroyed!");
+					break;
+				}
+			}
+			return true;
+		} else {
+			for (u32 i=0; i<uis.size(); i++)
+				uis[i]->PumpMessage(event);
+		}
+		break;
+	default: break;
+	}
+	return false;
+}
+
+CGWIC_Cell* CGWIC_World::GetCell(int x, int y)
+{
+	if ((x<0) || (y<0)) {
+//		std::cerr << "GetCell() X or Y below zero" << std::endl;
+		return NULL;
+	}
+	if ((x>=properties.wrldSizeX) || (y>=properties.wrldSizeY)) {
+//		std::cerr << "GetCell() X or Y above world size limits!" << std::endl;
+		return NULL;
+	}
+	// pass 1
+	unsigned int r = x * properties.wrldSizeX + y;
+	CPoint2D ccrd;
+	CPoint2D targ(x,y);
+	if (r<cells.size()) {
+		ccrd = cells[r]->GetCoord();
+		if (ccrd == targ) {
+//			std::cout << "Cell search complete in first phase!" << std::endl;
+			return (cells[r]);
+		}
+	}
+	// pass 2
+	std::cerr << "Search for cell [" << x;
+	std::cerr << ";" << y;
+	std::cerr << "] failed on first phase. Doing bruteforce search!" << std::endl;
+	for (r=0; r<cells.size(); r++) {
+		ccrd = cells[r]->GetCoord();
+		if (ccrd == targ) {
+			std::cout << "Cell search complete on second phase!" << std::endl;
+			return (cells[r]);
+		}
+	}
+	std::cerr << "Search for cell [" << x;
+	std::cerr << ";" << y;
+	std::cerr << "] failed on second phase! CELL buffer lost some data!!!" << std::endl;
+	return NULL;
+}
+
+bool CGWIC_World::GenerateLand()
+{
+	std::cout << "World width (cells): " << properties.wrldSizeX;
+	std::cout << std::endl << "World height (cells): ";
+	std::cout << properties.wrldSizeY << std::endl;
+	CGWIC_Cell* ptr;
+	int y;
+	for (int x=0; x<properties.wrldSizeX; x++)
+		for (y=0; y<properties.wrldSizeY; y++) {
+			ptr = new CGWIC_Cell(CPoint2D(x,y),gra_world,phy_world);
+			cells.push_back(ptr);
+			if (!ptr->InitLand()) return false;
+		}
+	StitchWorld(true);
+	return true;
+}
+
+bool CGWIC_World::GenerateNPC()
+{
+	BotCreationParams botset;
+	botset.type = ACTOR_DUMMY;
+	botset.cell_coord = CPoint2D(2);
+	botset.rel_pos = vector3df(120,50,120);
+	botset.height = 1.5f;
+	botset.actorname = L"Sydney";
+	actors.push_back(new CGWIC_Bot(&botset,gra_world,phy_world));
+	actors.back()->SetEnabled(true);
+	botset.type = ACTOR_GYNOID;
+	botset.rel_pos = vector3df(110,50,110);
+	botset.actorname = L"A22";
+	actors.push_back(new CGWIC_Bot(&botset,gra_world,phy_world));
+	//actors.back()->SetEnabled(true);
+	return true;
 }
 
 IRigidBody* CGWIC_World::ShootSphere(irr::core::vector3df scale, irr::f32 mass)

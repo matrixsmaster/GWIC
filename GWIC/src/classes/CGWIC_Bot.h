@@ -81,6 +81,7 @@ public:
 	CGWIC_Bot* GetMaster() { return this->master_bot; }
 	irr::scene::ICameraSceneNode* GetCamera();
 	void QuantumUpdate();
+	bool ProcessEvent(const irr::SEvent& event);
 protected:
 	bool initDone;
 	int ID;

@@ -91,7 +91,7 @@ void CGWIC_Gizmo::ProcessRay(irr::core::line3d<irr::f32> ray)
 					break;
 				}
 				if (k_ctrl) {
-					absrot += ndiff;
+					absrot += (ndiff * 10);
 					NormRot();
 				} else if (k_shift)
 					cscale += vector3df(ndiff.dotProduct(vector3df(1)));

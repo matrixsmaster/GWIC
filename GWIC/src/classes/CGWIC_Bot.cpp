@@ -52,21 +52,24 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 		if (!botmesh) return;
 		animnode = scManager->addAnimatedMeshSceneNode(botmesh);
 		botRoot = animnode;
-		botRoot->setMaterialType(EMT_REFLECTION_2_LAYER);
+//		botRoot->setMaterialType(EMT_REFLECTION_2_LAYER);
 		botRoot->setMaterialTexture(0,irDriver->getTexture("sydney.bmp"));
-		botRoot->setMaterialTexture(1,irDriver->getTexture("spheremap.jpg"));
+//		botRoot->setMaterialTexture(1,irDriver->getTexture("spheremap.jpg"));
 //		animnode->addShadowVolumeSceneNode();
+		animnode->setMD2Animation(EMAT_STAND);
 		basicShell = new IBoxShape(botRoot,60.f,false);
 		break;
 	case ACTOR_GYNOID:
 		head = CreateNPC(params->filename);
 		break;
 	case ACTOR_PLAYER:
-		//TODO: implement!
 		/*
 		 * Player char is not a graphical and/or physical one!
 		 * We can attach PC to any other actor on demand
 		 */
+		mHeight = 1.8f;
+		initDone = true;
+		position = params->rel_pos;
 		return;
 	case ACTOR_CREATURE:
 		//TODO: load classic skinned rigged mesh
@@ -80,7 +83,7 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 		animnode->setTriangleSelector(sel);
 		sel->drop();
 	}
-	mHeight = 1.f;
+	mHeight = 1.7f;
 	initDone = true;
 	AutoSize();
 	SetPos(params->rel_pos);

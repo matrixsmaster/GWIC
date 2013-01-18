@@ -880,6 +880,7 @@ void CGWIC_World::UpdateHardCulling()
 	vector3df pcpos(GetCell(center_cell)->getIrrlichtCenter());
 	if ((pchar_cam) && (PC)) pcpos = PC->getAbsPosition();
 	else if (fps_cam) pcpos = main_cam->getPosition();
+	else pcpos = main_cam->getTarget();
 	for (i=0; i<actors.size(); i++) {
 		bool flg_fnd = false;
 		for (j=0; j<vcells.size(); j++)

@@ -48,7 +48,7 @@ CGWIC_GameObject::CGWIC_GameObject(irr::io::path filename, CPoint2D cell, irr::I
 		root->setTriangleSelector(sel);
 		sel->drop();
 		//root->setScale(vector3df(GWIC_IRRUNITS_PER_METER));
-		pshapes.push_back(new IBoxShape(root,1.f,false));
+		pshapes.push_back(new IBoxShape(root,0,false));
 	}
 }
 
@@ -103,13 +103,12 @@ bool CGWIC_GameObject::SetRot(irr::core::vector3df rot)
 	if (root) {
 		root->setRotation(rot);
 		if (physical) {
-			//FIXME: this code is wrong! we need a product between two quats, I guess
 			btTransform bto,btn;
 			btScalar rx = rot.X / PI * 180.f;
 			btScalar ry = rot.Y / PI * 180.f;
 			btScalar rz = rot.Z / PI * 180.f;
 			btQuaternion btq;
-			btq.setEulerZYX(ry,rz,rx);
+			btq.setEulerZYX(ry,rx,rz);
 			bto.setIdentity();
 			bto.setRotation(btq);
 			for (u32 i=0; i<bodies.size(); i++) {

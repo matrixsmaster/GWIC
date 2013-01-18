@@ -358,13 +358,14 @@ void CGWIC_Cell::TerrainChanged()
 void CGWIC_Cell::RandomizeTerrain(float subdelta)
 {
 	IMesh* pMesh = terrain->getMesh();
+	s32 Q = static_cast<s32> (subdelta);
 	for (u32 n=0; n<pMesh->getMeshBufferCount(); n++) {
 		IMeshBuffer* pMeshBuffer = pMesh->getMeshBuffer(n);
 		if (pMeshBuffer->getVertexType() != EVT_2TCOORDS) continue;
 		S3DVertex2TCoords* pVertices = (S3DVertex2TCoords*)pMeshBuffer->getVertices();
 		//1. find the current max & min, since we don't want to escalate landscape
-		float max = 256;
-		float min = 0;
+		float max = 0;
+		float min = 256;
 		u32 i;
 		for (i=0; i<(256*256); i++) {
 			if (pVertices[i].Pos.Y < min) min = pVertices[i].Pos.Y;
@@ -375,15 +376,16 @@ void CGWIC_Cell::RandomizeTerrain(float subdelta)
 		std::vector<float> tmparr;
 		float cy;
 		for (i=0; i<(256*256); i++) {
-			cy = Random_FLOAT(max-min);
-//			std::cout << cy << "; ";
-			cy += min;
+			if (Q) {
+				cy = Random_FLOAT(max-min);
+				cy += min;
+			} else cy = 0;
 			tmparr.push_back(cy);
 		}
 		std::cout << std::endl;
 		//3. interpolate vertices inside big quads
-		s32 Q = static_cast<s32> (subdelta);
-		s32 A = 256 / Q + 1;
+		s32 A = 0;
+		if (Q) A = 256 / Q + 1;
 		for (int qx=0; qx<A; qx++)
 			for (int qy=0; qy<A; qy++) {
 				int x0 = qx * Q;
@@ -402,8 +404,7 @@ void CGWIC_Cell::RandomizeTerrain(float subdelta)
 					for (int cy=y0; cy<ye; cy++) {
 						float ch = (((qx%2)?(x0-cx):(cx-x0))/lhx)*lhx+hx0;
 						ch += (((qy%2)?(y0-cy):(cy-y0))/lhy)*lhy+hy0;
-						ch /= 2;
-						tmparr[cx*256+cy] = ch;
+						tmparr[cx*256+cy] = ch / 2;
 					}
 			}
 		//4. get result back

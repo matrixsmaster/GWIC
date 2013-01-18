@@ -27,9 +27,13 @@
 
 #define GWIC_MAINWINDOW_CAPTION L"GWIC ver.0.0.2"
 
+#define GWIC_VOID_COLOR SColor(255,100,100,100)
+
 #define GWIC_IRRUNITS_PER_METER 20.f
-// don't change next line!
+// don't change next V line!
 #define GWIC_METERS_PER_CELL 240.f
+#define GWIC_PHYS_TIMESCALE 0.001f
+#define GWIC_PHYS_SUBSTEPS 90
 
 #define Random_FLOAT(G) (float)rand()/((float)RAND_MAX/(float)(G));
 

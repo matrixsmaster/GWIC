@@ -10,8 +10,6 @@
 #ifndef CGWIC_WORLD_H_
 #define CGWIC_WORLD_H_
 
-#define GWIC_VOID_COLOR SColor(255,100,100,100)
-
 #include <iostream>
 #include <string>
 #include <irrlicht.h>
@@ -81,6 +79,7 @@ private:
 	CGWIC_BodyPart* select_actor_part;
 	CGWIC_Gizmo* gizmo;
 	CGWIC_Bot* PC;
+	CPoint2D PC_lastcell;
 	bool terrain_magnet;
 	bool GenerateLand();
 	bool GenerateNPC();
@@ -98,6 +97,7 @@ private:
 	void ProcessEvents();
 	void ProcessSelection();
 	void ProcessActors();
+	void UpdatePC();
 	void ZeroSelect();
 	void CommandProcessor(irr::core::stringw cmd);
 	void CmdGetPos(CIrrStrParser parse);
@@ -109,6 +109,10 @@ private:
 	void RemoveRegisteredObject(CGWIC_GameObject* ptr);
 	void CreatePlayerCharacter();
 	void UpdateHardCulling();
+	bool AddLight(CGWIC_GameObject* ptr);
+	bool RemoveLight(CGWIC_GameObject* ptr);
+	void EraseLights();
+	void SunFlick();
 };
 
 static const CPoint2D neighbor_array[] = {

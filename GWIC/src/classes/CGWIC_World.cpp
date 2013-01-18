@@ -78,9 +78,11 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 			}
 			return true;
 		} else if (event.KeyInput.Key == KEY_DELETE) {
-			std::cout << "Deleting main camera!" << std::endl;
-			main_cam->remove();
-			main_cam = NULL;
+			if (main_cam) {
+				std::cout << "Deleting main camera!" << std::endl;
+				main_cam->remove();
+				main_cam = NULL;
+			}
 			return true;
 		} else if (event.KeyInput.Key == KEY_F9) {
 			physicsPause ^= true;
@@ -141,6 +143,7 @@ CGWIC_World::CGWIC_World(WorldProperties* props, cOAL_Device* sndDevice)
 	center_cell = CPoint2D(0);
 	PC = NULL;
 	pchar_cam = false;
+	PC_lastcell.X = -100;
 
 	std::cout << "Creating Irrlicht device..." << std::endl;
 	gra_world = createDevice(props->videoDriver,dimension2d<u32>(props->gWidth,props->gHeight),
@@ -338,15 +341,16 @@ void CGWIC_World::RunWorld()
 		}
 
 		if (ticker%5) ProcessEvents();
+		UpdatePC();
+		if (ticker%2) UpdateHardCulling();
+
 		DeltaTime = timer->getTime() - TimeStamp;
 		TimeStamp = timer->getTime();
-
-		if (ticker%2) UpdateHardCulling();
 		driver->beginScene(true,true,GWIC_VOID_COLOR);
 
 		//FIXME: move physics simulation to another thread
 		if (!physicsPause)
-			phy_world->stepSimulation(DeltaTime*0.001f,120);
+			phy_world->stepSimulation(DeltaTime*GWIC_PHYS_TIMESCALE,GWIC_PHYS_SUBSTEPS);
 		if (debugDraw) {
 			phy_world->debugDrawWorld(true);
 			phy_world->debugDrawProperties(true);
@@ -456,6 +460,7 @@ void CGWIC_World::GoFPS()
 	main_cam->setFarValue(properties.viewDistance * GWIC_IRRUNITS_PER_METER);
 	ShowGUI(false);
 	ZeroSelect();
+	EraseLights();
 	fps_cam = true;
 	pchar_cam = false;
 }
@@ -479,26 +484,35 @@ void CGWIC_World::GoEditMode()
 	main_cam->setFarValue(properties.viewDistance * GWIC_IRRUNITS_PER_METER);
 	ShowGUI(true);
 	ZeroSelect();
+	EraseLights();
 	fps_cam = false;
 	pchar_cam = false;
 }
 
 void CGWIC_World::GoPlayerMode()
 {
-	if (!PC) {
+	if ((!PC) || (!PC->GetMaster())) {
 		GoEditMode();
 		std::cerr << "Can't switch to player mode because PC isn't exists!" << std::endl;
-		if (debugui) debugui->LogText(L"Can't switch! PC == NULL");
+		if (debugui) debugui->LogText(L"Unable to switch to Player mode");
 		return;
 	}
 	if (main_cam) {
 		main_cam->remove();
 		main_cam = NULL;
 	}
+	std::cout << "Camera set to Player mode" << std::endl;
+	if (debugui) debugui->LogText(L"Camera set to Player mode");
+	ShowGUI(false);
+	ZeroSelect();
+	EraseLights();
 	fps_cam = true;
 	pchar_cam = true;
-	PC->GetCamera()->setFarValue(properties.viewDistance * GWIC_IRRUNITS_PER_METER);
-	scManager->setActiveCamera(PC->GetCamera());
+	PC->QuantumUpdate();
+	if (PC->GetCamera()) {
+		PC->GetCamera()->setFarValue(properties.viewDistance * GWIC_IRRUNITS_PER_METER);
+		scManager->setActiveCamera(PC->GetCamera());
+	}
 }
 
 void CGWIC_World::ShowGUI(bool show)
@@ -668,8 +682,22 @@ void CGWIC_World::ProcessSelection()
 
 void CGWIC_World::ProcessActors()
 {
-	//TODO: fix actors fall through terrain
-	//TODO: fix classic actors models rotations
+	for (u32 a=0; a<actors.size(); a++) {
+		actors[a]->QuantumUpdate();
+		//TODO: fix actors fall through terrain
+	}
+}
+
+void CGWIC_World::UpdatePC()
+{
+	if (!PC) return;
+	PC->GetCamera();
+	PC->QuantumUpdate();
+	if (!(PC->GetCell() == PC_lastcell)) {
+		PC_lastcell = PC->GetCell();
+		//TODO: process cell change
+		SunFlick();
+	}
 }
 
 void CGWIC_World::ZeroSelect()
@@ -855,8 +883,9 @@ void CGWIC_World::UpdateHardCulling()
 	u32 i,j;
 	std::vector<CGWIC_Cell*> vcells = GetNeighbors(center_cell);
 	vcells.push_back(GetCell(center_cell));
-	//If there's no camera (menuMode), activate terrains, all hidden objects and bots
+	//If there's no camera (menuMode), activate terrains, all objects, bots, etc
 	if ((!main_cam) && (!pchar_cam)) {
+		EraseLights();
 		for (i=0; i<cells.size(); i++)
 			if (!cells[i]->GetVisible())
 				cells[i]->SetVisible(true);
@@ -874,8 +903,9 @@ void CGWIC_World::UpdateHardCulling()
 	/*
 		1. Disable bots outside of current active cells region
 		2. Update visibility of all objects & bots in active cells
-		3. Hide all inactive cells if needed
-		4. Make sure currently active cells is visible :)
+		3. Update lights!
+		4. Hide all inactive cells if needed
+		5. Make sure currently active cells is visible :)
 	*/
 	vector3df pcpos(GetCell(center_cell)->getIrrlichtCenter());
 	if ((pchar_cam) && (PC)) pcpos = PC->getAbsPosition();
@@ -901,9 +931,14 @@ void CGWIC_World::UpdateHardCulling()
 		for (j=0; j<vcells[i]->GetObjectsCount(); j++) {
 			optr = vcells[i]->GetObjectByNum(j);
 			if (pcpos.getDistanceFrom(optr->getAbsPosition(optr->GetPos())) < prp.ObjectCullMeters) {
-				if (!optr->GetVisible()) optr->SetVisible(true);
-			} else if (optr->GetVisible())
+				if (!optr->GetVisible()) {
+					optr->SetVisible(true);
+					if (optr->isLight()) AddLight(optr);
+				}
+			} else if (optr->GetVisible()) {
 				optr->SetVisible(false);
+				if (optr->isLight()) RemoveLight(optr);
+			}
 		}
 	for (i=0; i<cells.size(); i++) {
 		if (!cells[i]->GetActive())
@@ -911,6 +946,29 @@ void CGWIC_World::UpdateHardCulling()
 		else if (!cells[i]->GetVisible())
 			cells[i]->SetVisible(true);
 	}
+}
+
+bool CGWIC_World::AddLight(CGWIC_GameObject* ptr)
+{
+	//TODO
+	return false;
+}
+
+bool CGWIC_World::RemoveLight(CGWIC_GameObject* ptr)
+{
+	//TODO
+	return false;
+}
+
+void CGWIC_World::EraseLights()
+{
+	//TODO: clear managed lights list
+}
+
+void CGWIC_World::SunFlick()
+{
+	std::cout << "SunFlick()" << std::endl;
+	//TODO: turn off/on the sun (or moon) to update terrain light effects
 }
 
 void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
@@ -995,23 +1053,34 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 		}
 	} else if (icmd == L"randomterr") {
 		irrstrwvec list = parse.ParseToList(L" ");
-		if (list.size() < 4) {
+		if (list.size() < 2) {
 			debugui->LogText(L"Use: randomterr cellX cellY subdelta");
+			debugui->LogText(L"Or worldwide: randomterr subdelta");
 			return;
 		}
 		CIrrStrParser pr2(list[1]);
-		s32 clx = pr2.ToS32(); pr2 = list[2];
-		s32 cly = pr2.ToS32(); pr2 = list[3];
-		float subd = pr2.ToFloat();
-		CGWIC_Cell* cptr = GetCell(clx,cly);
-		if (cptr) {
-			cptr->RandomizeTerrain(subd);
-			debugui->LogText(L"Command done!");
+		float subd;
+		if (list.size() > 3) {
+			s32 clx = pr2.ToS32(); pr2 = list[2];
+			s32 cly = pr2.ToS32(); pr2 = list[3];
+			subd = pr2.ToFloat();
+			CGWIC_Cell* cptr = GetCell(clx,cly);
+			if (cptr) {
+				cptr->RandomizeTerrain(subd);
+				debugui->LogText(L"Cell randomized");
+			}
+		} else {
+			subd = pr2.ToFloat();
+			for (u32 xy=0; xy<cells.size(); xy++)
+				cells[xy]->RandomizeTerrain(subd);
+			debugui->LogText(L"World randomized");
 		}
+		StitchWorld(true);
+		SunFlick();
 	} else if (icmd == L"attachplayername") {
 		irrstrwvec list = parse.ParseToList(L" ");
 		if (list.size() != 2) {
-			debugui->LogText(L"Use: attachplayername [actor's name to attach to]");
+			debugui->LogText(L"Use: attachplayername <actor's name to attach to>");
 			return;
 		}
 		for (u32 i=0; i<actors.size(); i++)

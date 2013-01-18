@@ -55,6 +55,7 @@ public:
 	irr::scene::ISceneNode* GetRootNode();
 	irr::core::vector3df getAbsPosition(irr::core::vector3df rel_pos);
 	void QuantumUpdate();
+	bool isLight() { return false; }
 private:
 	CPoint2D mycell;
 	irr::core::vector3df position;

@@ -67,10 +67,8 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 		 * Player char is not a graphical and/or physical one!
 		 * We can attach PC to any other actor on demand
 		 */
-		mHeight = 1.8f;
-		initDone = true;
-		position = params->rel_pos;
-		return;
+		botRoot = scManager->addEmptySceneNode(NULL,0);
+		break;
 	case ACTOR_CREATURE:
 		//TODO: load classic skinned rigged mesh
 		return;
@@ -94,6 +92,7 @@ CGWIC_Bot::~CGWIC_Bot()
 {
 	LogIt(GetTypeAsString()+" bot destroy()");
 	if (enabled) SetEnabled(false);
+	if (headcam) headcam->remove();
 	if (head) delete head;
 	if (botRoot) botRoot->remove();
 	if (basicShell) delete basicShell;
@@ -192,6 +191,10 @@ void CGWIC_Bot::SetEnabled(bool enable)
 		if (basicShell) botShell = phy_world->addRigidBody(basicShell);
 	} else {
 		if (botShell) phy_world->removeCollisionObject(botShell,true);
+		if (headcam) {
+			headcam->remove();
+			headcam = NULL;
+		}
 	}
 	if (head) head->SetActive(enable,true);
 	else if (botRoot) botRoot->setVisible(enable);
@@ -292,6 +295,7 @@ irr::scene::ICameraSceneNode* CGWIC_Bot::GetCamera()
 		//Try to create the bot's own camera
 		headcam = scManager->addCameraSceneNode(NULL,getAbsPosition(),vector3df(0),9,false);
 		if (headcam) {
+			headcam->bindTargetAndRotation(true);
 			if (botRoot) {
 				headcam->setPosition(botRoot->getPosition()+vector3df(0,mHeight,0));
 				headcam->setRotation(botRoot->getRotation());
@@ -301,7 +305,7 @@ irr::scene::ICameraSceneNode* CGWIC_Bot::GetCamera()
 				headcam->setRotation(head->GetRootSceneNode()->getRotation());
 				headcam->setParent(head->GetRootSceneNode());
 			}
-			headcam->bindTargetAndRotation(true);
+			camc_tries = 0;
 		} else {
 			camc_tries++;
 			return NULL;
@@ -316,7 +320,12 @@ void CGWIC_Bot::QuantumUpdate()
 	if (master_bot) {
 		mycell = master_bot->GetCell();
 		SetPos(master_bot->GetPos());
+		if ((initParams.type == ACTOR_PLAYER) && (headcam)) {
+			std::cout << botRoot->getPosition().X << "  " << botRoot->getPosition().Y << std::endl;
+			std::cout << headcam->getPosition().X << "  " << headcam->getPosition().Y << std::endl;
+		}
 	}
+	//TODO: fix classic actors models rotations
 	if (head) head->Quantum();
 }
 

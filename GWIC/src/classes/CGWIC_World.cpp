@@ -84,13 +84,13 @@ bool CGWIC_World::PrepareWorld()
 	if ((!gra_world) || (!phy_world)) return false;
 
 	//Prepare Loading Screen
-	CGWIC_LoadingScreen* lscreen = new CGWIC_LoadingScreen(gra_world);
-	if (!lscreen) {
-		std::cerr << "Unable to create Loading Screen!" << std::endl;
-		//if we're can't create even the LS, that means something goes wrong
-		return false;
-	}
-	if (!lscreen->Update()) return false;
+	CGWIC_LoadingScreen* lscreen = NULL;//new CGWIC_LoadingScreen(gra_world);
+//	if (!lscreen) {
+//		std::cerr << "Unable to create Loading Screen!" << std::endl;
+//		//if we're can't create even the LS, that means something goes wrong
+//		return false;
+//	}
+//	if (!lscreen->Update()) return false;
 	std::cout << "World preparation begins..." << std::endl;
 
 	//Initialize font and skin
@@ -102,7 +102,7 @@ bool CGWIC_World::PrepareWorld()
 
 	//Add debug UI
 	/* Note: debugUI must be the first UI object created!
-	 * loadingScreens isn't on account, because they're doesn't response
+	 * LoadingScreens isn't on account, because they're shouldn't response
 	 * to user input. */
 	std::cout << "Creating debug UI" << std::endl;
 	debugui = new CGWIC_DebugUI(gra_world);
@@ -112,7 +112,7 @@ bool CGWIC_World::PrepareWorld()
 	}
 	debugui->SetPos(CPoint2D(150,16));
 	debugui->HideTotally();
-	lscreen->SetProgress(2);
+//	lscreen->SetProgress(2);
 
 	//Create landscape
 	std::cout << "Generating land..." << std::endl;
@@ -126,20 +126,13 @@ bool CGWIC_World::PrepareWorld()
 	std::cout << "Activating start cell!" << std::endl;
 	ActivateCell(properties.startX,properties.startY);
 	//GetCell(0,0)->SetActive(false);
-	lscreen->SetProgress(51);
+//	lscreen->SetProgress(51);
 
 	//Initialize the camera
 	std::cout << "Creating initial camera" << std::endl;
 	main_cam = NULL;
 	GoEditMode();
 	if (!main_cam) return false;
-//	selpoint_bill = scManager->addBillboardSceneNode();
-//	selpoint_bill->setMaterialType(EMT_TRANSPARENT_ADD_COLOR );
-//	selpoint_bill->setMaterialTexture(0,driver->getTexture("particlered.bmp"));
-//	selpoint_bill->setMaterialFlag(EMF_LIGHTING,false);
-//	selpoint_bill->setMaterialFlag(EMF_ZBUFFER,false);
-//	selpoint_bill->setSize(dimension2d<f32>(GWIC_IRRUNITS_PER_METER,GWIC_IRRUNITS_PER_METER));
-//	selpoint_bill->setID(-111);
 
 	//Create actors
 	CreatePlayerCharacter();
@@ -149,7 +142,7 @@ bool CGWIC_World::PrepareWorld()
 		std::cerr << "Error while generating NPCs!" << std::endl;
 		return false;
 	}
-	lscreen->SetProgress(99);
+//	lscreen->SetProgress(99);
 
 	//Prepare sky
 	std::cout << "Prepare atmosphere" << std::endl;
@@ -157,10 +150,10 @@ bool CGWIC_World::PrepareWorld()
 	//here'll be a some custom class, but not now :)
 	scManager->addSkyDomeSceneNode(driver->getTexture("skydome.jpg"),16,8,0.95f,2.0f);
 	scManager->setAmbientLight(SColorf(0.3,0.3,0.6));
-	lscreen->SetProgress(100);
+//	lscreen->SetProgress(100);
 
 	//we're done with it :)
-	delete lscreen;
+//	delete lscreen;
 	return true;
 }
 
@@ -319,7 +312,7 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 		}
 		break;
 	case EET_GUI_EVENT:
-		if (debugui) debugui->PumpMessage(event);
+		debugui->PumpMessage(event);
 		if (event.GUIEvent.EventType == EGET_ELEMENT_CLOSED) {
 			std::vector<CGWIC_GUIObject*>::iterator uisit = uis.begin();
 			CGWIC_GUIObject* ptr;
@@ -386,7 +379,8 @@ bool CGWIC_World::GenerateLand(CGWIC_LoadingScreen* lscr)
 	std::cout << "World width (cells): " << properties.wrldSizeX;
 	std::cout << std::endl << "World height (cells): ";
 	std::cout << properties.wrldSizeY << std::endl;
-	lscr->StartProcess(properties.wrldSizeX*properties.wrldSizeY,48);
+	if (lscr)
+		lscr->StartProcess(properties.wrldSizeX*properties.wrldSizeY,48);
 	CGWIC_Cell* ptr;
 	int y;
 	GWICCellParameters cparam;
@@ -406,7 +400,9 @@ bool CGWIC_World::GenerateLand(CGWIC_LoadingScreen* lscr)
 			if (!ptr->InitLand()) return false;
 			if (ptr->LoadObjectStates())
 				std::cout << "GenerateLand: Objects loaded" << std::endl;
-			if (!lscr->ProcessTick()) return false;
+			if (lscr) {
+				if (!lscr->ProcessTick()) return false;
+			}
 		}
 	StitchWorld(true);
 	return true;

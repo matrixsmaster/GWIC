@@ -24,7 +24,7 @@ namespace gui {
 
 class CProgressBar: public IGUIElement {
 public:
-	CProgressBar(IGUIEnvironment* guienv, IGUIElement* parent, const rect<s32>& rectangle, s32 id=-1);
+	CProgressBar(IGUIEnvironment* guienv, IGUIElement* parent, const rect<s32>& rectangle, s32 id=-111);
 
 	/*Set percentage in positive percentual (0~100). Please note that
 	 *  a call to this function with others values, will set the progress

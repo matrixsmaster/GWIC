@@ -47,8 +47,8 @@ void param_default(void)
 	wrldSettings.vfsRoot = GWIC_FILESYSTEMROOT;
 	wrldSettings.vfsType = GWIC_ROOTFS_TYPE;
 	// World settings
-	wrldSettings.wrldSizeX = 9;
-	wrldSettings.wrldSizeY = 9;
+	wrldSettings.wrldSizeX = 3;
+	wrldSettings.wrldSizeY = 3;
 	wrldSettings.startX = 2;
 	wrldSettings.startY = 2;
 	wrldSettings.minLevel = -10.f * GWIC_IRRUNITS_PER_METER;

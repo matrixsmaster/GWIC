@@ -30,8 +30,9 @@ CGWIC_LoadingScreen::CGWIC_LoadingScreen(irr::IrrlichtDevice* device)
 	pbar_rect.LowerRightCorner.Y = pbar_rect.UpperLeftCorner.Y + GWIC_GUI_LOADSCR_BAR_HG;
 	pBar = new CProgressBar(GUI,NULL,pbar_rect);
 	if (pBar) {
+		pBar->setColors(GWIC_GUI_LOADSCR_BAR_FORECOL,GWIC_GUI_LOADSCR_BAR_BACKCOL);
 		pBar->setProgress(0);
-		pBar->addBorder(3);
+		pBar->addBorder(3,GWIC_GUI_LOADSCR_BAR_BORDCOL);
 	}
 	progress = 0;
 	progPerTick = 0.5f;
@@ -69,7 +70,7 @@ bool CGWIC_LoadingScreen::Update()
 	if (progress < 0) progress = 0;
 	if (pBar) pBar->setProgress(static_cast<u32>(progress));
 	if (!irDevice->run()) return false;
-	irDriver->beginScene(true,true,GWIC_VOID_COLOR);
+	irDriver->beginScene(true,true,GWIC_GUI_LOADSCR_BACKGROUND);
 	GUI->drawAll();
 	irDriver->endScene();
 	return true;

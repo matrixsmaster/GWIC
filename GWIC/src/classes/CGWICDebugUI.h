@@ -39,6 +39,7 @@ public:
 	virtual ~CGWIC_DebugUI() { }
 	void LogText(irr::core::stringw text);
 	void SetVisible(bool setup);
+	void HideTotally();
 	void PumpMessage(const irr::SEvent& event);
 	void Update() { }
 	void UpdateFPS(int fps);

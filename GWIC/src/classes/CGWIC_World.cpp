@@ -111,8 +111,8 @@ bool CGWIC_World::PrepareWorld()
 		return false;
 	}
 	debugui->SetPos(CPoint2D(150,16));
-	debugui->SetVisible(false);
-	if (lscreen) lscreen->SetProgress(2);
+	debugui->HideTotally();
+	lscreen->SetProgress(2);
 
 	//Create landscape
 	std::cout << "Generating land..." << std::endl;
@@ -126,7 +126,7 @@ bool CGWIC_World::PrepareWorld()
 	std::cout << "Activating start cell!" << std::endl;
 	ActivateCell(properties.startX,properties.startY);
 	//GetCell(0,0)->SetActive(false);
-	if (lscreen) lscreen->SetProgress(51);
+	lscreen->SetProgress(51);
 
 	//Initialize the camera
 	std::cout << "Creating initial camera" << std::endl;
@@ -149,7 +149,7 @@ bool CGWIC_World::PrepareWorld()
 		std::cerr << "Error while generating NPCs!" << std::endl;
 		return false;
 	}
-	if (lscreen) lscreen->SetProgress(99);
+	lscreen->SetProgress(99);
 
 	//Prepare sky
 	std::cout << "Prepare atmosphere" << std::endl;
@@ -157,6 +157,7 @@ bool CGWIC_World::PrepareWorld()
 	//here'll be a some custom class, but not now :)
 	scManager->addSkyDomeSceneNode(driver->getTexture("skydome.jpg"),16,8,0.95f,2.0f);
 	scManager->setAmbientLight(SColorf(0.3,0.3,0.6));
+	lscreen->SetProgress(100);
 
 	//we're done with it :)
 	delete lscreen;
@@ -173,6 +174,9 @@ void CGWIC_World::RunWorld()
 	int lFPS = -1;
 	int cFPS;
 	ticker = 0;
+	IGUIInOutFader* fader = gui->addInOutFader();
+	fader->setColor(GWIC_GUI_LOADSCR_BACKGROUND);
+	fader->fadeIn(2500);
 	while (gra_world->run()) {
 		ticker++;
 		if (!gra_world->isWindowActive()) {

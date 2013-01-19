@@ -70,8 +70,15 @@ void CGWIC_DebugUI::SetVisible(bool setup)
 	input->setVisible(setup);
 	history->setVisible(setup);
 	//don't hide FPS label :)
+	fpslabel->setVisible(true);
 	GUI->setFocus(input);
 	visible = setup;
+}
+
+void CGWIC_DebugUI::HideTotally()
+{
+	SetVisible(false);
+	fpslabel->setVisible(false);
 }
 
 void CGWIC_DebugUI::UpdateFPS(int fps)

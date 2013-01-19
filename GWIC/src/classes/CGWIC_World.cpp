@@ -27,7 +27,6 @@ CGWIC_World::CGWIC_World(WorldProperties* props, cOAL_Device* sndDevice)
 	properties = *props;
 	debugDraw = props->debugdraw;
 	physicsPause = true;
-//	selpoint_bill = NULL;
 	debugui = NULL;
 	highlited = NULL;
 	select_actor = NULL;
@@ -84,13 +83,13 @@ bool CGWIC_World::PrepareWorld()
 	if ((!gra_world) || (!phy_world)) return false;
 
 	//Prepare Loading Screen
-	CGWIC_LoadingScreen* lscreen = NULL;//new CGWIC_LoadingScreen(gra_world);
-//	if (!lscreen) {
-//		std::cerr << "Unable to create Loading Screen!" << std::endl;
-//		//if we're can't create even the LS, that means something goes wrong
-//		return false;
-//	}
-//	if (!lscreen->Update()) return false;
+	CGWIC_LoadingScreen* lscreen = new CGWIC_LoadingScreen(gra_world);
+	if (!lscreen) {
+		std::cerr << "Unable to create Loading Screen!" << std::endl;
+		//if we're can't create even the LS, that means something goes wrong
+		return false;
+	}
+	if (!lscreen->Update()) return false;
 	std::cout << "World preparation begins..." << std::endl;
 
 	//Initialize font and skin
@@ -112,7 +111,7 @@ bool CGWIC_World::PrepareWorld()
 	}
 	debugui->SetPos(CPoint2D(150,16));
 	debugui->HideTotally();
-//	lscreen->SetProgress(2);
+	lscreen->SetProgress(2);
 
 	//Create landscape
 	std::cout << "Generating land..." << std::endl;
@@ -126,7 +125,7 @@ bool CGWIC_World::PrepareWorld()
 	std::cout << "Activating start cell!" << std::endl;
 	ActivateCell(properties.startX,properties.startY);
 	//GetCell(0,0)->SetActive(false);
-//	lscreen->SetProgress(51);
+	lscreen->SetProgress(51);
 
 	//Initialize the camera
 	std::cout << "Creating initial camera" << std::endl;
@@ -142,7 +141,7 @@ bool CGWIC_World::PrepareWorld()
 		std::cerr << "Error while generating NPCs!" << std::endl;
 		return false;
 	}
-//	lscreen->SetProgress(99);
+	lscreen->SetProgress(99);
 
 	//Prepare sky
 	std::cout << "Prepare atmosphere" << std::endl;
@@ -150,10 +149,10 @@ bool CGWIC_World::PrepareWorld()
 	//here'll be a some custom class, but not now :)
 	scManager->addSkyDomeSceneNode(driver->getTexture("skydome.jpg"),16,8,0.95f,2.0f);
 	scManager->setAmbientLight(SColorf(0.3,0.3,0.6));
-//	lscreen->SetProgress(100);
+	lscreen->SetProgress(100);
 
 	//we're done with it :)
-//	delete lscreen;
+	delete lscreen;
 	return true;
 }
 
@@ -175,6 +174,10 @@ void CGWIC_World::RunWorld()
 		if (!gra_world->isWindowActive()) {
 			gra_world->yield();
 			continue;
+		}
+		if ((fader) && (fader->isReady())) {
+			fader->remove();
+			fader = NULL;
 		}
 
 		if (ticker%5) ProcessEvents();

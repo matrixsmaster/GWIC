@@ -70,7 +70,6 @@ private:
 	bool debugDraw;
 	bool physicsPause;
 	WorldProperties properties;
-//	irr::scene::IBillboardSceneNode* selpoint_bill;
 	CPoint2D mousepos;
 	float mousewheel;
 	uchar mousepressed;

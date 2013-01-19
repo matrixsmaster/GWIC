@@ -15,10 +15,12 @@ CPP_SRCS += \
 ../src/classes/CGWIC_Head.cpp \
 ../src/classes/CGWIC_Inventory.cpp \
 ../src/classes/CGWIC_InventoryObject.cpp \
+../src/classes/CGWIC_LoadingScreen.cpp \
 ../src/classes/CGWIC_VM.cpp \
 ../src/classes/CGWIC_World.cpp \
 ../src/classes/CIrrStrParser.cpp \
-../src/classes/CPoint2D.cpp 
+../src/classes/CPoint2D.cpp \
+../src/classes/CProgressBar.cpp 
 
 OBJS += \
 ./src/classes/CGWICDebugUI.o \
@@ -32,10 +34,12 @@ OBJS += \
 ./src/classes/CGWIC_Head.o \
 ./src/classes/CGWIC_Inventory.o \
 ./src/classes/CGWIC_InventoryObject.o \
+./src/classes/CGWIC_LoadingScreen.o \
 ./src/classes/CGWIC_VM.o \
 ./src/classes/CGWIC_World.o \
 ./src/classes/CIrrStrParser.o \
-./src/classes/CPoint2D.o 
+./src/classes/CPoint2D.o \
+./src/classes/CProgressBar.o 
 
 CPP_DEPS += \
 ./src/classes/CGWICDebugUI.d \
@@ -49,10 +53,12 @@ CPP_DEPS += \
 ./src/classes/CGWIC_Head.d \
 ./src/classes/CGWIC_Inventory.d \
 ./src/classes/CGWIC_InventoryObject.d \
+./src/classes/CGWIC_LoadingScreen.d \
 ./src/classes/CGWIC_VM.d \
 ./src/classes/CGWIC_World.d \
 ./src/classes/CIrrStrParser.d \
-./src/classes/CPoint2D.d 
+./src/classes/CPoint2D.d \
+./src/classes/CProgressBar.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

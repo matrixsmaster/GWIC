@@ -56,6 +56,7 @@ CGWIC_Cell::~CGWIC_Cell()
 		if (terra_changed) SaveTerrainBitmap();
 		terrain->remove();
 	}
+	SaveObjectStates();
 	DeleteObjects();
 }
 
@@ -392,6 +393,7 @@ void CGWIC_Cell::RandomizeTerrain(float subdelta)
 		if (Q) A = 256 / Q + 1;
 		for (int qx=0; qx<A; qx++)
 			for (int qy=0; qy<A; qy++) {
+				//TODO: remove unnecessary vars
 				int x0 = qx * Q;
 				int y0 = qy * Q;
 				int xe = x0 + Q;
@@ -399,7 +401,7 @@ void CGWIC_Cell::RandomizeTerrain(float subdelta)
 				int ye = y0 + Q;
 				if (ye > 255) ye = 255;
 				float hx0 = tmparr[x0*256+y0];
-				float hy0 = (qx%2==0)? hx0:tmparr[xe*256+ye];
+				float hy0 = (qx%2)? tmparr[xe*256+ye]:hx0;
 				float hxe = tmparr[xe*256+y0];
 				float hye = tmparr[x0*256+ye];
 				float lhy = hye - hy0;
@@ -450,9 +452,9 @@ void CGWIC_Cell::SaveObjectStates()
 	//
 }
 
-void CGWIC_Cell::LoadObjectStates()
+bool CGWIC_Cell::LoadObjectStates()
 {
-	//
+	return false;
 }
 
 

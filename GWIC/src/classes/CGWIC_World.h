@@ -33,6 +33,7 @@
 #include "CGWICDebugUI.h"
 #include "CGWICWindowUI.h"
 #include "CGWIC_Gizmo.h"
+#include "CGWIC_LoadingScreen.h"
 
 namespace gwic {
 
@@ -81,8 +82,8 @@ private:
 	CGWIC_Bot* PC;
 	CPoint2D PC_lastcell;
 	bool terrain_magnet;
-	bool GenerateLand();
-	bool GenerateNPC();
+	bool GenerateLand(CGWIC_LoadingScreen* lscr);
+	bool GenerateNPC(CGWIC_LoadingScreen* lscr);
 	IRigidBody* ShootSphere(irr::core::vector3df scale, irr::f32 mass);
 	void CellTransfers();
 //	void GoFPS(irr::core::vector3df campos);

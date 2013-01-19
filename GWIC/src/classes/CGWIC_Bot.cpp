@@ -298,6 +298,15 @@ irr::scene::ICameraSceneNode* CGWIC_Bot::GetCamera()
 		if (camc_tries > 3) return NULL;
 		//Try to create the bot's own camera
 		headcam = scManager->addCameraSceneNode(NULL,getAbsPosition(),vector3df(0),9,false);
+		if (botRoot) {
+			headcam->setRotation(botRoot->getRotation());
+//			headcam->setParent(botRoot);
+//			botRoot->addChild(headcam);
+		} else if (head) {
+			headcam->setRotation(head->GetRootSceneNode()->getRotation());
+//			headcam->setParent(head->GetRootSceneNode());
+//			head->GetRootSceneNode()->addChild(headcam);
+		}
 		if (headcam) {
 			headcam->bindTargetAndRotation(true);
 			camc_tries = 0;
@@ -306,18 +315,12 @@ irr::scene::ICameraSceneNode* CGWIC_Bot::GetCamera()
 			return NULL;
 		}
 	}
-//	headcam->bindTargetAndRotation(false);
 	if (botRoot) {
 		headcam->setPosition(botRoot->getPosition());//+vector3df(0,mHeight,0));
-//		headcam->setRotation(botRoot->getRotation());
-//		headcam->setParent(botRoot);
 	} else if (head) {
 		head->GetRootSceneNode()->updateAbsolutePosition();
 		headcam->setPosition(head->GetRootSceneNode()->getAbsolutePosition());
-//		headcam->setRotation(head->GetRootSceneNode()->getRotation());
-//		headcam->setParent(head->GetRootSceneNode());
 	}
-//	headcam->bindTargetAndRotation(true);
 	return headcam;
 }
 

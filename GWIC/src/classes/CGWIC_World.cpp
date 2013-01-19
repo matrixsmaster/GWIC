@@ -82,11 +82,41 @@ CGWIC_World::~CGWIC_World()
 bool CGWIC_World::PrepareWorld()
 {
 	if ((!gra_world) || (!phy_world)) return false;
-	std::cout << "Beware!!! Overlord is here!!" << std::endl;
+
+	//Prepare Loading Screen
+	CGWIC_LoadingScreen* lscreen = new CGWIC_LoadingScreen(gra_world);
+	if (!lscreen) {
+		std::cerr << "Unable to create Loading Screen!" << std::endl;
+		//if we're can't create even the LS, that means something goes wrong
+		return false;
+	}
+	if (!lscreen->Update()) return false;
 	std::cout << "World preparation begins..." << std::endl;
 
+	//Initialize font and skin
+	std::cout << "Initializing GUI skin" << std::endl;
+	IGUISkin* skin = gui->getSkin();
+	IGUIFont* gfont = gui->getFont("fonthaettenschweiler.bmp");
+	if (gfont) skin->setFont(gfont);
+	else std::cerr << "Font not found!" << std::endl;
+
+	//Add debug UI
+	/* Note: debugUI must be the first UI object created!
+	 * loadingScreens isn't on account, because they're doesn't response
+	 * to user input. */
+	std::cout << "Creating debug UI" << std::endl;
+	debugui = new CGWIC_DebugUI(gra_world);
+	if (!debugui) {
+		std::cerr << "Unable to create Debug UI. Exiting..." << std::endl;
+		return false;
+	}
+	debugui->SetPos(CPoint2D(150,16));
+	debugui->SetVisible(false);
+	if (lscreen) lscreen->SetProgress(2);
+
 	//Create landscape
-	if (GenerateLand()) std::cout << "Land generated!" << std::endl;
+	std::cout << "Generating land..." << std::endl;
+	if (GenerateLand(lscreen)) std::cout << "Land generated!" << std::endl;
 	else {
 		std::cerr << "Error while generating land!" << std::endl;
 		return false;
@@ -96,6 +126,7 @@ bool CGWIC_World::PrepareWorld()
 	std::cout << "Activating start cell!" << std::endl;
 	ActivateCell(properties.startX,properties.startY);
 	//GetCell(0,0)->SetActive(false);
+	if (lscreen) lscreen->SetProgress(51);
 
 	//Initialize the camera
 	std::cout << "Creating initial camera" << std::endl;
@@ -110,6 +141,16 @@ bool CGWIC_World::PrepareWorld()
 //	selpoint_bill->setSize(dimension2d<f32>(GWIC_IRRUNITS_PER_METER,GWIC_IRRUNITS_PER_METER));
 //	selpoint_bill->setID(-111);
 
+	//Create actors
+	CreatePlayerCharacter();
+//	if (PC) actors.push_back(PC);
+	if (GenerateNPC(lscreen)) std::cout << "NPCs generated successfully!" << std::endl;
+	else {
+		std::cerr << "Error while generating NPCs!" << std::endl;
+		return false;
+	}
+	if (lscreen) lscreen->SetProgress(99);
+
 	//Prepare sky
 	std::cout << "Prepare atmosphere" << std::endl;
 	//FIXME: we need to use some overlays with clouds and something
@@ -117,30 +158,8 @@ bool CGWIC_World::PrepareWorld()
 	scManager->addSkyDomeSceneNode(driver->getTexture("skydome.jpg"),16,8,0.95f,2.0f);
 	scManager->setAmbientLight(SColorf(0.3,0.3,0.6));
 
-	//Initialize font and skin
-	std::cout << "Initializing GUI skin" << std::endl;
-	IGUISkin* skin = gui->getSkin();
-	IGUIFont* gfont = gui->getFont("fonthaettenschweiler.bmp");
-	if (gfont) skin->setFont(gfont);
-	else std::cerr << "Font not found!" << std::endl;
-
-	//Add debug UI
-	//note: debugUI must be the first UI object created!
-	std::cout << "Creating debug UI" << std::endl;
-	debugui = new CGWIC_DebugUI(gra_world);
-	if (!debugui) return false;
-	debugui->SetPos(CPoint2D(150,16));
-
-	//Create actors
-	CreatePlayerCharacter();
-//	if (PC) actors.push_back(PC);
-	if (GenerateNPC()) std::cout << "NPCs generated successfully!" << std::endl;
-	else {
-		std::cerr << "Error while generating NPCs!" << std::endl;
-		return false;
-	}
-
 	//we're done with it :)
+	delete lscreen;
 	return true;
 }
 
@@ -358,11 +377,12 @@ CGWIC_Cell* CGWIC_World::GetCell(int x, int y)
 	return NULL;
 }
 
-bool CGWIC_World::GenerateLand()
+bool CGWIC_World::GenerateLand(CGWIC_LoadingScreen* lscr)
 {
 	std::cout << "World width (cells): " << properties.wrldSizeX;
 	std::cout << std::endl << "World height (cells): ";
 	std::cout << properties.wrldSizeY << std::endl;
+	lscr->StartProcess(properties.wrldSizeX*properties.wrldSizeY,48);
 	CGWIC_Cell* ptr;
 	int y;
 	GWICCellParameters cparam;
@@ -380,12 +400,15 @@ bool CGWIC_World::GenerateLand()
 			ptr = new CGWIC_Cell(CPoint2D(x,y),cparam,gra_world,phy_world);
 			cells.push_back(ptr);
 			if (!ptr->InitLand()) return false;
+			if (ptr->LoadObjectStates())
+				std::cout << "GenerateLand: Objects loaded" << std::endl;
+			if (!lscr->ProcessTick()) return false;
 		}
 	StitchWorld(true);
 	return true;
 }
 
-bool CGWIC_World::GenerateNPC()
+bool CGWIC_World::GenerateNPC(CGWIC_LoadingScreen* lscr)
 {
 	BotCreationParams botset;
 	botset.type = ACTOR_DUMMY;
@@ -802,7 +825,9 @@ void CGWIC_World::ReloadCell(CGWIC_Cell* cell)
 	}
 	cit = cells.erase(cit);
 	//FIXME: if RunWorld() is threaded, we need to block the threads until cell reloaded
-	//FIXME: maybe implement operator '=' to reassign objects to the new cell
+	//moreover, we should watch cell's Transfer buffer to protect from loosing objects
+	//currently in-transfer
+	CellTransfers();
 	CPoint2D crd = cell->GetCoord();
 	GWICCellParameters cparam = cell->GetParameters();
 	delete cell;
@@ -810,8 +835,11 @@ void CGWIC_World::ReloadCell(CGWIC_Cell* cell)
 	if ((!cell) || (!cell->InitLand())) {
 		std::cerr << "ReloadCell(): can't create new cell!" << std::endl;
 		debugui->LogText("Cell reloading failed!");
-	} else
+	} else {
+		if (cell->LoadObjectStates())
+			std::cout << "ReloadCell: Objects reloaded!" << std::endl;
 		cells.insert(cit,cell);
+	}
 }
 
 void CGWIC_World::StitchTerrains(CGWIC_Cell* ca, CGWIC_Cell* cb, bool update)

@@ -84,7 +84,7 @@ public:
 	void RandomizeTerrain(float subdelta);
 	void SaveTerrainBitmap();
 	void SaveObjectStates();
-	void LoadObjectStates();
+	bool LoadObjectStates();
 	void RemoveChangedFlag() { this->terra_changed = false; }
 	GWICCellParameters GetParameters() { return this->initParams; }
 protected:

@@ -47,8 +47,8 @@ void param_default(void)
 	wrldSettings.vfsRoot = GWIC_FILESYSTEMROOT;
 	wrldSettings.vfsType = GWIC_ROOTFS_TYPE;
 	// World settings
-	wrldSettings.wrldSizeX = 3;
-	wrldSettings.wrldSizeY = 3;
+	wrldSettings.wrldSizeX = 4;
+	wrldSettings.wrldSizeY = 4;
 	wrldSettings.startX = 2;
 	wrldSettings.startY = 2;
 	wrldSettings.minLevel = -10.f * GWIC_IRRUNITS_PER_METER;
@@ -57,7 +57,7 @@ void param_default(void)
 	wrldSettings.Gforce = -9.8f * GWIC_IRRUNITS_PER_METER;
 	wrldSettings.debugdraw = true;
 	// camera
-	wrldSettings.viewDistance = 5000; //meters
+	wrldSettings.viewDistance = 3700; //meters
 	// HardCuller settings
 	wrldSettings.hardcull.DistantLand = false;
 	wrldSettings.hardcull.ActorsCullMeters = 70;

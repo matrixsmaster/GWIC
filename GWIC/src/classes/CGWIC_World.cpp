@@ -365,9 +365,19 @@ bool CGWIC_World::GenerateLand()
 	std::cout << properties.wrldSizeY << std::endl;
 	CGWIC_Cell* ptr;
 	int y;
+	GWICCellParameters cparam;
+	cparam.LOD = 5;
+	cparam.patch = ETPS_17;
+	cparam.smooth = 4;
+	cparam.basepoint = -10.f;
+	cparam.waterLevel = -5.f;
+	cparam.upperlim = 4000;
+	cparam.heightscale = 4.f;
+	cparam.txdpath = "synthgrass.jpg";
+	cparam.texrepeats = 24.f;
 	for (int x=0; x<properties.wrldSizeX; x++)
 		for (y=0; y<properties.wrldSizeY; y++) {
-			ptr = new CGWIC_Cell(CPoint2D(x,y),gra_world,phy_world);
+			ptr = new CGWIC_Cell(CPoint2D(x,y),cparam,gra_world,phy_world);
 			cells.push_back(ptr);
 			if (!ptr->InitLand()) return false;
 		}
@@ -794,8 +804,9 @@ void CGWIC_World::ReloadCell(CGWIC_Cell* cell)
 	//FIXME: if RunWorld() is threaded, we need to block the threads until cell reloaded
 	//FIXME: maybe implement operator '=' to reassign objects to the new cell
 	CPoint2D crd = cell->GetCoord();
+	GWICCellParameters cparam = cell->GetParameters();
 	delete cell;
-	cell = new CGWIC_Cell(crd,gra_world,phy_world);
+	cell = new CGWIC_Cell(crd,cparam,gra_world,phy_world);
 	if ((!cell) || (!cell->InitLand())) {
 		std::cerr << "ReloadCell(): can't create new cell!" << std::endl;
 		debugui->LogText("Cell reloading failed!");

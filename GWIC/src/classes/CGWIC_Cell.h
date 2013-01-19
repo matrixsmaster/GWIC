@@ -37,9 +37,21 @@
 
 namespace gwic {
 
+struct GWICCellParameters {
+	irr::s32 LOD;
+	irr::scene::E_TERRAIN_PATCH_SIZE patch;
+	irr::s32 smooth;
+	float heightscale;
+	float upperlim;
+	float waterLevel;
+	float basepoint;
+	irr::io::path txdpath;
+	float texrepeats;
+};
+
 class CGWIC_Cell {
 public:
-	CGWIC_Cell(CPoint2D pos, irr::IrrlichtDevice* dev, irrBulletWorld* phy);
+	CGWIC_Cell(CPoint2D pos, const GWICCellParameters params, irr::IrrlichtDevice* dev, irrBulletWorld* phy);
 	virtual ~CGWIC_Cell();
 	/*
 	bool AddActiveActor(CGWIC_Bot* actor);
@@ -74,10 +86,12 @@ public:
 	void SaveObjectStates();
 	void LoadObjectStates();
 	void RemoveChangedFlag() { this->terra_changed = false; }
+	GWICCellParameters GetParameters() { return this->initParams; }
 protected:
 	int posX;
 	int posY;
 	float waterLevel;
+	float groundLevel;
 	float maxHeight;
 	float heaven;
 	float hell;
@@ -93,12 +107,14 @@ protected:
 	std::vector<CGWIC_GameObject*> objects;
 	ICollisionShape* terra_collision;
 	std::vector<CGWIC_GameObject*> transferFIFO;
+	irr::video::ITexture* groundTex;
 private:
 	irr::IrrlichtDevice* graphics;
 	irrBulletWorld* physics;
 	irr::scene::ISceneManager* scManager;
 	irr::video::IVideoDriver* irDriver;
 	irrBulletWorld* phy_world;
+	GWICCellParameters initParams;
 };
 
 }

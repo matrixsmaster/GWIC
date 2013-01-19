@@ -18,7 +18,7 @@ using namespace gui;
 
 namespace gwic {
 
-CGWIC_Cell::CGWIC_Cell(CPoint2D pos, irr::IrrlichtDevice* dev, irrBulletWorld* phy)
+CGWIC_Cell::CGWIC_Cell(CPoint2D pos, const GWICCellParameters params, irr::IrrlichtDevice* dev, irrBulletWorld* phy)
 {
 	std::cout << "Creating cell [" << pos.X;
 	std::cout << ";" << pos.Y << "] ..." << std::endl;
@@ -34,14 +34,16 @@ CGWIC_Cell::CGWIC_Cell(CPoint2D pos, irr::IrrlichtDevice* dev, irrBulletWorld* p
 	terra_collision = NULL;
 	terra_changed = false;
 	visible = true;
-	//TODO: next inits must be get thru parametric init
-	maxLOD = 5;
-	maxPATCH = ETPS_17;
-	terraSmooth = 4;
-	waterLevel = -10.f * GWIC_IRRUNITS_PER_METER;
-	maxHeight = 4.f; // height scale factor
-	heaven = 4000.f * GWIC_IRRUNITS_PER_METER; // upper limit 4km
-	hell = -heaven; // lower limit
+	maxLOD = params.LOD;
+	maxPATCH = params.patch;
+	terraSmooth = params.smooth;
+	maxHeight = params.heightscale;
+	heaven = params.upperlim * GWIC_IRRUNITS_PER_METER;
+	waterLevel = params.waterLevel * GWIC_IRRUNITS_PER_METER;
+	hell = waterLevel - 10.f * GWIC_IRRUNITS_PER_METER; // lower limit
+	groundLevel = params.basepoint * GWIC_IRRUNITS_PER_METER;
+	groundTex = NULL;
+	initParams = params;
 }
 
 CGWIC_Cell::~CGWIC_Cell()
@@ -103,7 +105,7 @@ bool CGWIC_Cell::InitLand()
 {
 	std::cout << "InitLand() called" << std::endl;
 	const float dim = GWIC_METERS_PER_CELL * GWIC_IRRUNITS_PER_METER;
-	vector3df pos(posX*dim,waterLevel,posY*dim);
+	vector3df pos(posX*dim,groundLevel,posY*dim);
 	vector3df csize(GWIC_IRRUNITS_PER_METER,maxHeight,GWIC_IRRUNITS_PER_METER);
 	SColor vcolor(255,255,255,255);
 	path flnm = "cell";
@@ -125,8 +127,10 @@ bool CGWIC_Cell::InitLand()
 	}
 	terrain->setMaterialFlag(EMF_LIGHTING,true);
 	terrain->setMaterialType(EMT_SOLID);
-	terrain->setMaterialTexture(0,irDriver->getTexture("synthgrass.jpg"));
-	terrain->scaleTexture(16.f,16.f);
+	groundTex = irDriver->getTexture(initParams.txdpath);
+	if (!groundTex) return false;
+	terrain->setMaterialTexture(0,groundTex);
+	terrain->scaleTexture(initParams.texrepeats);
 	return true;
 }
 

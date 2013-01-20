@@ -23,6 +23,7 @@
 #define GWIC_OBJECTS_DIR irr::io::path("gameobjects/")
 #define GWIC_STATMESHES_DIR irr::io::path("static_meshes/")
 #define GWIC_TERRAIN_DIR irr::io::path("terrain/")
+#define GWIC_CELLSTORE_DIR irr::io::path("cells_storage/")
 #define GWIC_OGGSTREAM_DIR irr::io::path("music/")
 #define GWIC_SOUNDS_DIR irr::io::path("sound_fx/")
 #define GWIC_UI_DIR irr::io::path("ui/")

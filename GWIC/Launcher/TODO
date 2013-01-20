@@ -1,0 +1,10 @@
+Create a launcher as Irrlicht app, which intially tests all
+graphics devices and creates the list of accesible ones.
+Next, user can pick resolution params, fullscreen, shadows, etc.
+Finally, there'll be a tab with world generation (or loading)
+settings. E.g. World Configuration Manager
+
+Launcher dumps all data collected in a single textfile that
+will be read by launch script.
+
+Basic driver is Irrlicht's native softrender. Assume it'll work on all platforms :)

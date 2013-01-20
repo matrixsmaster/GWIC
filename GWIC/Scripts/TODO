@@ -1,0 +1,8 @@
+Launch script is a main init for GWIC.
+
+1. Set env vars. Maybe pkgconf using...
+1.p Recreate the VFS tree in current working dir. There'll be all user-created data.
+2. Fire up the Launcher.
+3. If launcher was not cancelled, read a file with initial settings and xargs it to main GWIC executable.
+4. (?) control the app running and if it crashed, create minidump or something
+

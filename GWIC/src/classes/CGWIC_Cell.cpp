@@ -475,7 +475,7 @@ irr::core::stringw CGWIC_Cell::GetCellFileSuffix()
 {
 	stringw out = "cell";
 	out += posX;
-	out += '-';
+	out += L"-";
 	out += posY;
 	return out;
 }

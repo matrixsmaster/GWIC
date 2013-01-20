@@ -1,0 +1,4 @@
+Q: Why there are some dirs in repo's root which have names similar to ones in VFS tree?
+
+A: Because VFS can be (and will be) a ZIP file or something similar to all-in-one archive file. But user-created data can't be stored in such files. (many reasons why) So, I've decided to recreate VFS structure to hold all user created stuff in this well organized environment (different dirs for different data) and isolated from main VFS tree (which can be later reused if user wants to start over the shiny new world).
+

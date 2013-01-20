@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<HEAD filename="a_head.xml" />
+<bodypart filename="a_torso.xml" name="torso" />
+<bodypart filename="a_larm.xml" name="larm" />
+<!--
+<connect parent_name parent_slot child_name chil_slot [0] />
+-->
+<connect parent_name="HEAD" parent_slot="1" child_name="torso" />
+<connect parent_name="torso" parent_slot="1" child_name="larm" />

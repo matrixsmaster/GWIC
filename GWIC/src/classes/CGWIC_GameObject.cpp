@@ -34,10 +34,10 @@ CGWIC_GameObject::CGWIC_GameObject(irr::io::path filename, CPoint2D cell, irr::I
 	cpu = NULL;
 	if (filename.size() < 4) return;
 	if (filename.subString(filename.size()-3,3,true).equalsn(L"xml",3))
-		LoadXMLDescription(filename);
+		LoadXMLDescription(GWIC_OBJECTS_DIR+filename);
 	else {
 		//load static mesh
-		IMesh* rtmesh = scManager->getMesh(filename);
+		IMesh* rtmesh = scManager->getMesh(GWIC_STATMESHES_DIR+filename);
 		root = scManager->addMeshSceneNode(rtmesh,NULL,GWIC_PICKABLE_MASK);
 		if (!root) {
 			std::cerr << "Unable to load static mesh " << filename.c_str() << std::endl;

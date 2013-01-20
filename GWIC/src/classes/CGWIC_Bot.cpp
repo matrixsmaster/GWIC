@@ -49,19 +49,17 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 	switch (params->type) {
 	case ACTOR_DUMMY:
 		// get Sydney to the scene ;)
-		botmesh = scManager->getMesh("sydney.md2");
+		botmesh = scManager->getMesh(GWIC_ACTORS_DIR+"sydney.md2");
 		if (!botmesh) return;
 		animnode = scManager->addAnimatedMeshSceneNode(botmesh);
 		botRoot = animnode;
-//		botRoot->setMaterialType(EMT_REFLECTION_2_LAYER);
-		botRoot->setMaterialTexture(0,irDriver->getTexture("sydney.bmp"));
-//		botRoot->setMaterialTexture(1,irDriver->getTexture("spheremap.jpg"));
+		botRoot->setMaterialTexture(0,irDriver->getTexture(GWIC_ACTORS_DIR+"sydney.bmp"));
 //		animnode->addShadowVolumeSceneNode();
 		animnode->setMD2Animation(EMAT_STAND);
 		basicShell = new IBoxShape(botRoot,60.f,false);
 		break;
 	case ACTOR_GYNOID:
-		head = CreateNPC(params->filename);
+		head = CreateNPC(GWIC_ACTORS_DIR+params->filename);
 		if (head) SetEnabled(true);
 		break;
 	case ACTOR_PLAYER:

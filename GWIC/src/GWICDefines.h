@@ -15,17 +15,20 @@
 #define GWICDEFINES_H_
 
 //#define GWIC_USES_OPENAL 1
-#define GWIC_FILESYSTEMROOT "/tmp/GWIC/VFS"
+#define GWIC_FILESYSTEMROOT irr::io::path("/tmp/GWIC/VFS")
 #define GWIC_ROOTFS_TYPE irr::io::EFAT_FOLDER
-#define GWIC_MESHES_DIR "/meshes/"
-#define GWIC_TEXTURES_DIR "/textures/"
-#define GWIC_ACTORS_DIR "/actors/"
-#define GWIC_OBJECTS_DIR "/game_objects/"
-#define GWIC_OGGSTREAM_DIR "/music/"
-#define GWIC_SOUNDS_DIR "/sound_fx/"
-#define GWIC_UI_DIR "/ui/"
+#define GWIC_TEXTURES_DIR irr::io::path("textures/")
+#define GWIC_ACTORS_DIR irr::io::path("actors/")
+#define GWIC_BPARTS_DIR irr::io::path("bodyparts/")
+#define GWIC_OBJECTS_DIR irr::io::path("gameobjects/")
+#define GWIC_STATMESHES_DIR irr::io::path("static_meshes/")
+#define GWIC_TERRAIN_DIR irr::io::path("terrain/")
+#define GWIC_OGGSTREAM_DIR irr::io::path("music/")
+#define GWIC_SOUNDS_DIR irr::io::path("sound_fx/")
+#define GWIC_UI_DIR irr::io::path("ui/")
+#define GWIC_FONTS_DIR irr::io::path("fonts/")
 
-#define GWIC_MAINWINDOW_CAPTION L"GWIC ver.0.0.2.63"
+#define GWIC_MAINWINDOW_CAPTION L"GWIC ver.0.0.2.66"
 
 #define GWIC_VOID_COLOR SColor(255,100,100,100)
 

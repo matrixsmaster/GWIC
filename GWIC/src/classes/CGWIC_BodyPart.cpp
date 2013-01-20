@@ -34,7 +34,7 @@ CGWIC_BodyPart::CGWIC_BodyPart(irr::io::path modelfile, irr::scene::ISceneNode* 
 	colbody = NULL;
 	hinge = NULL;
 	slots.push_back(NULL); //zero slot is in-slot
-	success = LoadModelFile(modelfile);
+	success = LoadModelFile(GWIC_BPARTS_DIR+modelfile);
 	active = false;
 	visible = true;
 }
@@ -245,7 +245,7 @@ bool CGWIC_BodyPart::LoadModelFile(irr::io::path fname)
 	nocollision = true; //in case we can't load or found collision shape model
 	while (mio->read()) {
 		if (mt_model.equals_ignore_case(mio->getNodeName())) {
-			mesh = scManager->getMesh(mio->getAttributeValueSafe(L"file"));
+			mesh = scManager->getMesh(GWIC_BPARTS_DIR+mio->getAttributeValueSafe(L"file"));
 			if (mesh) root = scManager->addAnimatedMeshSceneNode(mesh,parent,GWIC_PICKABLE_MASK);
 			if (root) {
 				root->updateAbsolutePosition();
@@ -254,6 +254,7 @@ bool CGWIC_BodyPart::LoadModelFile(irr::io::path fname)
 				root->setTriangleSelector(sel);
 				sel->drop();
 			}
+			//TODO: texturing
 		} else if (mt_inslot.equals_ignore_case(mio->getNodeName())) {
 			strparse = mio->getAttributeValueSafe(L"position");
 			slot_in.posit = strparse.ToVector3f();

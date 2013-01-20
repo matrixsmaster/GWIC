@@ -26,5 +26,5 @@ SUBDIRS := \
 src \
 src/classes \
 irrBullet \
-VFS \
+VFS/actors \
 

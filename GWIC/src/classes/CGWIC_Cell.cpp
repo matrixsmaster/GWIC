@@ -109,7 +109,7 @@ bool CGWIC_Cell::InitLand()
 	vector3df pos(posX*dim,groundLevel,posY*dim);
 	vector3df csize(GWIC_IRRUNITS_PER_METER,maxHeight,GWIC_IRRUNITS_PER_METER);
 	SColor vcolor(255,255,255,255);
-	path flnm = "cell";
+	path flnm = GWIC_TERRAIN_DIR + "cell";
 	flnm += posX;
 	flnm += '-';
 	flnm += posY;
@@ -118,7 +118,7 @@ bool CGWIC_Cell::InitLand()
 	if (!terrain) {
 		std::cerr << "Terrain for cell " << posX << ';' << pos.Y << " not found!";
 		std::cerr << "Using default terrain mesh." << std::endl;
-		flnm = "default_terrain.bmp";
+		flnm = GWIC_TERRAIN_DIR + "default_terrain.bmp";
 		terrain = scManager->addTerrainSceneNode(flnm,NULL,GWIC_PICKABLE_MASK,pos,vector3df(0),csize,vcolor,maxLOD,maxPATCH,terraSmooth);
 		visible = false;
 		if (!terrain) {
@@ -128,7 +128,7 @@ bool CGWIC_Cell::InitLand()
 	}
 	terrain->setMaterialFlag(EMF_LIGHTING,true);
 	terrain->setMaterialType(EMT_SOLID);
-	groundTex = irDriver->getTexture(initParams.txdpath);
+	groundTex = irDriver->getTexture(GWIC_TEXTURES_DIR+initParams.txdpath);
 	if (!groundTex) return false;
 	terrain->setMaterialTexture(0,groundTex);
 	terrain->scaleTexture(initParams.texrepeats);
@@ -423,11 +423,8 @@ void CGWIC_Cell::RandomizeTerrain(float subdelta)
 
 void CGWIC_Cell::SaveTerrainBitmap()
 {
-	path flnm = "cell";
-	flnm += posX;
-	flnm += '-';
-	flnm += posY;
-	flnm += ".bmp";
+	path flnm = GWIC_TERRAIN_DIR;
+	flnm += (GetCellFileSuffix() + ".bmp");
 	dimension2d<u32> dim(256,256);
 	IImage *img = irDriver->createImage(ECF_R8G8B8,dim);
 	u32 VertexCount = terrain->getMesh()->getMeshBuffer(0)->getVertexCount();
@@ -449,7 +446,7 @@ void CGWIC_Cell::SaveTerrainBitmap()
 
 void CGWIC_Cell::SaveObjectStates()
 {
-	io::path filenm; //FIXME: add cells storage path
+	path filenm; //FIXME: add cells storage path
 	filenm += GetCellFileSuffix();
 	filenm += ".xml";
 	IXMLWriter* xml = graphics->getFileSystem()->createXMLWriter(filenm);
@@ -462,7 +459,7 @@ void CGWIC_Cell::SaveObjectStates()
 
 bool CGWIC_Cell::LoadObjectStates()
 {
-	io::path filenm; //FIXME: add cells storage path
+	path filenm; //FIXME: add cells storage path
 	filenm += GetCellFileSuffix();
 	filenm += ".xml";
 	IXMLReader* xml = graphics->getFileSystem()->createXMLReader(filenm);
@@ -476,8 +473,10 @@ bool CGWIC_Cell::LoadObjectStates()
 
 irr::core::stringw CGWIC_Cell::GetCellFileSuffix()
 {
-	stringw out;
-	//TODO
+	stringw out = "cell";
+	out += posX;
+	out += '-';
+	out += posY;
 	return out;
 }
 

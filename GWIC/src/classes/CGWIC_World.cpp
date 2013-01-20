@@ -95,7 +95,7 @@ bool CGWIC_World::PrepareWorld()
 	//Initialize font and skin
 	std::cout << "Initializing GUI skin" << std::endl;
 	IGUISkin* skin = gui->getSkin();
-	IGUIFont* gfont = gui->getFont("fonthaettenschweiler.bmp");
+	IGUIFont* gfont = gui->getFont(GWIC_FONTS_DIR+"fonthaettenschweiler.bmp");
 	if (gfont) skin->setFont(gfont);
 	else std::cerr << "Font not found!" << std::endl;
 
@@ -147,7 +147,9 @@ bool CGWIC_World::PrepareWorld()
 	std::cout << "Prepare atmosphere" << std::endl;
 	//FIXME: we need to use some overlays with clouds and something
 	//here'll be a some custom class, but not now :)
-	scManager->addSkyDomeSceneNode(driver->getTexture("skydome.jpg"),16,8,0.95f,2.0f);
+	scManager->addSkyDomeSceneNode(
+			driver->getTexture(GWIC_TEXTURES_DIR+"skydome.jpg"),
+			16,8,0.95f,2.0f);
 	scManager->setAmbientLight(SColorf(0.3,0.3,0.6));
 	lscreen->SetProgress(100);
 
@@ -444,7 +446,7 @@ IRigidBody* CGWIC_World::ShootSphere(irr::core::vector3df scale, irr::f32 mass)
 	Node->setPosition(pos);
 	Node->setMaterialFlag(irr::video::EMF_LIGHTING, true);
 	Node->setMaterialFlag(irr::video::EMF_NORMALIZE_NORMALS, true);
-	Node->setMaterialTexture(0, driver->getTexture("stones.jpg"));
+	Node->setMaterialTexture(0, driver->getTexture(GWIC_TEXTURES_DIR+"stones.jpg"));
 	ICollisionShape *shape = new ISphereShape(Node, mass, true);
 	IRigidBody *body = phy_world->addRigidBody(shape);
 	body->setDamping(0.1,0.1);

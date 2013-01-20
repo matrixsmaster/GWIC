@@ -11,7 +11,7 @@ RM := rm -rf
 -include src/classes/subdir.mk
 -include src/subdir.mk
 -include irrBullet/subdir.mk
--include VFS/subdir.mk
+-include VFS/actors/subdir.mk
 -include subdir.mk
 -include objects.mk
 

@@ -113,6 +113,7 @@ void CGWIC_DebugUI::PumpMessage(const irr::SEvent& event)
 			input->setText(histbuf.back().c_str());
 			histbuf.pop_back();
 		}
+		GUI->setFocus(input);
 	}
 }
 

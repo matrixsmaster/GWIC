@@ -419,11 +419,13 @@ bool CGWIC_World::GenerateNPC(CGWIC_LoadingScreen* lscr)
 	botset.rel_pos = vector3df(120,50,120);
 	botset.height = 1.5f;
 	botset.actorname = L"Sydney";
+	botset.filename = "";
 	actors.push_back(new CGWIC_Bot(&botset,gra_world,phy_world));
 	actors.back()->SetEnabled(true);
 	botset.type = ACTOR_GYNOID;
 	botset.rel_pos = vector3df(110,50,110);
 	botset.actorname = L"A22";
+	botset.filename = L"a22test.xml";
 	actors.push_back(new CGWIC_Bot(&botset,gra_world,phy_world));
 	//actors.back()->SetEnabled(true);
 	return true;

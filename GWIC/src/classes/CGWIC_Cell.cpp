@@ -449,12 +449,36 @@ void CGWIC_Cell::SaveTerrainBitmap()
 
 void CGWIC_Cell::SaveObjectStates()
 {
-	//
+	io::path filenm; //FIXME: add cells storage path
+	filenm += GetCellFileSuffix();
+	filenm += ".xml";
+	IXMLWriter* xml = graphics->getFileSystem()->createXMLWriter(filenm);
+	if (!xml) {
+		std::cerr << "SaveObjectStates(): can't create writer to " << filenm.c_str() << std::endl;
+		return;
+	}
+	xml->drop();
 }
 
 bool CGWIC_Cell::LoadObjectStates()
 {
+	io::path filenm; //FIXME: add cells storage path
+	filenm += GetCellFileSuffix();
+	filenm += ".xml";
+	IXMLReader* xml = graphics->getFileSystem()->createXMLReader(filenm);
+	if (!xml) {
+		std::cerr << "LoadObjectStates(): can't create xml reader for " << filenm.c_str() << std::endl;
+		return false;
+	}
+	xml->drop();
 	return false;
+}
+
+irr::core::stringw CGWIC_Cell::GetCellFileSuffix()
+{
+	stringw out;
+	//TODO
+	return out;
 }
 
 

@@ -58,6 +58,7 @@ class CGWIC_Bot { //: public CGWIC_GameObject {
 public:
 	CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBulletWorld* phy);
 	virtual ~CGWIC_Bot();
+	//TODO: do some sorting and comment on this methods prototypes ;-)
 	bool SetPos(irr::core::vector3df rel_pos);
 	irr::core::vector3df GetPos();
 	bool SetCell(CPoint2D ncl);
@@ -110,7 +111,7 @@ protected:
 	int camc_tries;
 	CPoint2D mousepos;
 	void LogIt(irr::core::stringc msg);
-	CGWIC_Head* CreateNPC(irr::core::stringw file);
+	CGWIC_Head* CreateNPC(irr::io::path file);
 };
 
 }

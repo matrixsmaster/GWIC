@@ -25,7 +25,7 @@
 #define GWIC_SOUNDS_DIR "/sound_fx/"
 #define GWIC_UI_DIR "/ui/"
 
-#define GWIC_MAINWINDOW_CAPTION L"GWIC ver.0.0.2.57"
+#define GWIC_MAINWINDOW_CAPTION L"GWIC ver.0.0.2.63"
 
 #define GWIC_VOID_COLOR SColor(255,100,100,100)
 

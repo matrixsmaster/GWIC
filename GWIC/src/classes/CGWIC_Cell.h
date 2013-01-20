@@ -87,6 +87,7 @@ public:
 	bool LoadObjectStates();
 	void RemoveChangedFlag() { this->terra_changed = false; }
 	GWICCellParameters GetParameters() { return this->initParams; }
+	irr::core::stringw GetCellFileSuffix();
 protected:
 	int posX;
 	int posY;

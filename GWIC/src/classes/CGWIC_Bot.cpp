@@ -250,16 +250,66 @@ irr::core::stringc CGWIC_Bot::GetTypeAsString()
 	}
 }
 
-CGWIC_Head* CGWIC_Bot::CreateNPC(irr::core::stringw file)
+CGWIC_Head* CGWIC_Bot::CreateNPC(irr::io::path file)
 {
-	CGWIC_BodyPart* cpart = NULL;
-	CGWIC_Head* nhead = NULL;
 	/* There was strange error: if we create root node and then move it, geometry moves too,
 	 * but boundbox and absolute position remains the same, even with updateAbsolutePosition()
 	 * calls, so I've decided to not to handle entire bot structure as Irrlicht's hierarchy
 	 * and use our internal GWIC classes facilities to handle the tree, move it, scale, hide, etc
 	 */
-//	botRoot = scManager->addEmptySceneNode(NULL,0);
+	CGWIC_Head* nhead = NULL;
+	IXMLReader* xml = irDevice->getFileSystem()->createXMLReader(file);
+	if (!xml) {
+		std::cerr << "CreateNPC(): xml read failed for file " << file.c_str() << std::endl;
+		return NULL;
+	}
+	const stringw se_head = L"HEAD";
+	const stringw se_bpart = L"Bodypart";
+	const stringw se_conn = L"Connect";
+	std::vector<CGWIC_BodyPart*> parts;
+	CGWIC_BodyPart* cpart, *cprt2;
+	stringw bpname,childn;
+	while (xml->read()) {
+		if ((!nhead) && (se_head.equals_ignore_case(xml->getNodeName()))) {
+			nhead = new CGWIC_Head(xml->getAttributeValueSafe(L"filename"),botRoot,irDevice,phy_world);
+			if (!nhead) std::cerr << "CreateNPC(): Failed to load bot's HEAD" << std::endl;
+			else parts.push_back(nhead);
+		} else if (se_bpart.equals_ignore_case(xml->getNodeName())) {
+			cpart = new CGWIC_BodyPart(xml->getAttributeValueSafe(L"filename"),botRoot,irDevice,phy_world);
+			bpname = xml->getAttributeValueSafe(L"name");
+			if (!cpart) std::cerr << "CreateNPC(): Failed to load bot's BP " << stringc(bpname).c_str() << std::endl;
+			else {
+				cpart->SetName(bpname);
+				parts.push_back(cpart);
+			}
+		} else if (se_conn.equals_ignore_case(xml->getNodeName())) {
+			bpname = xml->getAttributeValueSafe(L"parent_name");
+			childn = xml->getAttributeValueSafe(L"child_name");
+			cpart = cprt2 = NULL;
+			for (u32 i=0; i<parts.size(); i++) {
+				if (parts[i]->GetName() == bpname) cpart = parts[i];
+				else if (parts[i]->GetName() == childn) cprt2 = parts[i];
+				if ((cpart) && (cprt2)) break;
+			}
+			if ((!cpart) || (!cprt2))
+				std::cerr << "CreateNPC(): Connect failed. One of nodes isn't found!" << std::endl;
+			else {
+				if ((cpart->Connect(cprt2,xml->getAttributeValueAsInt(L"parent_slot"))) &&
+						(cprt2->Connect(cpart,0))) {
+					std::cout << "CreateNPC(): Connect success" << std::endl;
+				} else
+					std::cerr << "CreateNPC(): Connect failed. Unknown error!" << std::endl;
+			}
+		}
+	}
+	if (!nhead) {
+		std::cerr << "CreateNPC(): None of HEADs declared in xml loaded. Destroying loaded BPs." << std::endl;
+		while (parts.size()) {
+			delete (parts.back());
+			parts.pop_back();
+		}
+	}
+	/*
 	nhead = new CGWIC_Head("a_head.xml",botRoot,irDevice,phy_world);
 	cpart = new CGWIC_BodyPart("a_torso.xml",botRoot,irDevice,phy_world);
 	cpart->SetName(L"torso");
@@ -271,6 +321,8 @@ CGWIC_Head* CGWIC_Bot::CreateNPC(irr::core::stringw file)
 	cprt2->Connect(cpart,1);
 	cpart->Connect(cprt2,0); //back ref
 	nhead->SetActive(true,true);
+	*/
+	xml->drop();
 	return nhead;
 }
 

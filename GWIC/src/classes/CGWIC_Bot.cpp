@@ -62,6 +62,7 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 		break;
 	case ACTOR_GYNOID:
 		head = CreateNPC(params->filename);
+		if (head) SetEnabled(true);
 		break;
 	case ACTOR_PLAYER:
 		/*
@@ -308,7 +309,7 @@ CGWIC_Head* CGWIC_Bot::CreateNPC(irr::io::path file)
 			delete (parts.back());
 			parts.pop_back();
 		}
-	}
+	}// else nhead->SetActive(true,true);
 	/*
 	nhead = new CGWIC_Head("a_head.xml",botRoot,irDevice,phy_world);
 	cpart = new CGWIC_BodyPart("a_torso.xml",botRoot,irDevice,phy_world);

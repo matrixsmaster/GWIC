@@ -427,7 +427,7 @@ bool CGWIC_World::GenerateNPC(CGWIC_LoadingScreen* lscr)
 	botset.actorname = L"A22";
 	botset.filename = L"a22test.xml";
 	actors.push_back(new CGWIC_Bot(&botset,gra_world,phy_world));
-	//actors.back()->SetEnabled(true);
+	actors.back()->SetEnabled(true);
 	return true;
 }
 

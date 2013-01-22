@@ -56,8 +56,8 @@ CGWIC_Cell::~CGWIC_Cell()
 		if (terra_changed) SaveTerrainBitmap();
 		terrain->remove();
 	}
-	SaveObjectStates();
-	DeleteObjects();
+//	SaveObjectStates();
+//	DeleteObjects();
 }
 
 CPoint2D CGWIC_Cell::GetCoord()
@@ -158,14 +158,13 @@ void CGWIC_Cell::DeleteObjects()
 void CGWIC_Cell::RandomPlaceObjects(int count, irr::io::path filename)
 {
 	CGWIC_GameObject* nobj;
-	CPoint2D werhere(posX,posY);
 	vector3df rndpos;
 	//FIXME: check existence of file first!
 	for (int i=0; i<count; i++) {
 		rndpos.X = Random_FLOAT(GWIC_METERS_PER_CELL);
 		rndpos.Z = Random_FLOAT(GWIC_METERS_PER_CELL);
 		rndpos.Y = GetTerrainHeightUnderPointMetric(rndpos) + 1.f;
-		nobj = new CGWIC_GameObject(filename,werhere,graphics,physics);
+		nobj = new CGWIC_GameObject(filename,GetCoord(),graphics,physics);
 		if (nobj->GetRootNode()) {
 			objects.push_back(nobj);
 			nobj->SetPos(rndpos);
@@ -446,7 +445,7 @@ void CGWIC_Cell::SaveTerrainBitmap()
 
 void CGWIC_Cell::SaveObjectStates()
 {
-	path filenm; //FIXME: add cells storage path
+	path filenm = GWIC_CELLSTORE_DIR;
 	filenm += GetCellFileSuffix();
 	filenm += ".xml";
 	IXMLWriter* xml = graphics->getFileSystem()->createXMLWriter(filenm);
@@ -454,18 +453,79 @@ void CGWIC_Cell::SaveObjectStates()
 		std::cerr << "SaveObjectStates(): can't create writer to " << filenm.c_str() << std::endl;
 		return;
 	}
+	xml->writeXMLHeader();
+	CIrrStrParser pos,rot,scl;
+	stringw vs;
+	for (u32 i=0; i<objects.size(); i++) {
+		vs = objects[i]->GetFileName();
+		xml->writeElement(L"object",false,L"file",vs.c_str());
+		xml->writeLineBreak();
+		pos += objects[i]->GetPos();
+		rot += objects[i]->GetRot();
+		scl += objects[i]->GetScale();
+		xml->writeElement(L"position",true,
+				L"pos",pos.GetBuff().c_str(),
+				L"rot",rot.GetBuff().c_str(),
+				L"scale",scl.GetBuff().c_str());
+		xml->writeLineBreak();
+		xml->writeElement(L"options",true,
+				L"physical",((objects[i]->GetPhysical())?(L"1"):(L"0")),
+				L"enabled",((objects[i]->GetEnabled())?(L"1"):(L"0")));
+		xml->writeLineBreak();
+		pos = rot = scl = L"";
+		xml->writeClosingTag(L"object");
+		xml->writeLineBreak();
+	}
 	xml->drop();
 }
 
 bool CGWIC_Cell::LoadObjectStates()
 {
-	path filenm; //FIXME: add cells storage path
+	path filenm = GWIC_CELLSTORE_DIR;
 	filenm += GetCellFileSuffix();
 	filenm += ".xml";
 	IXMLReader* xml = graphics->getFileSystem()->createXMLReader(filenm);
 	if (!xml) {
 		std::cerr << "LoadObjectStates(): can't create xml reader for " << filenm.c_str() << std::endl;
 		return false;
+	}
+	const stringw tg_obj(L"object");
+	const stringw tg_pos(L"position");
+	const stringw tg_opt(L"options");
+	stringw cur_tag;
+	path cfile;
+	CIrrStrParser pos,rot,scl;
+	CGWIC_GameObject* optr = NULL;
+	while (xml->read()) {
+		switch (xml->getNodeType()) {
+		case EXN_ELEMENT:
+			if ((cur_tag.empty()) && (tg_obj.equals_ignore_case(xml->getNodeName()))) {
+				cur_tag = tg_obj;
+				cfile = xml->getAttributeValueSafe(L"file");
+				optr = new CGWIC_GameObject(cfile,GetCoord(),graphics,physics);
+				if (!optr)
+					std::cerr << "Failed to create object from " << cfile.c_str() << std::endl;
+				else
+					objects.push_back(optr);
+			} else if ((cur_tag == tg_obj) && (optr)) {
+				if (tg_pos.equals_ignore_case(xml->getNodeName())) {
+					pos = xml->getAttributeValueSafe(L"pos");
+					rot = xml->getAttributeValueSafe(L"rot");
+					scl = xml->getAttributeValueSafe(L"scale");
+					optr->SetPos(pos.ToVector3f());
+					optr->SetScale(scl.ToVector3f());
+					optr->SetRot(rot.ToVector3f());
+				} else if (tg_pos.equals_ignore_case(xml->getNodeName())) {
+					optr->SetPhysical(xml->getAttributeValueAsInt(L"physical"));
+					optr->SetEnabled(xml->getAttributeValueAsInt(L"enabled"));
+				}
+			}
+			break;
+		case EXN_ELEMENT_END:
+			cur_tag = L"";
+			optr = NULL;
+			break;
+		}
 	}
 	xml->drop();
 	return false;

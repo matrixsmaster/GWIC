@@ -54,6 +54,7 @@ public:
 	bool GetVisible() { return this->visible; }
 	irr::scene::ISceneNode* GetRootNode();
 	irr::core::vector3df getAbsPosition(irr::core::vector3df rel_pos);
+	irr::io::path GetFileName() { return this->lastfilename; }
 	void QuantumUpdate();
 	bool isLight() { return false; }
 private:
@@ -71,6 +72,7 @@ private:
 	std::vector<ICollisionShape*> pshapes;
 	std::vector<IRigidBody*> bodies;
 	CGWIC_VM* cpu;
+	irr::io::path lastfilename;
 	void LoadXMLDescription(irr::io::path filename);
 };
 

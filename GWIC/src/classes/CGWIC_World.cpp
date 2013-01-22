@@ -403,8 +403,6 @@ bool CGWIC_World::GenerateLand(CGWIC_LoadingScreen* lscr)
 			ptr = new CGWIC_Cell(CPoint2D(x,y),cparam,gra_world,phy_world);
 			cells.push_back(ptr);
 			if (!ptr->InitLand()) return false;
-			if (ptr->LoadObjectStates())
-				std::cout << "GenerateLand: Objects loaded" << std::endl;
 			if (lscr) {
 				if (!lscr->ProcessTick()) return false;
 			}
@@ -1166,6 +1164,12 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 			debugui->LogText(L"Distant land OFF");
 			properties.hardcull.DistantLand = false;
 		}
+	} else if (icmd == L"flushcell") {
+		CGWIC_Cell* ccl = GetCell(center_cell);
+		if (ccl) ccl->DeleteObjects();
+	} else if (icmd == L"getobjcount") {
+		CGWIC_Cell* ccl = GetCell(center_cell);
+		if (ccl) debugui->LogText(stringw(ccl->GetObjectsCount()));
 	} else {
 		debugui->LogText(L"Invalid command!");
 	}

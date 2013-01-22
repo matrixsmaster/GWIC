@@ -50,6 +50,7 @@ CGWIC_GameObject::CGWIC_GameObject(irr::io::path filename, CPoint2D cell, irr::I
 		//root->setScale(vector3df(GWIC_IRRUNITS_PER_METER));
 		pshapes.push_back(new IBoxShape(root,0,false));
 	}
+	lastfilename = filename;
 }
 
 CGWIC_GameObject::~CGWIC_GameObject()

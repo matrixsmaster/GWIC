@@ -164,16 +164,30 @@ irr::core::vector3df CGWIC_Bot::getAbsPosition()
 	return res;
 }
 
+/*
+ * Return true if rotating successful, or false if there're some problems
+ * or just rotation limit reached.
+ */
 bool CGWIC_Bot::SetRot(irr::core::vector3df rot)
 {
-	//
+	if (GetType() != ACTOR_GYNOID) {
+		rot.X = 0; rot.Z = 0;
+	}
+	if (botRoot) {
+		botRoot->setRotation(rot);
+		if (botShell) {
+			//FIXME
+		}
+	}
+	if (head) return (head->ApplyRotationForce(rot));
 	return true;
 }
 
 irr::core::vector3df CGWIC_Bot::GetRot()
 {
-	vector3df res(0,0,0);
-	return res;
+	if (head) return (head->GetRootSceneNode()->getRotation());
+	if (botRoot) return (botRoot->getRotation());
+	return (vector3df(0));
 }
 
 bool CGWIC_Bot::SetMaterial(ObjMaterial newmat)
@@ -345,6 +359,9 @@ void CGWIC_Bot::SetMaster(CGWIC_Bot* nwmaster)
  */
 irr::scene::ICameraSceneNode* CGWIC_Bot::GetCamera()
 {
+	//FIXME: in normal situation, slave bot's camera is equal to master's
+//	if ((master_bot) && (master_bot->GetCamera()))
+//		return (master_bot->GetCamera());
 	if (!headcam) {
 		if (camc_tries > 3) return NULL;
 		//Try to create the bot's own camera
@@ -367,10 +384,11 @@ irr::scene::ICameraSceneNode* CGWIC_Bot::GetCamera()
 		}
 	}
 	if (botRoot) {
-		headcam->setPosition(botRoot->getPosition());//+vector3df(0,mHeight,0));
+		headcam->setPosition(botRoot->getPosition()+vector3df(0,mHeight,0));
 	} else if (head) {
 		head->GetRootSceneNode()->updateAbsolutePosition();
 		headcam->setPosition(head->GetRootSceneNode()->getAbsolutePosition());
+		headcam->setRotation(head->GetStraightLook());
 	}
 	return headcam;
 }
@@ -383,12 +401,9 @@ void CGWIC_Bot::QuantumUpdate()
 		if (master_bot->GetType() == ACTOR_GYNOID)
 			hshift.Y /= 2;
 		SetPos(master_bot->GetPos()+hshift);
-//		if ((initParams.type == ACTOR_PLAYER) && (headcam)) {
-//			std::cout << botRoot->getPosition().X << "  " << botRoot->getPosition().Y << std::endl;
-//			std::cout << headcam->getPosition().X << "  " << headcam->getPosition().Y << std::endl;
-//		}
-	}
-	//TODO: fix classic actors models rotations
+		SetRot(master_bot->GetRot());
+	} else
+		SetRot(GetRot());
 	if (head) head->Quantum();
 }
 
@@ -401,22 +416,31 @@ bool CGWIC_Bot::ProcessEvent(const irr::SEvent& event)
 		orot.X -= (event.MouseInput.Y-mousepos.Y) / 2;
 		orot.Y += (event.MouseInput.X-mousepos.X) / 2;
 		orot.Z = 0;
-		headcam->setRotation(orot);
+		if (master_bot) {
+			master_bot->SetRot(orot);
+			if (master_bot->GetType() == ACTOR_GYNOID) {
+				if (master_bot->GetHead())
+					orot = master_bot->GetHead()->GetStraightLook();
+				else
+					orot = master_bot->GetRot();
+			}
+			headcam->setRotation(orot);
+		}
 		mousepos.X = event.MouseInput.X;
 		mousepos.Y = event.MouseInput.Y;
 	} else if ((event.EventType == EET_KEY_INPUT_EVENT)) {// && (!event.KeyInput.PressedDown)) {
 		QuantumUpdate();
 		if (master_bot) {
-			vector3df pos = master_bot->GetPos();
+			vector3df shf(0);
 			switch (event.KeyInput.Key) {
-			case KEY_KEY_W: pos.X += 0.8f; break;
-			case KEY_KEY_A: pos.Z += 0.8f; break;
-			case KEY_KEY_S: pos.X -= 0.8f; break;
-			case KEY_KEY_D: pos.Z -= 0.8f; break;
+			case KEY_KEY_W: shf.X += 0.8f; break;
+			case KEY_KEY_A: shf.Z += 0.8f; break;
+			case KEY_KEY_S: shf.X -= 0.8f; break;
+			case KEY_KEY_D: shf.Z -= 0.8f; break;
 			default: return false;
 			}
-			master_bot->SetPos(pos);
-			std::cout << pos.X << "  " << pos.Z << std::endl;
+			shf = master_bot->GetRot().rotationToDirection(shf);
+			master_bot->SetPos(master_bot->GetPos()+shf);
 		}
 		return true;
 	}

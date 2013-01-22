@@ -29,8 +29,11 @@ public:
 	}
 	virtual ~CGWIC_Head();
 	void Quantum();
+	bool ApplyRotationForce(irr::core::vector3df rotvec) { return false; }
+	irr::core::vector3df GetStraightLook() { return this->straightLook; }
 protected:
 	CGWIC_VM* vmbrain;
+	irr::core::vector3df straightLook;
 };
 
 }

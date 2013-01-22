@@ -47,6 +47,7 @@ class CGWIC_BodyPart {
 public:
 	CGWIC_BodyPart(irr::io::path modelfile, irr::scene::ISceneNode* parentn, irr::IrrlichtDevice* dev, irrBulletWorld* phy);
 	virtual ~CGWIC_BodyPart();
+	//FIXME: make things more nice looking, sort it! +))
 	void SetName(irr::core::stringc nwname);
 	irr::core::stringc GetName() { return this->name; }
 	bool Connect(CGWIC_BodyPart* part, int slotnum);
@@ -68,6 +69,7 @@ public:
 	irr::s32 RecursiveSearchForNode(irr::scene::ISceneNode* nodeptr);
 	CGWIC_BodyPart* GetBPbyNode(irr::scene::ISceneNode* nodeptr);
 	irr::core::vector3df GetRealPosition();
+	virtual bool ApplyRotationForce(irr::core::vector3df rotvec) { return true; }
 protected:
 	bool success;
 	bool active;

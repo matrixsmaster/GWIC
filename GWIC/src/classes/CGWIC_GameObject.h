@@ -73,6 +73,7 @@ private:
 	std::vector<IRigidBody*> bodies;
 	CGWIC_VM* cpu;
 	irr::io::path lastfilename;
+	void * objectInventory;
 	void LoadXMLDescription(irr::io::path filename);
 };
 

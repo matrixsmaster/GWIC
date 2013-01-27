@@ -15,6 +15,7 @@
 #define GWICDEFINES_H_
 
 //#define GWIC_USES_OPENAL 1
+
 #define GWIC_FILESYSTEMROOT irr::io::path("/tmp/GWIC/VFS")
 #define GWIC_ROOTFS_TYPE irr::io::EFAT_FOLDER
 #define GWIC_TEXTURES_DIR irr::io::path("textures/")
@@ -28,8 +29,10 @@
 #define GWIC_SOUNDS_DIR irr::io::path("sound_fx/")
 #define GWIC_UI_DIR irr::io::path("ui/")
 #define GWIC_FONTS_DIR irr::io::path("fonts/")
+#define GWIC_SLRELATIVE_DIR irr::io::path("actors/sl_opensim/")
 
-#define GWIC_MAINWINDOW_CAPTION L"GWIC ver.0.0.2.66"
+
+#define GWIC_MAINWINDOW_CAPTION L"GWIC ver.0.0.2.71"
 
 #define GWIC_VOID_COLOR SColor(255,100,100,100)
 

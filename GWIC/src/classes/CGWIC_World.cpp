@@ -145,12 +145,15 @@ bool CGWIC_World::PrepareWorld()
 
 	//Prepare sky
 	std::cout << "Prepare atmosphere" << std::endl;
+	theSun = scManager->addLightSceneNode();
+	if (!theSun) return false;
 	//FIXME: we need to use some overlays with clouds and something
 	//here'll be a some custom class, but not now :)
 	scManager->addSkyDomeSceneNode(
 			driver->getTexture(GWIC_TEXTURES_DIR+"skydome.jpg"),
 			16,8,0.95f,2.0f);
 	scManager->setAmbientLight(SColorf(0.3,0.3,0.6));
+	SunFlick();
 	lscreen->SetProgress(100);
 
 	//we're done with it :)
@@ -271,6 +274,17 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 		if ((event.KeyInput.Key == KEY_F2) && (PC) && (!pchar_cam)) {
 			GoPlayerMode();
 			return true;
+		} else if ((!fps_cam) && (!pchar_cam)) {
+			if (event.KeyInput.Key == KEY_F1) {
+				CreateNewWindow("fasthelp.xml");
+				return true;
+			} else if (event.KeyInput.Key == KEY_F3) {
+				CreateNewWindow("placeobj.xml");
+				return true;
+			} else if (event.KeyInput.Key == KEY_F4) {
+				CreateNewWindow("placeactor.xml");
+				return true;
+			}
 		}
 		if (!fps_cam) break;
 		if (event.KeyInput.Key == KEY_KEY_Q) {
@@ -323,7 +337,7 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 			CGWIC_GUIObject* ptr;
 			for (;uisit != uis.end(); ++uisit) {
 				ptr = *uisit;
-				if (ptr->GetRootID() == event.GUIEvent.Caller->getID()) {
+				if (ptr->GetRootPtr() == event.GUIEvent.Caller) {
 					delete ptr;
 					uis.erase(uisit);
 					debugui->LogText(L"Window destroyed!");
@@ -1023,7 +1037,38 @@ void CGWIC_World::EraseLights()
 void CGWIC_World::SunFlick()
 {
 	std::cout << "SunFlick()" << std::endl;
-	//TODO: turn off/on the sun (or moon) to update terrain light effects
+	theSun->setVisible(false);
+	//TODO: update sun position based on game time
+	vector3df sunpos = GetCell(center_cell)->getIrrlichtCenter();
+	sunpos.Y = main_cam->getPosition().Y;
+	sunpos.Y += GWIC_IRRUNITS_PER_METER * GWIC_METERS_PER_CELL;
+	theSun->setPosition(sunpos);
+	SLight sunlight = theSun->getLightData();
+	//TODO: update light (time of day, sky angle, etc)
+	sunlight.DiffuseColor = SColorf(1.f,1.f,1.f,1.f);
+//	sunlight.CastShadows = true;
+	sunlight.Radius = GWIC_IRRUNITS_PER_METER * GWIC_METERS_PER_CELL * 2;
+	theSun->setLightData(sunlight);
+	theSun->setVisible(true);
+}
+
+bool CGWIC_World::CreateNewWindow(irr::io::path filename)
+{
+	CGWIC_UIWindow* ptr = new CGWIC_UIWindow(gra_world);
+	if (!ptr)
+		std::cerr << "UI window creation failed!" << std::endl;
+	else {
+		if ((uis.size()) && (uis.back()))
+			ptr->SetNextID(uis.back()->IterateID());
+		else
+			ptr->SetNextID(GWIC_GUI_DEBUG_LAST);
+		if (ptr->LoadFromFile(GWIC_UI_DIR+filename)) {
+			uis.push_back(ptr);
+			return true;
+		}
+		delete ptr;
+	}
+	return false;
 }
 
 void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
@@ -1094,18 +1139,8 @@ void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
 			debugui->LogText(L"Use: createwindow <filename.xml>");
 			return;
 		}
-		CGWIC_UIWindow* ptr = new CGWIC_UIWindow(gra_world);
-		if (!ptr)
-			std::cerr << "UI window creation failed!" << std::endl;
-		else {
-			if ((uis.size()) && (uis.back()))
-				ptr->SetNextID(uis.back()->IterateID());
-			else
-				ptr->SetNextID(GWIC_GUI_DEBUG_LAST);
-			uis.push_back(ptr);
-			ptr->LoadFromFile(list[1]);
+		if (CreateNewWindow(list[1]))
 			debugui->LogText(L"Command done!");
-		}
 	} else if (icmd == L"randomterr") {
 		irrstrwvec list = parse.ParseToList(L" ");
 		if (list.size() < 2) {

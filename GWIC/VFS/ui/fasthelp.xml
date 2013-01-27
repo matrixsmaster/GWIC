@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<caption text="Fast help" />
+<label pos="8 24" size="220 250" text="Key buttons:
+Esc - toggle between Edit mode and FPS test mode
+F1 - this help window
+F2 - switch to Player mode (use 'attachplayername' command first)
+F3 - open up Place Object window
+F4 - open Place Actor window
+F8 - toggle terrain magnet mode
+F9 - toggle physics (like 'tpm' command)
+Delete (Del) - delete main camera (test purpose)
+Spacebar - shoot sphere (in FPS mode)
+X - delete selected game object
+Q - quit (in FPS mode and Player mode)
+1 - toggle Physical flag on selected object
+-end-of-text-" fill="1" />

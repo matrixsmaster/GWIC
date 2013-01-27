@@ -38,7 +38,7 @@ public:
 	void SetNextID(irr::s32 nID) { currID = nID; }
 	irr::s32 IterateID() { return (++currID); }
 	virtual irr::s32 GetRootID() = 0;
-//	virtual irr::gui::IGUIElement* GetRootPtr() = 0;
+	virtual irr::gui::IGUIElement* GetRootPtr() = 0;
 protected:
 	irr::s32 currID;
 	irr::core::stringc myname;

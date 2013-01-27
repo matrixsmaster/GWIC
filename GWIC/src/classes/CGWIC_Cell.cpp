@@ -75,7 +75,7 @@ void CGWIC_Cell::SetActive(bool on)
 	if (on) {
 		vector3df ps = getIrrlichtCenter();
 		ps.Y = 100 * GWIC_IRRUNITS_PER_METER;
-		ournodes.push_back(scManager->addLightSceneNode(NULL,ps,SColorf(1.f,1.f,1.f),1600,1));
+//		ournodes.push_back(scManager->addLightSceneNode(NULL,ps,SColorf(1.f,1.f,1.f),1600,1));
 		IMesh* phyterr = TerrainToMesh(2);
 		ournodes.push_back(scManager->addMeshSceneNode(phyterr));
 		ournodes.back()->setPosition(terrain->getPosition());
@@ -525,6 +525,7 @@ bool CGWIC_Cell::LoadObjectStates()
 			cur_tag = L"";
 			optr = NULL;
 			break;
+		default: break;
 		}
 	}
 	xml->drop();

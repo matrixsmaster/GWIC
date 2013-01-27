@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <caption text="-=Test Window=-" />
-<image file="irrlichtlogo3.png" pos="0 24" size="128 64" />
+<image file="textures/irrlichtlogo3.png" pos="0 24" size="128 64" />
 <button pos="0 75" size="32 24" cmd="test aa bb cc dd" text="But1" tip="haw-haw" />
 <button pos="0 100" size="32 24" cmd="" text="But2" />
 <label pos="130 24" size="50 48" text="Test window" fill="0" filter="ABCD" />

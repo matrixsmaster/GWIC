@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<caption text="Place new object" />
+
+<listbox pos="0 24" size="210 100">
+  <string text="teapot.3ds" />
+  <string text="tree1.3ds" />
+</listbox>
+
+<button pos="8 138" size="196 34" />

@@ -46,6 +46,7 @@ public:
 	void FlushBuffers();
 	void PutString(const irr::core::stringw str) { LogText(str); }
 	irr::s32 GetRootID() { return -1; }
+	irr::gui::IGUIElement* GetRootPtr() { return this->loglabel; }
 private:
 	irr::gui::IGUIStaticText* loglabel;
 	irr::gui::IGUIStaticText* fpslabel;

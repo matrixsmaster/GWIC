@@ -62,6 +62,7 @@ protected:
 	std::vector<CGWIC_GUIObject*> uis;
 	CGWIC_DebugUI* debugui;
 	CPoint2D center_cell;
+	irr::scene::ILightSceneNode* theSun;
 private:
 	irr::u32 ticker;
 	bool fps_cam;
@@ -113,6 +114,7 @@ private:
 	bool RemoveLight(CGWIC_GameObject* ptr);
 	void EraseLights();
 	void SunFlick();
+	bool CreateNewWindow(irr::io::path filename);
 };
 
 static const CPoint2D neighbor_array[] = {

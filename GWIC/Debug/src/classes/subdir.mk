@@ -21,7 +21,8 @@ CPP_SRCS += \
 ../src/classes/CIrrStrParser.cpp \
 ../src/classes/CPoint2D.cpp \
 ../src/classes/CProgressBar.cpp \
-../src/classes/GWIC_SLAvatar.cpp 
+../src/classes/GWIC_SLAvatar.cpp \
+../src/classes/GWIC_SLBinMesh.cpp 
 
 OBJS += \
 ./src/classes/CGWICDebugUI.o \
@@ -41,7 +42,8 @@ OBJS += \
 ./src/classes/CIrrStrParser.o \
 ./src/classes/CPoint2D.o \
 ./src/classes/CProgressBar.o \
-./src/classes/GWIC_SLAvatar.o 
+./src/classes/GWIC_SLAvatar.o \
+./src/classes/GWIC_SLBinMesh.o 
 
 CPP_DEPS += \
 ./src/classes/CGWICDebugUI.d \
@@ -61,7 +63,8 @@ CPP_DEPS += \
 ./src/classes/CIrrStrParser.d \
 ./src/classes/CPoint2D.d \
 ./src/classes/CProgressBar.d \
-./src/classes/GWIC_SLAvatar.d 
+./src/classes/GWIC_SLAvatar.d \
+./src/classes/GWIC_SLBinMesh.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

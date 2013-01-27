@@ -9,7 +9,7 @@
 #ifndef GWIC_SLBINMESH_H_
 #define GWIC_SLBINMESH_H_
 
-#include <SMesh.h>
+#include <irrlicht.h>
 
 namespace gwic {
 

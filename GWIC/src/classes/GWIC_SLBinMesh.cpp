@@ -10,7 +10,9 @@
 
 namespace gwic {
 
-GWIC_SLBinMesh::GWIC_SLBinMesh() {
+GWIC_SLBinMesh::GWIC_SLBinMesh(irr::io::path filename) :
+	SMesh()
+{
 	// TODO Auto-generated constructor stub
 
 }

@@ -246,7 +246,8 @@ bool CGWIC_BodyPart::LoadModelFile(irr::io::path fname)
 	while (mio->read()) {
 		if (mt_model.equals_ignore_case(mio->getNodeName())) {
 			mesh = scManager->getMesh(GWIC_BPARTS_DIR+mio->getAttributeValueSafe(L"file"));
-			if (mesh) root = scManager->addAnimatedMeshSceneNode(mesh,parent,GWIC_PICKABLE_MASK);
+			if (mesh) root = scManager->addAnimatedMeshSceneNode(
+					mesh,parent,GWIC_PICKABLE_MASK | GWIC_ACTOR_MASK);
 			if (root) {
 				root->updateAbsolutePosition();
 				root->setMaterialFlag(EMF_NORMALIZE_NORMALS,true);

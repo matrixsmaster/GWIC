@@ -35,6 +35,7 @@
 #include "CGWIC_BodyPart.h"
 #include "CGWIC_InventoryObject.h"
 #include "CGWIC_Inventory.h"
+#include "GWIC_SLAvatar.h"
 
 namespace gwic {
 
@@ -42,7 +43,8 @@ enum GWICActorType {
 	ACTOR_DUMMY,		//test actor type, loads Sydney from Irrlicht's package
 	ACTOR_GYNOID,		//our new actor type - gynoid (or other actor) sliced to BPs
 	ACTOR_PLAYER,		//dummy type for player's character
-	ACTOR_CREATURE		//classic "skinned" actor without bodyparts
+	ACTOR_CREATURE,		//classic "skinned" actor without bodyparts
+	ACTOR_SLAVATAR		//SecondLife(tm) avatar, handles SLA skeleton + txd overlays & attachments + BVH anims
 };
 
 struct BotCreationParams {
@@ -87,6 +89,7 @@ public:
 	void QuantumUpdate();
 	bool ProcessEvent(const irr::SEvent& event);
 protected:
+	//FIXME: sort it out!!!!!111oneone
 	bool initDone;
 	int ID;
 	CPoint2D mycell;
@@ -110,6 +113,7 @@ protected:
 	irr::scene::ICameraSceneNode* headcam;
 	int camc_tries;
 	CPoint2D mousepos;
+	GWIC_SLAvatar* slAvatar;
 	void LogIt(irr::core::stringc msg);
 	CGWIC_Head* CreateNPC(irr::io::path file);
 };

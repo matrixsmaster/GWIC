@@ -51,7 +51,7 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 		// get Sydney to the scene ;)
 		botmesh = scManager->getMesh(GWIC_ACTORS_DIR+"sydney.md2");
 		if (!botmesh) return;
-		animnode = scManager->addAnimatedMeshSceneNode(botmesh);
+		animnode = scManager->addAnimatedMeshSceneNode(botmesh,NULL,GWIC_ACTOR_MASK);
 		botRoot = animnode;
 		botRoot->setMaterialTexture(0,irDriver->getTexture(GWIC_ACTORS_DIR+"sydney.bmp"));
 //		animnode->addShadowVolumeSceneNode();
@@ -74,6 +74,14 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 	case ACTOR_CREATURE:
 		//TODO: load classic skinned rigged mesh
 		return;
+	case ACTOR_SLAVATAR:
+		/*
+		 * SecondLife(tm) / OpenSim avatar-like actor.
+		 * This type of actor represents geometry only, physics describes by a simple
+		 * capsule, just like ACTOR_CREATURE
+		 */
+		slAvatar = new GWIC_SLAvatar(GWIC_ACTORS_DIR+params->filename,scManager);
+		break;
 	default:
 		std::cerr << "Unsupported or invalid actor type creation requested!" << std::endl;
 		return;
@@ -96,6 +104,7 @@ CGWIC_Bot::~CGWIC_Bot()
 	if (enabled) SetEnabled(false);
 	if (headcam) headcam->remove();
 	if (head) delete head;
+//	if (slAvatar) slAvatar->remove();
 	if (botRoot) botRoot->remove();
 	if (basicShell) delete basicShell;
 }

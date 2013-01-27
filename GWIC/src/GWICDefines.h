@@ -43,6 +43,7 @@
 
 #define GWIC_PICKABLE_MASK (1<<30)
 #define GWIC_GIZMO_MASK (1<<29)
+#define GWIC_ACTOR_MASK (1<<28)
 
 //u32 tesselationCylinder=4,u32 tesselationCone=8,
 //f32 height=1.f, f32 cylinderHeight=0.6f,

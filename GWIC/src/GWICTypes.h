@@ -25,7 +25,7 @@ typedef unsigned char uchar;
 
 namespace irr {
 
-typedef core::aabbox3d<float> boundbox;
+typedef core::aabbox3d<f32> boundbox;
 
 }
 

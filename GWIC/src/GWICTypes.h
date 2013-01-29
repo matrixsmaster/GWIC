@@ -79,6 +79,15 @@ struct WorldProperties {
 	HardCullingProperties hardcull;
 };
 
+struct GWIC_Message {
+	irr::core::stringw sender;
+	irr::core::stringw recepient;
+	irr::s32 index;
+	irr::s32 lifetime;
+	irr::core::stringw body;
+};
+
+
 }
 
 #endif /* GWICTYPES_H_ */

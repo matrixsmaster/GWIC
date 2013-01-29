@@ -61,6 +61,7 @@ protected:
 struct GWICActionPointer {
 	std::vector<irr::gui::EGUI_EVENT_TYPE> type;
 	irr::s32 gid;
+	irr::gui::IGUIElement* ptr;
 	bool init_done;
 	irr::core::stringw command;
 	irr::core::stringw accept_filter;

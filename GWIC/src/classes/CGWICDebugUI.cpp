@@ -96,8 +96,15 @@ void CGWIC_DebugUI::FlushBuffers()
 
 bool CGWIC_DebugUI::PutString(const irr::core::stringw str)
 {
-	//TODO: check for 'DBGLOG' signature
-	//if no signature, add specific info to output
+	//FIXME: complete rewrite needed
+	CIrrStrParser parse(str);
+	if (parse.IsDelimPresent(L">")) {
+		stringw to(parse.NextLex(L">",true));
+		if (to.equals_ignore_case(L"DBGLOG")) {
+			LogText(parse.GetBuff());
+			return true;
+		}
+	}
 	LogText(str);
 	return true;
 }

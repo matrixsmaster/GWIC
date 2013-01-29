@@ -67,6 +67,7 @@ public:
 	bool GetVisible() { return this->visible; }
 	void DeleteObjects();
 	void RandomPlaceObjects(int count, irr::io::path filename);
+	bool CreateNewObject(irr::core::vector3df pnt, irr::io::path filename);
 	irr::core::vector3df getIrrlichtCenter();
 	irr::scene::IMesh* TerrainToMesh(int LOD);
 	void Update();

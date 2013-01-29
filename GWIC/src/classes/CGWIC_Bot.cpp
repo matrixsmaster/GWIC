@@ -51,7 +51,8 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 		// get Sydney to the scene ;)
 		botmesh = scManager->getMesh(GWIC_ACTORS_DIR+"sydney.md2");
 		if (!botmesh) return;
-		animnode = scManager->addAnimatedMeshSceneNode(botmesh,NULL,GWIC_ACTOR_MASK);
+		animnode = scManager->addAnimatedMeshSceneNode(botmesh,NULL,
+				GWIC_ACTOR_MASK | GWIC_PICKABLE_MASK);
 		botRoot = animnode;
 		botRoot->setMaterialTexture(0,irDriver->getTexture(GWIC_ACTORS_DIR+"sydney.bmp"));
 //		animnode->addShadowVolumeSceneNode();
@@ -454,6 +455,14 @@ bool CGWIC_Bot::ProcessEvent(const irr::SEvent& event)
 		return true;
 	}
 	return false;
+}
+
+bool CGWIC_Bot::isCompletelyDead()
+{
+	return ( (GetType()!=ACTOR_PLAYER) &&
+			(!botRoot) &&
+			(!head) &&
+			(!slAvatar) );
 }
 
 

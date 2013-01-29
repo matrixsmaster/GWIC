@@ -88,6 +88,7 @@ public:
 	irr::scene::ICameraSceneNode* GetCamera();
 	void QuantumUpdate();
 	bool ProcessEvent(const irr::SEvent& event);
+	bool isCompletelyDead();
 protected:
 	//FIXME: sort it out!!!!!111oneone
 	bool initDone;

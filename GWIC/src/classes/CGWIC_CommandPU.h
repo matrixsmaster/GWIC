@@ -15,6 +15,9 @@
 
 namespace gwic {
 
+//FIXME: Add standard Message Broadcasting System
+//look at GWICTypes
+
 class CGWIC_CommandPU {
 public:
 	CGWIC_CommandPU();
@@ -24,6 +27,7 @@ public:
 	irr::core::stringw GetNextOutput();
 protected:
 	void Store(irr::core::stringw rec, irr::core::stringw str);
+	void Error(irr::core::stringw rec, irr::core::stringw str);
 private:
 	struct GCMDPU_hData;
 	GCMDPU_hData* hData;

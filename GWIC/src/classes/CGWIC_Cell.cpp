@@ -157,22 +157,29 @@ void CGWIC_Cell::DeleteObjects()
 
 void CGWIC_Cell::RandomPlaceObjects(int count, irr::io::path filename)
 {
-	CGWIC_GameObject* nobj;
 	vector3df rndpos;
-	//FIXME: check existence of file first!
 	for (int i=0; i<count; i++) {
 		rndpos.X = Random_FLOAT(GWIC_METERS_PER_CELL);
 		rndpos.Z = Random_FLOAT(GWIC_METERS_PER_CELL);
 		rndpos.Y = GetTerrainHeightUnderPointMetric(rndpos) + 1.f;
-		nobj = new CGWIC_GameObject(filename,GetCoord(),graphics,physics);
-		if (nobj->GetRootNode()) {
-			objects.push_back(nobj);
-			nobj->SetPos(rndpos);
-			nobj->SetEnabled(true);
-			nobj->SetPhysical(true);
-		} else
-			std::cerr << "Couldn't create new object!" << std::endl;
+		if (!CreateNewObject(rndpos,filename)) return;
 	}
+}
+
+bool CGWIC_Cell::CreateNewObject(irr::core::vector3df pnt, irr::io::path filename)
+{
+	CGWIC_GameObject* nobj;
+	nobj = new CGWIC_GameObject(filename,GetCoord(),graphics,physics);
+	if (nobj->GetRootNode()) {
+		objects.push_back(nobj);
+		nobj->SetPos(pnt);
+		nobj->SetEnabled(true);
+		nobj->SetPhysical(true);
+		return true;
+	}
+	delete nobj;
+	std::cerr << "Couldn't create new object!" << std::endl;
+	return false;
 }
 
 irr::core::vector3df CGWIC_Cell::getIrrlichtCenter()

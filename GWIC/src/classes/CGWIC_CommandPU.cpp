@@ -9,6 +9,9 @@
 
 #include "CGWIC_CommandPU.h"
 #include "CGWIC_World.h"
+#include "CGWIC_Cell.h"
+#include "CGWIC_GameObject.h"
+#include "CGWIC_Bot.h"
 
 using namespace irr;
 using namespace core;
@@ -55,8 +58,20 @@ void CGWIC_CommandPU::Store(irr::core::stringw rec, irr::core::stringw str)
 	hData->outFIFO.push_back(rec);
 }
 
+void CGWIC_CommandPU::Error(irr::core::stringw rec, irr::core::stringw str)
+{
+	stringw out(L"DBGLOG>");
+	out += L"to{";
+	out += rec;
+	out += L"}: ";
+	out += str;
+	hData->outFIFO.push_back(out);
+}
+
 void CGWIC_CommandPU::Process(irr::core::stringw cmd)
 {
+	//FIXME: this system will be rewritten in next release
+	//table lookup switcher needed
 	std::cout << "[Command Processor] cmd: " << stringc(cmd).c_str() << std::endl;
 	CIrrStrParser parse(cmd);
 	stringw receiver;
@@ -77,7 +92,7 @@ void CGWIC_CommandPU::Process(irr::core::stringw cmd)
 	} else if (icmd == L"randomplace") {
 		irrstrwvec list = parse.ParseToList(L" ");
 		if (list.size() < 3) {
-			Store(receiver,L"Use: randomplace filename count");
+			Error(receiver,L"Use: randomplace filename count");
 			return;
 		}
 		CGWIC_Cell* ptr = hData->world->GetCell(hData->world->center_cell);
@@ -92,7 +107,7 @@ void CGWIC_CommandPU::Process(irr::core::stringw cmd)
 	} else if (icmd == L"reloadcell") {
 		irrstrwvec list = parse.ParseToList(L" ");
 		if (list.size() < 3) {
-			Store(receiver,L"Insufficient args. Use: reloadcell X Y");
+			Error(receiver,L"Insufficient args. Use: reloadcell X Y");
 			return;
 		}
 		CIrrStrParser pr2(list[1]);
@@ -104,7 +119,7 @@ void CGWIC_CommandPU::Process(irr::core::stringw cmd)
 	} else if (icmd == L"stitch") {
 		irrstrwvec list = parse.ParseToList(L" ");
 		if (list.size() < 5) {
-			Store(receiver,L"Insufficient args. Use: stitch Xa Ya Xb Yb");
+			Error(receiver,L"Insufficient args. Use: stitch Xa Ya Xb Yb");
 			return;
 		}
 		CIrrStrParser pr2(list[1]);
@@ -115,23 +130,23 @@ void CGWIC_CommandPU::Process(irr::core::stringw cmd)
 		pr2 = list[4]; bb.Y = pr2.ToS32();
 		hData->world->StitchTerrains(hData->world->GetCell(aa),
 				hData->world->GetCell(bb),true);
-		Store(receiver,L"Command done!");
+		Store(L"DBGLOG",L"Stitch done!");
 	} else if (icmd == L"restitch") {
 		hData->world->StitchWorld(false);
-		Store(receiver,L"Command done!");
+		Store(L"DBGLOG",L"Command done!");
 	} else if (icmd == L"createwindow") {
 		irrstrwvec list = parse.ParseToList(L" ");
 		if (list.size() < 2) {
-			Store(receiver,L"Use: createwindow <filename.xml>");
+			Error(receiver,L"Use: createwindow <filename.xml>");
 			return;
 		}
 		if (hData->world->CreateNewWindow(list[1]))
-			Store(receiver,L"Command done!");
+			Store(L"DBGLOG",L"Command done!");
 	} else if (icmd == L"randomterr") {
 		irrstrwvec list = parse.ParseToList(L" ");
 		if (list.size() < 2) {
-			Store(receiver,L"Use: randomterr cellX cellY subdelta");
-			Store(receiver,L"Or worldwide: randomterr subdelta");
+			Error(receiver,L"Use: randomterr cellX cellY subdelta");
+			Error(receiver,L"Or worldwide: randomterr subdelta");
 			return;
 		}
 		CIrrStrParser pr2(list[1]);
@@ -156,13 +171,13 @@ void CGWIC_CommandPU::Process(irr::core::stringw cmd)
 	} else if (icmd == L"attachplayername") {
 		irrstrwvec list = parse.ParseToList(L" ");
 		if (list.size() != 2) {
-			Store(receiver,L"Use: attachplayername <actor's name to attach to>");
+			Error(receiver,L"Use: attachplayername <actor's name to attach to>");
 			return;
 		}
 		for (u32 i=0; i<hData->world->actors.size(); i++)
 			if (hData->world->actors[i]->GetName().equals_ignore_case(list[1])) {
-				Store(receiver,L"Attaching to");
-				Store(receiver,list[1]);
+				Store(L"DBGLOG",L"Attaching to");
+				Store(L"DBGLOG",list[1]);
 				if (hData->world->PC) {
 					hData->world->PC->SetMaster(hData->world->actors[i]);
 					hData->world->PC->QuantumUpdate();
@@ -171,11 +186,11 @@ void CGWIC_CommandPU::Process(irr::core::stringw cmd)
 	} else if (icmd == L"annulateterrachanges") {
 		for (u32 i=0; i<hData->world->cells.size(); i++)
 			hData->world->cells[i]->RemoveChangedFlag();
-		Store(receiver,L"Terrain change flags removed! Terrain will not be saved.");
+		Store(L"DBGLOG",L"Terrain change flags removed! Terrain will not be saved.");
 	} else if (icmd == L"setdistantland") {
 		irrstrwvec list = parse.ParseToList(L" ");
 		if (list.size() != 2) {
-			Store(receiver,L"Use: setdistantland [true/false]");
+			Error(receiver,L"Use: setdistantland [true/false]");
 			return;
 		}
 		if (list[1] == L"true") {
@@ -191,6 +206,41 @@ void CGWIC_CommandPU::Process(irr::core::stringw cmd)
 	} else if (icmd == L"getobjcount") {
 		CGWIC_Cell* ccl = hData->world->GetCell(hData->world->center_cell);
 		if (ccl) Store(receiver,stringw(ccl->GetObjectsCount()));
+	} else if (icmd == L"placeatcam") {
+		irrstrwvec list = parse.ParseToList(L" ");
+		if (list.size() < 3) {
+			Error(receiver,L"Use: placeatcam <type> [filename] [actor_name]");
+			return;
+		}
+		IrrlichtDevice* irdev = hData->world->gra_world;
+		irrBulletWorld* phys = hData->world->phy_world;
+		vector3df npos(hData->world->main_cam->getPosition());
+		npos /= GWIC_IRRUNITS_PER_METER;
+		npos.X = fmod(npos.X,GWIC_METERS_PER_CELL);
+		npos.Z = fmod(npos.Z,GWIC_METERS_PER_CELL);
+		if (list[1] == L"object") {
+			CGWIC_Cell* ccl = hData->world->GetCell(hData->world->center_cell);
+			if (ccl->CreateNewObject(npos,list[2]))
+				Store(receiver,"GameObject created successfully!");
+			else
+				Error(receiver,L"GameObject creation failed!");
+		} else if (list[1] == L"dummy_actor") {
+			BotCreationParams params;
+			params.actorname = (list.size() > 2)? list[2]:L"Unnamed_bot";
+			params.cell_coord = hData->world->center_cell;
+			params.filename = list[2];
+			params.height = 1.7f;
+			params.rel_pos = npos;
+			params.type = ACTOR_DUMMY;
+			CGWIC_Bot* nbot = new CGWIC_Bot(&params,irdev,phys);
+			if (nbot->isCompletelyDead()) {
+				Error(receiver,L"Actor spawning failed!");
+				delete nbot;
+				return;
+			}
+			nbot->SetEnabled(true);
+			hData->world->actors.push_back(nbot);
+		}
 	} else {
 		Store(receiver,L"Invalid command!");
 	}

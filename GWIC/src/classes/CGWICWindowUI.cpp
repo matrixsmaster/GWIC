@@ -117,9 +117,11 @@ bool CGWIC_UIWindow::LoadFromFile(const path filename)
 			//TODO
 		}
 		if (ptr) {
+			cact.ptr = ptr;
 			elems.push_back(ptr);
 			cact.gid = ptr->getID();
-			if (cact.init_done) acts.push_back(cact);
+//			if (cact.init_done)
+				acts.push_back(cact);
 		} else inside_tag = L"";
 	}
 	if (max.X < GWIC_GUI_WINDOW_MIN) max.X = GWIC_GUI_WINDOW_MIN;
@@ -167,8 +169,28 @@ void CGWIC_UIWindow::SetPos(CPoint2D nwpos)
 
 void CGWIC_UIWindow::ProcessAction(uint action, uint type)
 {
-	if (!acts[action].command.empty())
-		cmdfifo.insert(cmdfifo.begin(),acts[action].command);
+	stringw cmd = acts[action].command;
+	if (!cmd.empty()) {
+		if (cmd.find(L"$") >= 0) {
+			//command extend
+			CIrrStrParser parse(cmd);
+			stringw eprfx = parse.NextLex(L"$",true);
+			stringw etype = parse.NextLex(L".",true);
+			stringw ename = parse.NextLex(L" ",true);
+			stringw res;
+			for (u32 i=0; i<acts.size(); i++) {
+				if ( (!acts[i].accept_filter.empty()) && (acts[i].accept_filter == ename) ) {
+					if (etype == L"text") {
+						res = acts[i].ptr->getText();
+					}
+				}
+			}
+			cmd = eprfx;
+			cmd += res;
+			cmd += parse.GetBuff();
+		}
+		cmdfifo.insert(cmdfifo.begin(),cmd);
+	}
 }
 
 

@@ -17,6 +17,7 @@ class CGWIC_UIWindow: public gwic::CGWIC_GUIObject {
 public:
 	CGWIC_UIWindow(irr::IrrlichtDevice* dev) :
 		CGWIC_GUIObject(dev) {
+		mytype = GWIC_UIOBJ_WNDUI;
 		window = GUI->addWindow(irr::core::rect<irr::s32>(0,0,100,100),false,L"New window");
 		if (!window) return;
 		elems.push_back(window);
@@ -25,7 +26,7 @@ public:
 	bool LoadFromFile(const irr::io::path filename);
 	void PumpMessage(const irr::SEvent& event);
 	void Update();
-	void PutString(const irr::core::stringw str);
+	bool PutString(const irr::core::stringw str);
 	void SetPos(CPoint2D nwpos);
 	irr::s32 GetRootID() { return this->window->getID(); }
 	irr::gui::IGUIElement* GetRootPtr() { return this->window; }

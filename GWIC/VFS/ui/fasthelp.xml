@@ -8,6 +8,7 @@ F3 - open up Place Object window
 F4 - open Place Actor window
 F8 - toggle terrain magnet mode
 F9 - toggle physics (like 'tpm' command)
+Shift+F10 - close all windows
 Delete (Del) - delete main camera (test purpose)
 Spacebar - shoot sphere (in FPS mode)
 X - delete selected game object

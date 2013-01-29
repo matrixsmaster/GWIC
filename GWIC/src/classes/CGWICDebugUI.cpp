@@ -94,6 +94,14 @@ void CGWIC_DebugUI::FlushBuffers()
 	buffer = "";
 }
 
+bool CGWIC_DebugUI::PutString(const irr::core::stringw str)
+{
+	//TODO: check for 'DBGLOG' signature
+	//if no signature, add specific info to output
+	LogText(str);
+	return true;
+}
+
 void CGWIC_DebugUI::PumpMessage(const irr::SEvent& event)
 {
 	s32 id = event.GUIEvent.Caller->getID();

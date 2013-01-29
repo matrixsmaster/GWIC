@@ -102,6 +102,11 @@ irrstrwvec CIrrStrParser::ParseToList(irr::core::stringw delim)
 	return out;
 }
 
+bool CIrrStrParser::IsDelimPresent(irr::core::stringw delim)
+{
+	return (buffer.find(delim.c_str()) >= 0);
+}
+
 CIrrStrParser & CIrrStrParser::operator += (const irr::core::vector3df & addv)
 {
 	buffer += addv.X;

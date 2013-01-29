@@ -44,13 +44,26 @@ bool CGWIC_UIWindow::LoadFromFile(const path filename)
 	const stringw x_scrollbar(L"ScrollBar");
 	const stringw x_spinbox(L"SpinBox");
 	const stringw x_table(L"Table");
+	const stringw x_string(L"String");
 	IGUIElement* ptr;
 	rect<s32> rct;
 	vector2di vec;
 	CIrrStrParser parse;
 	bool border;
 	GWICActionPointer cact;
+	stringw inside_tag;
 	while (xml->read()) {
+		if (!inside_tag.empty()) {
+			if (xml->getNodeType() == EXN_ELEMENT) {
+				if ((inside_tag.equals_ignore_case(x_listbox)) &&
+						(x_string.equals_ignore_case(xml->getNodeName()))) {
+					IGUIListBox* lptr = reinterpret_cast<IGUIListBox*> (elems.back());
+					lptr->addItem(xml->getAttributeValueSafe(L"text"));
+				}
+			} else if (xml->getNodeType() == EXN_ELEMENT_END)
+				inside_tag = L"";
+			continue;
+		}
 		parse = xml->getAttributeValueSafe(L"pos");
 		vec.X = parse.ToPoint2D().X;
 		vec.Y = parse.ToPoint2D().Y;
@@ -77,6 +90,10 @@ bool CGWIC_UIWindow::LoadFromFile(const path filename)
 		} else if (x_statext.equals_substring_ignore_case(xml->getNodeName())) {
 			ptr = GUI->addStaticText(xml->getAttributeValueSafe(L"text"),rct,border,true,
 					window,IterateID(),(xml->getAttributeValueAsInt(L"fill")));
+		} else if (x_checkbox.equals_substring_ignore_case(xml->getNodeName())) {
+			//TODO
+		} else if (x_combobox.equals_substring_ignore_case(xml->getNodeName())) {
+			//TODO
 		} else if (x_image.equals_substring_ignore_case(xml->getNodeName())) {
 			ITexture* txd = irDevice->getVideoDriver()->getTexture(xml->getAttributeValueSafe(L"file"));
 			if (txd)
@@ -85,12 +102,25 @@ bool CGWIC_UIWindow::LoadFromFile(const path filename)
 				std::cerr << "Image could't be loaded! " << xml->getAttributeValueSafe(L"file");
 				std::cerr << std::endl;
 			}
+		} else if (x_listbox.equals_substring_ignore_case(xml->getNodeName())) {
+			ptr = GUI->addListBox(rct,window,IterateID(),(xml->getAttributeValueAsInt(L"back")));
+			if (!xml->isEmptyElement()) inside_tag = xml->getNodeName();
+		} else if (x_topmenu.equals_substring_ignore_case(xml->getNodeName())) {
+			//TODO
+		} else if (x_meshview.equals_substring_ignore_case(xml->getNodeName())) {
+			//TODO
+		} else if (x_scrollbar.equals_substring_ignore_case(xml->getNodeName())) {
+			//TODO
+		} else if (x_spinbox.equals_substring_ignore_case(xml->getNodeName())) {
+			//TODO
+		} else if (x_table.equals_substring_ignore_case(xml->getNodeName())) {
+			//TODO
 		}
 		if (ptr) {
 			elems.push_back(ptr);
 			cact.gid = ptr->getID();
 			if (cact.init_done) acts.push_back(cact);
-		}
+		} else inside_tag = L"";
 	}
 	if (max.X < GWIC_GUI_WINDOW_MIN) max.X = GWIC_GUI_WINDOW_MIN;
 	if (max.Y < GWIC_GUI_WINDOW_MIN) max.Y = GWIC_GUI_WINDOW_MIN;
@@ -121,9 +151,10 @@ void CGWIC_UIWindow::Update()
 	//
 }
 
-void CGWIC_UIWindow::PutString(const irr::core::stringw str)
+bool CGWIC_UIWindow::PutString(const irr::core::stringw str)
 {
 	//TODO: add "accept" rule to absorb the text and set gui element text
+	return false;
 }
 
 void CGWIC_UIWindow::SetPos(CPoint2D nwpos)

@@ -33,6 +33,7 @@ class CGWIC_DebugUI: public gwic::CGWIC_GUIObject {
 public:
 	CGWIC_DebugUI(irr::IrrlichtDevice* dev) :
 		CGWIC_GUIObject(dev) {
+		mytype = GWIC_UIOBJ_DEBUGUI;
 		CreateHardcodedUI();
 //		hist_it = histbuf.begin();
 	}
@@ -44,7 +45,7 @@ public:
 	void Update() { }
 	void UpdateFPS(int fps);
 	void FlushBuffers();
-	void PutString(const irr::core::stringw str) { LogText(str); }
+	bool PutString(const irr::core::stringw str);
 	irr::s32 GetRootID() { return -1; }
 	irr::gui::IGUIElement* GetRootPtr() { return this->loglabel; }
 private:

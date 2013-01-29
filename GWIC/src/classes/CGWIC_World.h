@@ -34,6 +34,7 @@
 #include "CGWICWindowUI.h"
 #include "CGWIC_Gizmo.h"
 #include "CGWIC_LoadingScreen.h"
+#include "CGWIC_CommandPU.h"
 
 namespace gwic {
 
@@ -47,8 +48,7 @@ public:
 	virtual bool PrepareWorld();
 	CGWIC_Cell* GetCell(int x, int y);
 	CGWIC_Cell* GetCell(CPoint2D trg) { return (GetCell(trg.X,trg.Y)); }
-//	friend class CGWIC_Cell;
-//	friend class CGWIC_Bot;
+	friend class CGWIC_CommandPU;
 protected:
 	irr::IrrlichtDevice* gra_world;
 	irrBulletWorld* phy_world;
@@ -63,6 +63,7 @@ protected:
 	CGWIC_DebugUI* debugui;
 	CPoint2D center_cell;
 	irr::scene::ILightSceneNode* theSun;
+	CGWIC_CommandPU* commander;
 private:
 	irr::u32 ticker;
 	bool fps_cam;
@@ -100,8 +101,6 @@ private:
 	void ProcessActors();
 	void UpdatePC();
 	void ZeroSelect();
-	void CommandProcessor(irr::core::stringw cmd);
-	void CmdGetPos(CIrrStrParser parse);
 	void TerrainMagnet();
 	void ReloadCell(CGWIC_Cell* cell);
 	void StitchTerrains(CGWIC_Cell* ca, CGWIC_Cell* cb, bool update);
@@ -115,6 +114,7 @@ private:
 	void EraseLights();
 	void SunFlick();
 	bool CreateNewWindow(irr::io::path filename);
+	void CloseAllWindows();
 };
 
 static const CPoint2D neighbor_array[] = {

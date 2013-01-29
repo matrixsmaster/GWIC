@@ -61,11 +61,15 @@ CGWIC_World::CGWIC_World(WorldProperties* props, cOAL_Device* sndDevice)
 	}
 	phy_world->setDebugMode(EPDM_DrawAabb | EPDM_DrawContactPoints);
 	phy_world->setGravity(vector3df(0,props->Gforce,0));
+
+	commander = new CGWIC_CommandPU();
+	commander->SetWorld(this);
 }
 
 CGWIC_World::~CGWIC_World()
 {
 	std::cout << "Hello from the world DESTRUCTOR!!" << std::endl;
+	CloseAllWindows();
 	while (cells.size() > 0) {
 		delete (cells.back());
 		cells.pop_back();
@@ -284,6 +288,8 @@ bool CGWIC_World::OnEvent(const irr::SEvent& event)
 			} else if (event.KeyInput.Key == KEY_F4) {
 				CreateNewWindow("placeactor.xml");
 				return true;
+			} else if ((event.KeyInput.Key == KEY_F10) && (event.KeyInput.Shift)) {
+				CloseAllWindows();
 			}
 		}
 		if (!fps_cam) break;
@@ -667,11 +673,18 @@ void CGWIC_World::ProcessEvents()
 {
 	if ((main_cam) && (terrain_magnet)) TerrainMagnet();
 	stringw cmdstr;
+	u32 i;
 	while (!(cmdstr = debugui->GetNextCommand()).empty())
-		CommandProcessor(cmdstr);
-	for (u32 i=0; i<uis.size(); i++) {
+		commander->Process(cmdstr);
+	for (i=0; i<uis.size(); i++) {
 		while (!(cmdstr = uis[i]->GetNextCommand()).empty())
-			CommandProcessor(cmdstr);
+			commander->Process(cmdstr);
+	}
+	bool accept = false;
+	while (!(cmdstr = commander->GetNextOutput()).empty()) {
+		for (i=0; (i<uis.size())&&(!accept); i++)
+			accept = uis[i]->PutString(cmdstr);
+		if (!accept) debugui->PutString(cmdstr);
 	}
 }
 
@@ -772,27 +785,6 @@ void CGWIC_World::ZeroSelect()
 	select_actor_part = NULL;
 	if (gizmo) delete gizmo;
 	gizmo = NULL;
-}
-
-void CGWIC_World::CmdGetPos(CIrrStrParser parse)
-{
-	irrstrwvec list = parse.ParseToList(L" ");
-	if ((list.size() >= 2) && (list[1] == "selection")) {
-		if (selected) {
-			stringw vs;
-			vector3df ps = selected->GetPos();
-			vs += ps.X;
-			vs += L" ";
-			vs += ps.Y;
-			vs += L" ";
-			vs += ps.Z;
-			vs += L" m";
-			debugui->LogText(vs);
-		} else
-			debugui->LogText(L"Nothing selected");
-	} else {
-		//
-	}
 }
 
 void CGWIC_World::TerrainMagnet()
@@ -1071,143 +1063,14 @@ bool CGWIC_World::CreateNewWindow(irr::io::path filename)
 	return false;
 }
 
-void CGWIC_World::CommandProcessor(irr::core::stringw cmd)
+void CGWIC_World::CloseAllWindows()
 {
-	stringc cons = cmd.c_str();
-	std::cout << "Command processor: cmd: " << cons.c_str() << std::endl;
-	CIrrStrParser parse(cmd);
-	stringw icmd = parse.NextLex(L" ",false);
-	if (icmd == L"quit") {
-		quit_msg = true;
-	} else if (icmd == L"test") {
-		debugui->LogText(L"Test Response String");
-		irrstrwvec list = parse.ParseToList(L" ");
-		for (u32 i=1; i<list.size(); i++) {
-			stringw bvs = L"Argument: ";
-			bvs += list[i];
-			debugui->LogText(bvs);
+	for (u32 i=0; i<uis.size(); i++)
+		if (uis[i]->GetType() == GWIC_UIOBJ_WNDUI) {
+			delete (uis[i]);
+			uis.erase(uis.begin()+i);
+			i--;
 		}
-	} else if (icmd == L"getpos") {
-		CmdGetPos(parse);
-	} else if (icmd == L"randomplace") {
-		irrstrwvec list = parse.ParseToList(L" ");
-		if (list.size() < 3) {
-			debugui->LogText(L"Use: randomplace filename count");
-			return;
-		}
-		CGWIC_Cell* ptr = GetCell(center_cell);
-		CIrrStrParser pr2(list[2]);
-		ptr->RandomPlaceObjects(pr2.ToS32(),list[1]);
-	} else if (icmd == L"tpm") {
-		debugui->LogText(L"toggle physics mode");
-		physicsPause ^= true;
-	} else if (icmd == L"tdd") {
-		debugui->LogText(L"toggle debug drawing");
-		debugDraw ^= true;
-	} else if (icmd == L"reloadcell") {
-		irrstrwvec list = parse.ParseToList(L" ");
-		if (list.size() < 3) {
-			debugui->LogText(L"Insufficient args. Use: reloadcell X Y");
-			return;
-		}
-		CIrrStrParser pr2(list[1]);
-		s32 clx = pr2.ToS32(); pr2 = list[2];
-		s32 cly = pr2.ToS32();
-		CGWIC_Cell* clptr = GetCell(clx,cly);
-		if (!clptr) debugui->LogText(L"Cell not found!");
-		else ReloadCell(clptr);
-	} else if (icmd == L"stitch") {
-		irrstrwvec list = parse.ParseToList(L" ");
-		if (list.size() < 5) {
-			debugui->LogText(L"Insufficient args. Use: stitch Xa Ya Xb Yb");
-			return;
-		}
-		CIrrStrParser pr2(list[1]);
-		CPoint2D aa,bb;
-		aa.X = pr2.ToS32();
-		pr2 = list[2]; aa.Y = pr2.ToS32();
-		pr2 = list[3]; bb.X = pr2.ToS32();
-		pr2 = list[4]; bb.Y = pr2.ToS32();
-		StitchTerrains(GetCell(aa),GetCell(bb),true);
-		debugui->LogText(L"Command done!");
-	} else if (icmd == L"restitch") {
-		StitchWorld(false);
-		debugui->LogText(L"Command done!");
-	} else if (icmd == L"createwindow") {
-		irrstrwvec list = parse.ParseToList(L" ");
-		if (list.size() < 2) {
-			debugui->LogText(L"Use: createwindow <filename.xml>");
-			return;
-		}
-		if (CreateNewWindow(list[1]))
-			debugui->LogText(L"Command done!");
-	} else if (icmd == L"randomterr") {
-		irrstrwvec list = parse.ParseToList(L" ");
-		if (list.size() < 2) {
-			debugui->LogText(L"Use: randomterr cellX cellY subdelta");
-			debugui->LogText(L"Or worldwide: randomterr subdelta");
-			return;
-		}
-		CIrrStrParser pr2(list[1]);
-		float subd;
-		if (list.size() > 3) {
-			s32 clx = pr2.ToS32(); pr2 = list[2];
-			s32 cly = pr2.ToS32(); pr2 = list[3];
-			subd = pr2.ToFloat();
-			CGWIC_Cell* cptr = GetCell(clx,cly);
-			if (cptr) {
-				cptr->RandomizeTerrain(subd);
-				debugui->LogText(L"Cell randomized");
-			}
-		} else {
-			subd = pr2.ToFloat();
-			for (u32 xy=0; xy<cells.size(); xy++)
-				cells[xy]->RandomizeTerrain(subd);
-			debugui->LogText(L"World randomized");
-		}
-		StitchWorld(true);
-		SunFlick();
-	} else if (icmd == L"attachplayername") {
-		irrstrwvec list = parse.ParseToList(L" ");
-		if (list.size() != 2) {
-			debugui->LogText(L"Use: attachplayername <actor's name to attach to>");
-			return;
-		}
-		for (u32 i=0; i<actors.size(); i++)
-			if (actors[i]->GetName().equals_ignore_case(list[1])) {
-				debugui->LogText(L"Attaching to");
-				debugui->LogText(list[1]);
-				if (PC) {
-					PC->SetMaster(actors[i]);
-					PC->QuantumUpdate();
-				}
-			}
-	} else if (icmd == L"annulateterrachanges") {
-		for (u32 i=0; i<cells.size(); i++)
-			cells[i]->RemoveChangedFlag();
-		debugui->LogText(L"Terrain change flags removed! Terrain will not be saved.");
-	} else if (icmd == L"setdistantland") {
-		irrstrwvec list = parse.ParseToList(L" ");
-		if (list.size() != 2) {
-			debugui->LogText(L"Use: setdistantland [true/false]");
-			return;
-		}
-		if (list[1] == L"true") {
-			debugui->LogText(L"Distant land ON");
-			properties.hardcull.DistantLand = true;
-		} else {
-			debugui->LogText(L"Distant land OFF");
-			properties.hardcull.DistantLand = false;
-		}
-	} else if (icmd == L"flushcell") {
-		CGWIC_Cell* ccl = GetCell(center_cell);
-		if (ccl) ccl->DeleteObjects();
-	} else if (icmd == L"getobjcount") {
-		CGWIC_Cell* ccl = GetCell(center_cell);
-		if (ccl) debugui->LogText(stringw(ccl->GetObjectsCount()));
-	} else {
-		debugui->LogText(L"Invalid command!");
-	}
 }
 
 } // namespace gwic

@@ -2,7 +2,7 @@
 <caption text="Place New Actor" />
 
 <listbox pos="8 24" size="190 125" back="1" filter="PlaceActorFileList">
-  <string text="actors/a22test.xml" />
+  <string text="a22test.xml" />
 </listbox>
 
 <editbox pos="210 24" size="120 20" border="1" filter="PlaceActorNewName" />
@@ -10,5 +10,5 @@
 <listbox pos="210 50" size="120 100" back="1" filter="PlaceActorNameList" />
 
 <button pos="8 160" size="90 20" text="Place Dummy" cmd="placeatcam dummy_actor $text.PlaceActorNewName" />
-<button pos="110 160" size="100 20" text="Place Selected" />
-<button pos="220 160" size="50 20" text="Update" />
+<button pos="110 160" size="100 20" text="Place Selected" cmd="placeatcam gynoid $text.PlaceActorFileList $text.PlaceActorNewName" />
+<button pos="220 160" size="50 20" text="Update" cmd="PlaceActorNameList>listactornames" />

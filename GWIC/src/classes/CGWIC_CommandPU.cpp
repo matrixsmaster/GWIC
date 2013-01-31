@@ -212,12 +212,16 @@ void CGWIC_CommandPU::Process(irr::core::stringw cmd)
 			Error(receiver,L"Use: placeatcam <type> [filename] [actor_name]");
 			return;
 		}
-		IrrlichtDevice* irdev = hData->world->gra_world;
-		irrBulletWorld* phys = hData->world->phy_world;
 		vector3df npos(hData->world->main_cam->getPosition());
 		npos /= GWIC_IRRUNITS_PER_METER;
 		npos.X = fmod(npos.X,GWIC_METERS_PER_CELL);
 		npos.Z = fmod(npos.Z,GWIC_METERS_PER_CELL);
+		BotCreationParams params;
+		params.cell_coord = hData->world->center_cell;
+		params.filename = list[2];
+		params.height = 1.7f;
+		params.rel_pos = npos;
+		bool bot = false;
 		if (list[1] == L"object") {
 			CGWIC_Cell* ccl = hData->world->GetCell(hData->world->center_cell);
 			if (ccl->CreateNewObject(npos,list[2]))
@@ -225,22 +229,27 @@ void CGWIC_CommandPU::Process(irr::core::stringw cmd)
 			else
 				Error(receiver,L"GameObject creation failed!");
 		} else if (list[1] == L"dummy_actor") {
-			BotCreationParams params;
-			params.actorname = (list.size() > 2)? list[2]:L"Unnamed_bot";
-			params.cell_coord = hData->world->center_cell;
-			params.filename = list[2];
-			params.height = 1.7f;
-			params.rel_pos = npos;
+			params.actorname = (list.size() > 2)? list[2]:L"Unnamed_Dummy";
 			params.type = ACTOR_DUMMY;
-			CGWIC_Bot* nbot = new CGWIC_Bot(&params,irdev,phys);
-			if (nbot->isCompletelyDead()) {
-				Error(receiver,L"Actor spawning failed!");
-				delete nbot;
-				return;
-			}
-			nbot->SetEnabled(true);
-			hData->world->actors.push_back(nbot);
+			bot = true;
+		} else if (list[1] == L"gynoid") {
+			params.actorname = (list.size() > 3)? list[3]:L"Unnamed_Gynoid";
+			params.type = ACTOR_GYNOID;
+			params.filename = list[2];
+			bot = true;
 		}
+		if (!bot) return;
+		CGWIC_Bot* nbot = new CGWIC_Bot(&params,hData->world->gra_world,hData->world->phy_world);
+		if (nbot->isCompletelyDead()) {
+			Error(receiver,L"Actor spawning failed!");
+			delete nbot;
+			return;
+		}
+		nbot->SetEnabled(true);
+		hData->world->actors.push_back(nbot);
+	} else if (icmd == L"listactornames") {
+		for (u32 ia=0; ia<hData->world->actors.size(); ia++)
+			Store(receiver,hData->world->actors[ia]->GetName());
 	} else {
 		Store(receiver,L"Invalid command!");
 	}

@@ -94,7 +94,7 @@ void CGWIC_DebugUI::FlushBuffers()
 	buffer = "";
 }
 
-bool CGWIC_DebugUI::PutString(const irr::core::stringw str)
+bool CGWIC_DebugUI::PutString(const irr::core::stringw& str)
 {
 	//FIXME: complete rewrite needed
 	CIrrStrParser parse(str);

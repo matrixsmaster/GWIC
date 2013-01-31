@@ -25,7 +25,7 @@ typedef std::vector<irr::core::stringw> irrstrwvec;
 class CIrrStrParser {
 public:
 	CIrrStrParser();
-	CIrrStrParser(irr::core::stringw str);
+	CIrrStrParser(const irr::core::stringw & str);
 	virtual ~CIrrStrParser();
 	irr::core::vector3df ToVector3f();
 	irr::core::position2di ToPosition2i();

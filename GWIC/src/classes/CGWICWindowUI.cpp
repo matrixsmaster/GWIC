@@ -22,7 +22,7 @@ CGWIC_UIWindow::~CGWIC_UIWindow()
 	acts.clear();
 }
 
-bool CGWIC_UIWindow::LoadFromFile(const path filename)
+bool CGWIC_UIWindow::LoadFromFile(const path& filename)
 {
 	IXMLReader* xml = irDevice->getFileSystem()->createXMLReader(filename);
 	if (!xml) {
@@ -153,10 +153,19 @@ void CGWIC_UIWindow::Update()
 	//
 }
 
-bool CGWIC_UIWindow::PutString(const irr::core::stringw str)
+bool CGWIC_UIWindow::PutString(const irr::core::stringw & str)
 {
-	//TODO: add "accept" rule to absorb the text and set gui element text
-	return false;
+	CIrrStrParser prs(str);
+	if (!prs.IsDelimPresent(L">")) return false;
+	stringw flt = prs.NextLex(L">",true);
+	bool res = false;
+	for (u32 i=0; i<acts.size(); i++) {
+		if (acts[i].accept_filter == flt) {
+			res |= SetTextElement(acts[i].ptr,prs.GetBuff());
+			//do not break
+		}
+	}
+	return res;
 }
 
 void CGWIC_UIWindow::SetPos(CPoint2D nwpos)
@@ -167,11 +176,43 @@ void CGWIC_UIWindow::SetPos(CPoint2D nwpos)
 	window->setRelativePosition(position2di(basepoint.X,basepoint.Y));
 }
 
+irr::core::stringw CGWIC_UIWindow::GetElementAsText(irr::gui::IGUIElement* ptr)
+{
+	stringw out;
+	if (!ptr) return out;
+	IGUIListBox* listb;
+	switch (ptr->getType()) {
+	case EGUIET_LIST_BOX:
+		listb = reinterpret_cast<IGUIListBox*> (ptr);
+		out = listb->getListItem(listb->getSelected());
+		break;
+	default:
+		out = ptr->getText();
+		break;
+	}
+	return out;
+}
+
+bool CGWIC_UIWindow::SetTextElement(irr::gui::IGUIElement* ptr, irr::core::stringw str)
+{
+	if (!ptr) return false;
+	IGUIListBox* listb;
+	switch (ptr->getType()) {
+	case EGUIET_LIST_BOX:
+		listb = reinterpret_cast<IGUIListBox*> (ptr);
+		listb->addItem(str.c_str());
+		return true;
+	default:
+		ptr->setText(str.c_str());
+		return true;
+	}
+}
+
 void CGWIC_UIWindow::ProcessAction(uint action, uint type)
 {
 	stringw cmd = acts[action].command;
 	if (!cmd.empty()) {
-		if (cmd.find(L"$") >= 0) {
+		while (cmd.find(L"$") >= 0) {
 			//command extend
 			CIrrStrParser parse(cmd);
 			stringw eprfx = parse.NextLex(L"$",true);
@@ -181,12 +222,14 @@ void CGWIC_UIWindow::ProcessAction(uint action, uint type)
 			for (u32 i=0; i<acts.size(); i++) {
 				if ( (!acts[i].accept_filter.empty()) && (acts[i].accept_filter == ename) ) {
 					if (etype == L"text") {
-						res = acts[i].ptr->getText();
+						res = GetElementAsText(acts[i].ptr);
+						break;
 					}
 				}
 			}
 			cmd = eprfx;
 			cmd += res;
+			cmd += L" ";
 			cmd += parse.GetBuff();
 		}
 		cmdfifo.insert(cmdfifo.begin(),cmd);

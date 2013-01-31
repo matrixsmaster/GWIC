@@ -30,7 +30,7 @@ public:
 	CGWIC_GUIObject(irr::IrrlichtDevice* dev);
 	virtual ~CGWIC_GUIObject();
 	virtual void PumpMessage(const irr::SEvent& event) = 0;
-	virtual bool LoadFromFile(const irr::io::path filename) { return false; }
+	virtual bool LoadFromFile(const irr::io::path& filename) { return false; }
 	void SetName(irr::core::stringc nwname) { this->myname = nwname; }
 	irr::core::stringc GetName() { return this->myname; }
 	virtual GWIC_UIOBJ_TYPE GetType() { return this->mytype; }
@@ -41,7 +41,7 @@ public:
 	virtual void Update() = 0;
 	virtual irr::core::stringw GetNextCommand();
 	virtual void FlushBuffers();
-	virtual bool PutString(const irr::core::stringw str) = 0;
+	virtual bool PutString(const irr::core::stringw& str) = 0;
 	void SetNextID(irr::s32 nID) { currID = nID; }
 	irr::s32 IterateID() { return (++currID); }
 	virtual irr::s32 GetRootID() = 0;

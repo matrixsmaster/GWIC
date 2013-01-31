@@ -680,8 +680,9 @@ void CGWIC_World::ProcessEvents()
 		while (!(cmdstr = uis[i]->GetNextCommand()).empty())
 			commander->Process(cmdstr);
 	}
-	bool accept = false;
+	bool accept;
 	while (!(cmdstr = commander->GetNextOutput()).empty()) {
+		accept = false;
 		for (i=0; (i<uis.size())&&(!accept); i++)
 			accept = uis[i]->PutString(cmdstr);
 		if (!accept) debugui->PutString(cmdstr);

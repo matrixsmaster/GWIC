@@ -2,8 +2,8 @@
 <caption text="Place new object" />
 
 <listbox pos="8 24" size="210 100" back="1" filter="PlaceObjectList">
-  <string text="static_meshes/teapot.3ds" />
-  <string text="static_meshes/tree1.3ds" />
+  <string text="teapot.3ds" />
+  <string text="tree1.3ds" />
 </listbox>
 
 <button text=" PLACE " pos="16 138" size="196 34" cmd="placeatcam object $text.PlaceObjectList" />

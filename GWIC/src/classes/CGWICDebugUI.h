@@ -45,7 +45,7 @@ public:
 	void Update() { }
 	void UpdateFPS(int fps);
 	void FlushBuffers();
-	bool PutString(const irr::core::stringw str);
+	bool PutString(const irr::core::stringw& str);
 	irr::s32 GetRootID() { return -1; }
 	irr::gui::IGUIElement* GetRootPtr() { return this->loglabel; }
 private:

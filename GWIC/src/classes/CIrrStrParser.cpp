@@ -23,7 +23,7 @@ CIrrStrParser::CIrrStrParser()
 	buffer = "";
 }
 
-CIrrStrParser::CIrrStrParser(irr::core::stringw str)
+CIrrStrParser::CIrrStrParser(const irr::core::stringw & str)
 {
 	buffer = str;
 }

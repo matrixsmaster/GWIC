@@ -768,11 +768,19 @@ void CGWIC_World::ProcessActors()
 void CGWIC_World::UpdatePC()
 {
 	if (!PC) return;
-	PC->GetCamera();
+	if ((!pchar_cam) && (main_cam) && (fps_cam)) {
+		CPoint2D ccl;
+		float dim = GWIC_IRRUNITS_PER_METER * GWIC_METERS_PER_CELL;
+		ccl.X = main_cam->getAbsolutePosition().X / dim;
+		ccl.Y = main_cam->getAbsolutePosition().Z / dim;
+		PC->SetCell(ccl);
+	} else
+		PC->GetCamera();
 	PC->QuantumUpdate();
 	if (!(PC->GetCell() == PC_lastcell)) {
 		PC_lastcell = PC->GetCell();
-		//TODO: process cell change
+		ZeroSelect(); //just in case
+		ActivateCell(PC_lastcell.X,PC_lastcell.Y);
 		SunFlick();
 	}
 }
@@ -935,6 +943,7 @@ void CGWIC_World::CreatePlayerCharacter()
 	pcbparams.rel_pos = spos;
 	PC = new CGWIC_Bot(&pcbparams,gra_world,phy_world);
 	if (!PC) return;
+	PC_lastcell = PC->GetCell();
 }
 
 void CGWIC_World::UpdateHardCulling()
@@ -1030,19 +1039,22 @@ void CGWIC_World::EraseLights()
 void CGWIC_World::SunFlick()
 {
 	std::cout << "SunFlick()" << std::endl;
-	theSun->setVisible(false);
+//	theSun->setVisible(false);
 	//TODO: update sun position based on game time
 	vector3df sunpos = GetCell(center_cell)->getIrrlichtCenter();
-	sunpos.Y = main_cam->getPosition().Y;
-	sunpos.Y += GWIC_IRRUNITS_PER_METER * GWIC_METERS_PER_CELL;
-	theSun->setPosition(sunpos);
+//	sunpos.Y = main_cam->getPosition().Y;
+	sunpos.Y = 4000; //GWIC_IRRUNITS_PER_METER * GWIC_METERS_PER_CELL * 2.5;
+//	theSun->setPosition(sunpos);
 	SLight sunlight = theSun->getLightData();
+	sunlight.Position = sunpos;
 	//TODO: update light (time of day, sky angle, etc)
 	sunlight.DiffuseColor = SColorf(1.f,1.f,1.f,1.f);
+	sunlight.AmbientColor = sunlight.DiffuseColor;
 //	sunlight.CastShadows = true;
-	sunlight.Radius = GWIC_IRRUNITS_PER_METER * GWIC_METERS_PER_CELL * 2;
+	sunlight.Radius = GWIC_IRRUNITS_PER_METER * GWIC_METERS_PER_CELL * 5;
+//	theSun->setVisible(true);
 	theSun->setLightData(sunlight);
-	theSun->setVisible(true);
+//	theSun->setVisible(true);
 }
 
 bool CGWIC_World::CreateNewWindow(irr::io::path filename)

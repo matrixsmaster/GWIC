@@ -1039,20 +1039,21 @@ void CGWIC_World::EraseLights()
 void CGWIC_World::SunFlick()
 {
 	std::cout << "SunFlick()" << std::endl;
-//	theSun->setVisible(false);
+	theSun->setVisible(false);
 	//TODO: update sun position based on game time
 	vector3df sunpos = GetCell(center_cell)->getIrrlichtCenter();
 //	sunpos.Y = main_cam->getPosition().Y;
 	sunpos.Y = 4000; //GWIC_IRRUNITS_PER_METER * GWIC_METERS_PER_CELL * 2.5;
-//	theSun->setPosition(sunpos);
+	theSun->setPosition(sunpos);
 	SLight sunlight = theSun->getLightData();
-	sunlight.Position = sunpos;
+//	sunlight.Position = sunpos;
 	//TODO: update light (time of day, sky angle, etc)
 	sunlight.DiffuseColor = SColorf(1.f,1.f,1.f,1.f);
 	sunlight.AmbientColor = sunlight.DiffuseColor;
 //	sunlight.CastShadows = true;
-	sunlight.Radius = GWIC_IRRUNITS_PER_METER * GWIC_METERS_PER_CELL * 5;
-//	theSun->setVisible(true);
+	sunlight.Radius = 1600; //GWIC_IRRUNITS_PER_METER * GWIC_METERS_PER_CELL * 5;
+	sunlight.Attenuation = vector3df(0,(1.f/sunlight.Radius),0);
+	theSun->setVisible(true);
 	theSun->setLightData(sunlight);
 //	theSun->setVisible(true);
 }

@@ -250,6 +250,14 @@ void CGWIC_CommandPU::Process(irr::core::stringw cmd)
 	} else if (icmd == L"listactornames") {
 		for (u32 ia=0; ia<hData->world->actors.size(); ia++)
 			Store(receiver,hData->world->actors[ia]->GetName());
+	} else if (icmd == L"lightatcam") {
+		ICameraSceneNode* cam = hData->world->main_cam;
+		if (cam)
+			hData->world->scManager->addLightSceneNode(NULL,cam->getAbsolutePosition(),SColorf(1.f,1.f,1.f),1600,1);
+	} else if (icmd == L"sunatcam") {
+		ICameraSceneNode* cam = hData->world->main_cam;
+		if (cam)
+			hData->world->theSun->setPosition(cam->getAbsolutePosition());
 	} else {
 		Store(receiver,L"Invalid command!");
 	}

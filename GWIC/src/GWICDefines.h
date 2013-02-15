@@ -32,7 +32,7 @@
 #define GWIC_SLRELATIVE_DIR irr::io::path("actors/sl_opensim/")
 
 
-#define GWIC_MAINWINDOW_CAPTION L"GWIC ver.0.0.2.71"
+#define GWIC_MAINWINDOW_CAPTION L"GWIC v.0.0.3.84 pre-alpha"
 
 #define GWIC_VOID_COLOR SColor(255,100,100,100)
 
@@ -41,6 +41,8 @@
 #define GWIC_METERS_PER_CELL 240.f
 #define GWIC_PHYS_TIMESCALE 0.001f
 #define GWIC_PHYS_SUBSTEPS 90
+#define GWIC_SUNLIGHT_RADIUS 2400
+#define GWIC_SUNLIGHT_APOGEE 4000
 
 #define Random_FLOAT(G) (float)rand()/((float)RAND_MAX/(float)(G));
 

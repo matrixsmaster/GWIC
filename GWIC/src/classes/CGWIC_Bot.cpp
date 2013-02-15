@@ -269,6 +269,7 @@ irr::core::stringc CGWIC_Bot::GetTypeAsString()
 	case ACTOR_GYNOID: return "Gynoid";
 	case ACTOR_PLAYER: return "Player";
 	case ACTOR_CREATURE: return "Creature";
+	case ACTOR_SLAVATAR: return "SLAvatar";
 	default: return "Unknown";
 	}
 }
@@ -331,20 +332,7 @@ CGWIC_Head* CGWIC_Bot::CreateNPC(irr::io::path file)
 			delete (parts.back());
 			parts.pop_back();
 		}
-	}// else nhead->SetActive(true,true);
-	/*
-	nhead = new CGWIC_Head("a_head.xml",botRoot,irDevice,phy_world);
-	cpart = new CGWIC_BodyPart("a_torso.xml",botRoot,irDevice,phy_world);
-	cpart->SetName(L"torso");
-	nhead->Connect(cpart,1);
-	cpart->Connect(nhead,0); //parent part back ref
-	cpart = new CGWIC_BodyPart("a_larm.xml",botRoot,irDevice,phy_world);
-	cpart->SetName(L"larm");
-	CGWIC_BodyPart* cprt2 = nhead->GetNodeByName(L"torso");
-	cprt2->Connect(cpart,1);
-	cpart->Connect(cprt2,0); //back ref
-	nhead->SetActive(true,true);
-	*/
+	}
 	xml->drop();
 	return nhead;
 }

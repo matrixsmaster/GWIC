@@ -823,11 +823,9 @@ void CGWIC_World::TerrainMagnet()
 			dy = camvec.Z - cy;
 			dd = floor(sqrt(dx*dx+dy*dy)/step);
 			ff = dd / ceil(b/step);
-//			oh = GetTerrainHeightUnderPointMetric(camvec);
 			ch = ff*oh + (1.f-ff)*h;
 			SetTerrainHeightUnderPointMetric(vector3df(cx,0,cy),ch,false);
 			cy += step;
-//			std::cout << "mag: " << cx << ':' << cy << '=' << ch << std::endl;
 		}
 		cx += step;
 	}
@@ -1039,23 +1037,22 @@ void CGWIC_World::EraseLights()
 void CGWIC_World::SunFlick()
 {
 	std::cout << "SunFlick()" << std::endl;
+	CGWIC_Cell* ccl = GetCell(center_cell);
+	if (!ccl) return;
 	theSun->setVisible(false);
 	//TODO: update sun position based on game time
-	vector3df sunpos = GetCell(center_cell)->getIrrlichtCenter();
-//	sunpos.Y = main_cam->getPosition().Y;
-	sunpos.Y = 4000; //GWIC_IRRUNITS_PER_METER * GWIC_METERS_PER_CELL * 2.5;
+	vector3df sunpos = ccl->getIrrlichtCenter();
+	sunpos.Y = ccl->GetParameters().waterLevel + GWIC_SUNLIGHT_APOGEE;
 	theSun->setPosition(sunpos);
-	SLight sunlight = theSun->getLightData();
-//	sunlight.Position = sunpos;
 	//TODO: update light (time of day, sky angle, etc)
+	SLight sunlight = theSun->getLightData();
 	sunlight.DiffuseColor = SColorf(1.f,1.f,1.f,1.f);
 	sunlight.AmbientColor = sunlight.DiffuseColor;
 //	sunlight.CastShadows = true;
-	sunlight.Radius = 1600; //GWIC_IRRUNITS_PER_METER * GWIC_METERS_PER_CELL * 5;
+	sunlight.Radius = GWIC_SUNLIGHT_RADIUS;
 	sunlight.Attenuation = vector3df(0,(1.f/sunlight.Radius),0);
 	theSun->setVisible(true);
 	theSun->setLightData(sunlight);
-//	theSun->setVisible(true);
 }
 
 bool CGWIC_World::CreateNewWindow(irr::io::path filename)

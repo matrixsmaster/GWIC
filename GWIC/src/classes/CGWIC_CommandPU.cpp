@@ -71,6 +71,7 @@ void CGWIC_CommandPU::Error(irr::core::stringw rec, irr::core::stringw str)
 void CGWIC_CommandPU::Process(irr::core::stringw cmd)
 {
 	//FIXME: this system will be rewritten in next release
+	//This is just a quick & dirty solution!
 	//table lookup switcher needed
 	std::cout << "[Command Processor] cmd: " << stringc(cmd).c_str() << std::endl;
 	CIrrStrParser parse(cmd);
@@ -250,7 +251,8 @@ void CGWIC_CommandPU::Process(irr::core::stringw cmd)
 	} else if (icmd == L"listactornames") {
 		for (u32 ia=0; ia<hData->world->actors.size(); ia++)
 			Store(receiver,hData->world->actors[ia]->GetName());
-	} else if (icmd == L"lightatcam") {
+	} else if (icmd == L"lightatcam_test") {
+		//do not use this function unless you know what you doing!
 		ICameraSceneNode* cam = hData->world->main_cam;
 		if (cam)
 			hData->world->scManager->addLightSceneNode(NULL,cam->getAbsolutePosition(),SColorf(1.f,1.f,1.f),1600,1);

@@ -64,7 +64,7 @@ struct WorldProperties {
 	bool stencil;
 	bool vsync;
 	irr::video::E_DRIVER_TYPE videoDriver;
-	irr::core::stringw vfsRoot;
+	irr::io::path vfsRoot;
 	irr::io::E_FILE_ARCHIVE_TYPE vfsType;
 	int wrldSizeX;
 	int wrldSizeY;
@@ -85,6 +85,12 @@ struct GWIC_Message {
 	irr::s32 index;
 	irr::s32 lifetime;
 	irr::core::stringw body;
+};
+
+enum GWIC_ARGKEYTYPE {
+	GWIC_AKEY_VFSROOT = 0,
+	GWIC_AKEY_VFSTYPE,
+	GWIC_AKEY_UNKNOWN
 };
 
 

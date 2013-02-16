@@ -26,5 +26,9 @@ gwic::CGWIC_World* ourworld;
 gwic::WorldProperties wrldSettings;
 extern cOAL_Device* gpDevice;
 
+static const char * GWIC_KEYS_ARRAY[GWIC_KEYS_ARR_SIZE] = {
+		"-root",
+		"-atype"
+};
 
 #endif /* MAIN_H_ */

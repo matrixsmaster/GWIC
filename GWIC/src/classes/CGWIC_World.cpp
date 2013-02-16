@@ -23,6 +23,7 @@ CGWIC_World::CGWIC_World(WorldProperties* props, cOAL_Device* sndDevice)
 	gra_world = NULL;
 	phy_world = NULL;
 	std::cout << "Hello from world constructor!" << std::endl;
+	main_cam = NULL;
 	quit_msg = false;
 	properties = *props;
 	debugDraw = props->debugdraw;

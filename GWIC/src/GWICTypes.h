@@ -87,12 +87,6 @@ struct GWIC_Message {
 	irr::core::stringw body;
 };
 
-enum GWIC_ARGKEYTYPE {
-	GWIC_AKEY_VFSROOT = 0,
-	GWIC_AKEY_VFSTYPE,
-	GWIC_AKEY_UNKNOWN
-};
-
 
 }
 

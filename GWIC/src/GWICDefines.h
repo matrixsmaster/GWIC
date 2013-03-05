@@ -31,7 +31,6 @@
 #define GWIC_FONTS_DIR irr::io::path("fonts/")
 #define GWIC_SLRELATIVE_DIR irr::io::path("actors/sl_opensim/")
 
-#define GWIC_KEYS_ARR_SIZE 2
 
 #define GWIC_CONSOLE_VERSIONSTR "GWIC v.0.0.3.86 pre-alpha"
 #define GWIC_MAINWINDOW_CAPTION L"GWIC v.0.0.3.86 pre-alpha"

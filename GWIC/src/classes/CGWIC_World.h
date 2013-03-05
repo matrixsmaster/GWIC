@@ -87,6 +87,8 @@ private:
 	bool GenerateNPC(CGWIC_LoadingScreen* lscr);
 	IRigidBody* ShootSphere(irr::core::vector3df scale, irr::f32 mass);
 	void CellTransfers();
+	irr::core::vector3df GetCurrentCameraPosition();
+	void CameraModeChanged(bool show_gui);
 //	void GoFPS(irr::core::vector3df campos);
 	void GoFPS();
 	void GoEditMode();

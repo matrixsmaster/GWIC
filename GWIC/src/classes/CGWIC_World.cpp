@@ -100,6 +100,7 @@ bool CGWIC_World::PrepareWorld()
 	//Initialize font and skin
 	std::cout << "Initializing GUI skin" << std::endl;
 	IGUISkin* skin = gui->getSkin();
+	//FIXME: do not hardcode the font :)
 	IGUIFont* gfont = gui->getFont(GWIC_FONTS_DIR+"fonthaettenschweiler.bmp");
 	if (gfont) skin->setFont(gfont);
 	else std::cerr << "Font not found!" << std::endl;
@@ -114,7 +115,7 @@ bool CGWIC_World::PrepareWorld()
 		std::cerr << "Unable to create Debug UI. Exiting..." << std::endl;
 		return false;
 	}
-	debugui->SetPos(CPoint2D(150,16));
+	debugui->SetPos(CPoint2D(GWIC_GUI_DEBUG_LEFT,GWIC_GUI_DEBUG_TOP));
 	debugui->HideTotally();
 	lscreen->SetProgress(2);
 
@@ -506,42 +507,54 @@ void CGWIC_World::CellTransfers()
 	}
 }
 
-void CGWIC_World::GoFPS()
+irr::core::vector3df CGWIC_World::GetCurrentCameraPosition()
 {
-	vector3df oldpos(0);
+	vector3df res(0);
 	if (main_cam) {
-		oldpos = (fps_cam)? main_cam->getPosition():main_cam->getTarget();
-		main_cam->remove();
+		res = (fps_cam)? main_cam->getPosition():main_cam->getTarget();
+	} else if (pchar_cam) {
+		if (PC->GetMaster())
+			res = PC->GetCamera()->getAbsolutePosition();
+		else {
+			std::cerr << "GetCurrentCameraPosition(): pchar_cam is true but PC's master actor is missing!";
+			std::cerr << std::endl;
+		}
 	} else {
 		CGWIC_Cell* ptr = GetCell(center_cell);
-		oldpos = ptr->getIrrlichtCenter();
-		oldpos.Y = ptr->GetTerrainHeightUnderPointMetric(oldpos) * GWIC_IRRUNITS_PER_METER;
+		res = ptr->getIrrlichtCenter();
+		res.Y = ptr->GetTerrainHeightUnderPointMetric(res) * GWIC_IRRUNITS_PER_METER;
 	}
+	return res;
+}
+
+void CGWIC_World::CameraModeChanged(bool show_gui)
+{
+	ZeroSelect();
+	if (main_cam)
+		main_cam->setFarValue(properties.viewDistance * GWIC_IRRUNITS_PER_METER);
+	EraseLights();
+	ShowGUI(show_gui);
+}
+
+void CGWIC_World::GoFPS()
+{
+	vector3df oldpos = GetCurrentCameraPosition();
+	if (main_cam) main_cam->remove();
 	gra_world->getCursorControl()->setVisible(true);
 	gra_world->getCursorControl()->setActiveIcon(ECI_CROSS);
 	std::cout << "Camera set to First-Person mode" << std::endl;
 	if (debugui) debugui->LogText(L"Camera set to First-Person mode");
 	main_cam = scManager->addCameraSceneNodeFPS();
 	main_cam->setPosition(oldpos);
-	main_cam->setFarValue(properties.viewDistance * GWIC_IRRUNITS_PER_METER);
-	ShowGUI(false);
-	ZeroSelect();
-	EraseLights();
 	fps_cam = true;
 	pchar_cam = false;
+	CameraModeChanged(false);
 }
 
 void CGWIC_World::GoEditMode()
 {
-	vector3df oldpos(0);
-	if (main_cam) {
-		oldpos = (fps_cam)? main_cam->getPosition():main_cam->getTarget();
-		main_cam->remove();
-	} else {
-		CGWIC_Cell* ptr = GetCell(center_cell);
-		oldpos = ptr->getIrrlichtCenter();
-		oldpos.Y = ptr->GetTerrainHeightUnderPointMetric(oldpos) * GWIC_IRRUNITS_PER_METER;
-	}
+	vector3df oldpos = GetCurrentCameraPosition();
+	if (main_cam) main_cam->remove();
 	gra_world->getCursorControl()->setVisible(true);
 	gra_world->getCursorControl()->setActiveIcon(ECI_NORMAL);
 	if (selected) oldpos = selected->GetRootNode()->getAbsolutePosition();
@@ -549,12 +562,9 @@ void CGWIC_World::GoEditMode()
 	if (debugui) debugui->LogText(L"Camera set to Maya mode");
 	main_cam = scManager->addCameraSceneNodeMaya();
 	main_cam->setTarget(oldpos);
-	main_cam->setFarValue(properties.viewDistance * GWIC_IRRUNITS_PER_METER);
-	ShowGUI(true);
-	ZeroSelect();
-	EraseLights();
 	fps_cam = false;
 	pchar_cam = false;
+	CameraModeChanged(true);
 }
 
 void CGWIC_World::GoPlayerMode()
@@ -573,11 +583,9 @@ void CGWIC_World::GoPlayerMode()
 //	gra_world->getCursorControl()->setPosition(320,240);
 	std::cout << "Camera set to Player mode" << std::endl;
 	if (debugui) debugui->LogText(L"Camera set to Player mode");
-	ShowGUI(false);
-	ZeroSelect();
-	EraseLights();
 	fps_cam = true;
 	pchar_cam = true;
+	CameraModeChanged(false);
 	PC->QuantumUpdate();
 	if (PC->GetCamera()) {
 		PC->GetCamera()->setFarValue(properties.viewDistance * GWIC_IRRUNITS_PER_METER);
@@ -777,7 +785,7 @@ void CGWIC_World::UpdatePC()
 		PC->SetCell(ccl);
 	} else
 		PC->GetCamera();
-	PC->QuantumUpdate();
+	if (pchar_cam) PC->QuantumUpdate();
 	if (!(PC->GetCell() == PC_lastcell)) {
 		PC_lastcell = PC->GetCell();
 		ZeroSelect(); //just in case

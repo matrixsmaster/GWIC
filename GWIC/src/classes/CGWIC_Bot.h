@@ -90,7 +90,7 @@ public:
 	bool ProcessEvent(const irr::SEvent& event);
 	bool isCompletelyDead();
 protected:
-	//FIXME: sort it out!!!!!111oneone
+	//FIXME: sort it out!!!
 	bool initDone;
 	int ID;
 	CPoint2D mycell;

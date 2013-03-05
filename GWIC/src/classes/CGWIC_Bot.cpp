@@ -60,6 +60,9 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 		basicShell = new IBoxShape(botRoot,60.f,false);
 		break;
 	case ACTOR_GYNOID:
+		/*
+		 * This is or primary actress type.
+		 */
 		head = CreateNPC(GWIC_ACTORS_DIR+params->filename);
 		if (head) SetEnabled(true);
 		break;
@@ -93,8 +96,7 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 		sel->drop();
 	}
 	initDone = true;
-	if (params->type != ACTOR_PLAYER)
-		AutoSize();
+	if (params->type != ACTOR_PLAYER) AutoSize();
 	SetPos(params->rel_pos);
 	if (head) head->RebuildPhysics(true);
 }
@@ -202,7 +204,7 @@ irr::core::vector3df CGWIC_Bot::GetRot()
 
 bool CGWIC_Bot::SetMaterial(ObjMaterial newmat)
 {
-	//
+	//TODO: assign material
 	return true;
 }
 

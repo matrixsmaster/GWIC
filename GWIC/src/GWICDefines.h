@@ -32,14 +32,15 @@
 #define GWIC_SLRELATIVE_DIR irr::io::path("actors/sl_opensim/")
 
 
-#define GWIC_CONSOLE_VERSIONSTR "GWIC v.0.0.3.86 pre-alpha"
-#define GWIC_MAINWINDOW_CAPTION L"GWIC v.0.0.3.86 pre-alpha"
+#define GWIC_CONSOLE_VERSIONSTR "GWIC v.0.0.3.95 pre-alpha"
+#define GWIC_MAINWINDOW_CAPTION L"GWIC v.0.0.3.95 pre-alpha"
 
 #define GWIC_VOID_COLOR SColor(255,100,100,100)
 
 #define GWIC_IRRUNITS_PER_METER 20.f
 // don't change next V line!
 #define GWIC_METERS_PER_CELL 240.f
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #define GWIC_PHYS_TIMESCALE 0.001f
 #define GWIC_PHYS_SUBSTEPS 90
 #define GWIC_SUNLIGHT_RADIUS 2400

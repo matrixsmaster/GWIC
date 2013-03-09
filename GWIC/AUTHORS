@@ -11,5 +11,6 @@ Bullet real-time physics engine for physics simulation
 modified irrBullet (included) as Bullet wrapper
 OpenAL for all audio related things
 OALWrapper by Frictional games for ease of use of OpenAL
+LUA for in-game scripting
 
 Part of this project uses media data copyrighted by Linden Lab (tm)

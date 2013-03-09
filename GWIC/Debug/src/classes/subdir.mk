@@ -9,6 +9,7 @@ CPP_SRCS += \
 ../src/classes/CGWICWindowUI.cpp \
 ../src/classes/CGWIC_BodyPart.cpp \
 ../src/classes/CGWIC_Bot.cpp \
+../src/classes/CGWIC_Brain.cpp \
 ../src/classes/CGWIC_Cell.cpp \
 ../src/classes/CGWIC_CommandPU.cpp \
 ../src/classes/CGWIC_GameObject.cpp \
@@ -31,6 +32,7 @@ OBJS += \
 ./src/classes/CGWICWindowUI.o \
 ./src/classes/CGWIC_BodyPart.o \
 ./src/classes/CGWIC_Bot.o \
+./src/classes/CGWIC_Brain.o \
 ./src/classes/CGWIC_Cell.o \
 ./src/classes/CGWIC_CommandPU.o \
 ./src/classes/CGWIC_GameObject.o \
@@ -53,6 +55,7 @@ CPP_DEPS += \
 ./src/classes/CGWICWindowUI.d \
 ./src/classes/CGWIC_BodyPart.d \
 ./src/classes/CGWIC_Bot.d \
+./src/classes/CGWIC_Brain.d \
 ./src/classes/CGWIC_Cell.d \
 ./src/classes/CGWIC_CommandPU.d \
 ./src/classes/CGWIC_GameObject.d \
@@ -74,7 +77,7 @@ CPP_DEPS += \
 src/classes/%.o: ../src/classes/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -I../src -I../src/classes -I../irrBullet -I/mnt/angar/irrlicht-1.8/include -I/mnt/angar/bullet-2.79/install/include/bullet -I/mnt/angar/OALwrapper/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	g++ -I../src -I../src/classes -I../irrBullet -I/mnt/angar/irrlicht-1.8/include -I/mnt/angar/bullet-2.79/install/include/bullet -I/mnt/angar/OALwrapper/include -I/mnt/angar/lua-5.2.1/src -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

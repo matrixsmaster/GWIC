@@ -49,6 +49,7 @@ public:
 	CGWIC_Cell* GetCell(int x, int y);
 	CGWIC_Cell* GetCell(CPoint2D trg) { return (GetCell(trg.X,trg.Y)); }
 	friend class CGWIC_CommandPU;
+	friend class CGWIC_VM;
 protected:
 	irr::IrrlichtDevice* gra_world;
 	irrBulletWorld* phy_world;

@@ -15,7 +15,7 @@
 #include <irrbullet.h>
 #include <GWICTypes.h>
 #include "CGWIC_BodyPart.h"
-#include "CGWIC_VM.h"
+#include "CGWIC_Brain.h"
 
 namespace gwic {
 
@@ -25,14 +25,14 @@ public:
 		CGWIC_BodyPart(modelfile,parentn,dev,phy) {
 		std::cout << "Head {} creation" << std::endl;
 		name = "HEAD";
-		vmbrain = NULL;
+		brain = NULL;
 	}
 	virtual ~CGWIC_Head();
 	void Quantum();
 	bool ApplyRotationForce(irr::core::vector3df rotvec) { return false; }
 	irr::core::vector3df GetStraightLook() { return this->straightLook; }
 protected:
-	CGWIC_VM* vmbrain;
+	CGWIC_Brain* brain;
 	irr::core::vector3df straightLook;
 };
 

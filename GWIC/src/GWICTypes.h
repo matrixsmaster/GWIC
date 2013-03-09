@@ -87,6 +87,14 @@ struct GWIC_Message {
 	irr::core::stringw body;
 };
 
+enum GWICVM_VMState {
+	GWICVM_EMPTY,	// no code loaded, empty VM couldn't be running
+	GWICVM_IDLE,	// some code loaded and compiled successfully, VM can run
+	GWICVM_ERROR,	// code loaded with errors
+	GWICVM_RUN,		// VM running
+	GWICVM_PAUSE	// VM paused
+};
+
 
 }
 

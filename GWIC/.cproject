@@ -32,6 +32,7 @@
 									<listOptionValue builtIn="false" value="/mnt/angar/irrlicht-1.8/include"/>
 									<listOptionValue builtIn="false" value="/mnt/angar/bullet-2.79/install/include/bullet"/>
 									<listOptionValue builtIn="false" value="/mnt/angar/OALwrapper/include"/>
+									<listOptionValue builtIn="false" value="/mnt/angar/lua-5.2.1/src"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.813782518" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -62,11 +63,13 @@
 									<listOptionValue builtIn="false" value="ogg"/>
 									<listOptionValue builtIn="false" value="vorbis"/>
 									<listOptionValue builtIn="false" value="vorbisfile"/>
+									<listOptionValue builtIn="false" value="lua"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.1342221358" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/mnt/angar/irrlicht-1.8/lib/Linux"/>
 									<listOptionValue builtIn="false" value="/mnt/angar/bullet-2.79/install/lib"/>
 									<listOptionValue builtIn="false" value="/mnt/angar/OALwrapper/build"/>
+									<listOptionValue builtIn="false" value="/mnt/angar/lua-5.2.1/src"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1555565631" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -585,4 +588,5 @@
 			</profile>
 		</scannerConfigBuildInfo>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 </cproject>

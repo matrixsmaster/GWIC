@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<!-- This is default inventory root object -->
+<type str="ROOT" />
+<name str="/" />
+<childs files="test_text.xml,test_image.xml" />

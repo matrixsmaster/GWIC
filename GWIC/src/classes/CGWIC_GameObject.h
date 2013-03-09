@@ -36,27 +36,28 @@ class CGWIC_GameObject {
 public:
 	CGWIC_GameObject(irr::io::path filename, CPoint2D cell, irr::IrrlichtDevice* dev, irrBulletWorld* phy);
 	virtual ~CGWIC_GameObject();
-	bool SetPos(irr::core::vector3df rel_pos);
-	irr::core::vector3df GetPos();
-	bool SetRot(irr::core::vector3df rot);
-	irr::core::vector3df GetRot();
-	void SetScale(irr::core::vector3df scal);
-	irr::core::vector3df GetScale();
-	CPoint2D GetCell();
-	void SetCell(CPoint2D ncell);
-	bool SetMaterial(ObjMaterial newmat);
-	ObjMaterial GetMaterial();
-	void SetEnabled(const bool enable);
-	bool GetEnabled() { return this->enabled; }
-	bool SetPhysical(const bool enable);
-	bool GetPhysical() { return this->physical; }
-	void SetVisible(const bool enable);
-	bool GetVisible() { return this->visible; }
-	irr::scene::ISceneNode* GetRootNode();
-	irr::core::vector3df getAbsPosition(irr::core::vector3df rel_pos);
-	irr::io::path GetFileName() { return this->lastfilename; }
-	void QuantumUpdate();
+	virtual bool SetPos(irr::core::vector3df rel_pos);
+	virtual irr::core::vector3df GetPos();
+	virtual bool SetRot(irr::core::vector3df rot);
+	virtual irr::core::vector3df GetRot();
+	virtual void SetScale(irr::core::vector3df scal);
+	virtual irr::core::vector3df GetScale();
+	virtual CPoint2D GetCell();
+	virtual void SetCell(CPoint2D ncell);
+	virtual bool SetMaterial(ObjMaterial newmat);
+	virtual ObjMaterial GetMaterial();
+	virtual void SetEnabled(const bool enable);
+	virtual bool GetEnabled() { return this->enabled; }
+	virtual bool SetPhysical(const bool enable);
+	virtual bool GetPhysical() { return this->physical; }
+	virtual void SetVisible(const bool enable);
+	virtual bool GetVisible() { return this->visible; }
+	virtual irr::scene::ISceneNode* GetRootNode();
+	virtual irr::core::vector3df getAbsPosition(irr::core::vector3df rel_pos);
+	virtual irr::io::path GetFileName() { return this->lastfilename; }
+	virtual void QuantumUpdate();
 	bool isLight() { return false; }
+	virtual bool SerializeToFile(irr::io::path filename);
 private:
 	CPoint2D mycell;
 	irr::core::vector3df position;

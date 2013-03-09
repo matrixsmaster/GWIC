@@ -10,12 +10,13 @@
 
 namespace gwic {
 
-CGWIC_Inventory::CGWIC_Inventory() {
-	// TODO Auto-generated constructor stub
-
+CGWIC_Inventory::CGWIC_Inventory(irr::IrrlichtDevice* irrdev)
+{
+	//
 }
 
-CGWIC_Inventory::~CGWIC_Inventory() {
+CGWIC_Inventory::~CGWIC_Inventory()
+{
 	// TODO Auto-generated destructor stub
 }
 

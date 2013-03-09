@@ -17,7 +17,7 @@ namespace gwic {
 
 class CGWIC_Inventory {
 public:
-	CGWIC_Inventory();
+	CGWIC_Inventory(irr::IrrlichtDevice* irrdev);
 	virtual ~CGWIC_Inventory();
 	std::vector<irr::core::stringw> GetItemsList();
 protected:

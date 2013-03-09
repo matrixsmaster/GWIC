@@ -367,6 +367,12 @@ irr::core::vector3df CGWIC_BodyPart::GetRealPosition()
 	return out;
 }
 
+bool CGWIC_BodyPart::SerializeToFile(irr::io::path filename)
+{
+	//TODO: implement saving
+	return false;
+}
+
 
 }
 

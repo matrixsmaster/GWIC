@@ -48,28 +48,29 @@ public:
 	CGWIC_BodyPart(irr::io::path modelfile, irr::scene::ISceneNode* parentn, irr::IrrlichtDevice* dev, irrBulletWorld* phy);
 	virtual ~CGWIC_BodyPart();
 	//FIXME: make things more nice looking, sort it! +))
-	void SetName(irr::core::stringc nwname);
-	irr::core::stringc GetName() { return this->name; }
-	bool Connect(CGWIC_BodyPart* part, int slotnum);
-	CGWIC_BodyPart* GetNodeByName(irr::core::stringc nam);
-	void SetScale(irr::core::vector3df scal, bool childs);
-	irr::scene::ISceneNode* GetRootSceneNode() { return this->root; }
-	irr::core::vector3df GetMaxExtent();
-	void SetActive(bool activate, bool chain);
-	bool GetActive() { return this->active; }
-	void SetVisible(const bool enable);
-	bool GetVisible() { return this->visible; }
-	void RebuildPhysics(bool chain);
-	void UpdatePosition();
-	void Move(irr::core::vector3df vec);
-	irr::core::vector3df GetAbsPos();
-	IRigidBody* GetRigidBodyPtr() { return this->colbody; }
-	GWIC_BPSlot GetSlotByID(int sid);
-	GWIC_BPSlot GetSlotByChild(CGWIC_BodyPart* childptr);
-	irr::s32 RecursiveSearchForNode(irr::scene::ISceneNode* nodeptr);
-	CGWIC_BodyPart* GetBPbyNode(irr::scene::ISceneNode* nodeptr);
-	irr::core::vector3df GetRealPosition();
+	virtual void SetName(irr::core::stringc nwname);
+	virtual irr::core::stringc GetName() { return this->name; }
+	virtual bool Connect(CGWIC_BodyPart* part, int slotnum);
+	virtual CGWIC_BodyPart* GetNodeByName(irr::core::stringc nam);
+	virtual void SetScale(irr::core::vector3df scal, bool childs);
+	virtual irr::scene::ISceneNode* GetRootSceneNode() { return this->root; }
+	virtual irr::core::vector3df GetMaxExtent();
+	virtual void SetActive(bool activate, bool chain);
+	virtual bool GetActive() { return this->active; }
+	virtual void SetVisible(const bool enable);
+	virtual bool GetVisible() { return this->visible; }
+	virtual void RebuildPhysics(bool chain);
+	virtual void UpdatePosition();
+	virtual void Move(irr::core::vector3df vec);
+	virtual irr::core::vector3df GetAbsPos();
+	virtual IRigidBody* GetRigidBodyPtr() { return this->colbody; }
+	virtual GWIC_BPSlot GetSlotByID(int sid);
+	virtual GWIC_BPSlot GetSlotByChild(CGWIC_BodyPart* childptr);
+	virtual irr::s32 RecursiveSearchForNode(irr::scene::ISceneNode* nodeptr);
+	virtual CGWIC_BodyPart* GetBPbyNode(irr::scene::ISceneNode* nodeptr);
+	virtual irr::core::vector3df GetRealPosition();
 	virtual bool ApplyRotationForce(irr::core::vector3df rotvec) { return true; }
+	virtual bool SerializeToFile(irr::io::path filename);
 protected:
 	bool success;
 	bool active;

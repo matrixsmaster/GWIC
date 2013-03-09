@@ -30,6 +30,7 @@
 #define GWIC_UI_DIR irr::io::path("ui/")
 #define GWIC_FONTS_DIR irr::io::path("fonts/")
 #define GWIC_SLRELATIVE_DIR irr::io::path("actors/sl_opensim/")
+#define GWIC_INVENTORY_DIR irr::io::path("inventory/")
 
 
 #define GWIC_CONSOLE_VERSIONSTR "GWIC v.0.0.3.95 pre-alpha"

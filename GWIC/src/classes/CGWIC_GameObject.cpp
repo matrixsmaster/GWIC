@@ -236,5 +236,11 @@ void CGWIC_GameObject::QuantumUpdate()
 	//TODO: update cpu, state, etc
 }
 
+bool CGWIC_GameObject::SerializeToFile(irr::io::path filename)
+{
+	//TODO: implement saving
+	return false;
+}
+
 
 }

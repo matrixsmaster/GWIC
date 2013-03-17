@@ -140,6 +140,9 @@ bool CGWIC_World::PrepareWorld()
 	if (!main_cam) return false;
 
 	//Create actors
+	GWIC_SLBinMesh* llmeshloader = new GWIC_SLBinMesh(scManager,gra_world->getFileSystem());
+	scManager->addExternalMeshLoader(llmeshloader);
+	//we aren't need to delete or drop the loader... or not? :)
 	CreatePlayerCharacter();
 //	if (PC) actors.push_back(PC);
 	if (GenerateNPC(lscreen)) std::cout << "NPCs generated successfully!" << std::endl;

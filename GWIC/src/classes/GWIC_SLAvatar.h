@@ -15,7 +15,6 @@
 #include <GWICDefines.h>
 #include "GWICTypes.h"
 #include "CGWIC_GameObject.h"
-#include "GWIC_SLBinMesh.h"
 
 namespace gwic {
 
@@ -29,7 +28,7 @@ public:
 private:
 	irr::IrrlichtDevice* irrDevice;
 	irr::boundbox Box;
-	GWIC_SLBinMesh* body;
+	irr::scene::ISceneNode* body;
 	std::vector<CGWIC_GameObject*> attachments;
 };
 

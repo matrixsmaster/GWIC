@@ -35,6 +35,7 @@
 #include "CGWIC_Gizmo.h"
 #include "CGWIC_LoadingScreen.h"
 #include "CGWIC_CommandPU.h"
+#include "GWIC_SLBinMesh.h"
 
 namespace gwic {
 

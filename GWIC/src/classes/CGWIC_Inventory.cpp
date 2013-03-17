@@ -20,4 +20,10 @@ CGWIC_Inventory::~CGWIC_Inventory()
 	// TODO Auto-generated destructor stub
 }
 
+bool CGWIC_Inventory::LoadFromFile(irr::io::path filename)
+{
+	//TODO
+	return false;
+}
+
 } /* namespace gwic */

@@ -44,6 +44,7 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 	headcam = NULL;
 	camc_tries = 0;
 	mHeight = 1.f;
+	inventory = NULL;
 	IAnimatedMesh* botmesh = NULL;
 	IAnimatedMeshSceneNode* animnode = NULL;
 	switch (params->type) {
@@ -453,6 +454,15 @@ bool CGWIC_Bot::isCompletelyDead()
 			(!botRoot) &&
 			(!head) &&
 			(!slAvatar) );
+}
+
+void CGWIC_Bot::AssignInventory(CGWIC_Inventory* newinv)
+{
+	if (inventory) {
+		std::cout << "AssignInventory() called with actor's inventory present" << std::endl;
+		delete inventory;
+	}
+	inventory = newinv;
 }
 
 

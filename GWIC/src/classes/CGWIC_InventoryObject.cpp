@@ -57,10 +57,10 @@ GWIC_INVENTORY_TYPE CGWIC_InventoryObject::StringToType(const irr::core::stringc
 {
 	int i = 0;
 	GWIC_INVENTORY_TYPE res;
-	do {
-		res = static_cast<GWIC_INVENTORY_TYPE> (i);
-		if (str.equals_ignore_case(GWIC_InventoryTypesStrings[i])) break;
-	} while (res != GWIC_ITYPE_DUMMY); //dummy type means dummy or unknown ;)
+	do res = static_cast<GWIC_INVENTORY_TYPE> (i);
+	while ((res != GWIC_ITYPE_DUMMY) &&
+			(!str.equals_ignore_case(GWIC_InventoryTypesStrings[i])));
+	//dummy type means dummy or unknown ;)
 	return res;
 }
 
@@ -82,6 +82,7 @@ bool CGWIC_InventoryObject::LoadFromFile(irr::io::path filename)
 		std::cerr << "Unable to open inventory item XML: " << filename.c_str() << std::endl;
 		return false;
 	}
+	std::cout << "Reading inventory data from " << filename.c_str() << std::endl;
 	const stringw tag_type(L"type");
 	const stringw tag_name(L"name");
 	const stringw tag_childs(L"childs");

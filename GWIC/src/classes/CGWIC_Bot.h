@@ -89,6 +89,8 @@ public:
 	void QuantumUpdate();
 	bool ProcessEvent(const irr::SEvent& event);
 	bool isCompletelyDead();
+	void AssignInventory(CGWIC_Inventory* newinv);
+	CGWIC_Inventory* GetInventory() { return this->inventory; }
 protected:
 	//FIXME: sort it out!!!
 	bool initDone;

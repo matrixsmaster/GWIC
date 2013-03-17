@@ -951,6 +951,15 @@ void CGWIC_World::CreatePlayerCharacter()
 	PC = new CGWIC_Bot(&pcbparams,gra_world,phy_world);
 	if (!PC) return;
 	PC_lastcell = PC->GetCell();
+	CGWIC_Inventory* pcinv = new CGWIC_Inventory(gra_world);
+	PC->AssignInventory(pcinv);
+	if (!pcinv->LoadFromFile("player_inventory.xml")) {
+		std::cout << "Loading PC's inventory failed. Fall to default..." << std::endl;
+		if (!pcinv->LoadFromFile("default.xml")) {
+			std::cerr << "Loading default inventory failed!" << std::endl;
+			PC->AssignInventory(NULL); // we don't need to delete pcinv due to autodelete inside Assign()
+		}
+	}
 }
 
 void CGWIC_World::UpdateHardCulling()

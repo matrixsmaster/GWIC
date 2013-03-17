@@ -11,6 +11,7 @@
 
 #include <GWICTypes.h>
 #include <irrlicht.h>
+#include "CIrrStrParser.h"
 #include "CGWIC_InventoryObject.h"
 
 namespace gwic {
@@ -19,8 +20,10 @@ class CGWIC_Inventory {
 public:
 	CGWIC_Inventory(irr::IrrlichtDevice* irrdev);
 	virtual ~CGWIC_Inventory();
-	std::vector<irr::core::stringw> GetItemsList();
+	irrstrwvec GetItemsList();
+	bool LoadFromFile(irr::io::path filename);
 protected:
+	irr::IrrlichtDevice* irrDevice;
 	std::vector<CGWIC_InventoryObject*> items;
 };
 

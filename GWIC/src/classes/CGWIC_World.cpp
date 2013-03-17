@@ -79,6 +79,10 @@ CGWIC_World::~CGWIC_World()
 		delete (actors.back());
 		actors.pop_back();
 	}
+	for (u32 i=0; i<scManager->getMeshLoaderCount(); i++)
+		if (scManager->getMeshLoader(i)->isALoadableFileExtension("test.llm")) {
+			scManager->getMeshLoader(i)->drop();
+		}
 	if (phy_world) delete phy_world;
 	if (gra_world) gra_world->drop();
 }

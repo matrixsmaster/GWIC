@@ -85,7 +85,7 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 		 * This type of actor represents geometry only, physics describes by a simple
 		 * capsule, just like ACTOR_CREATURE
 		 */
-		slAvatar = new GWIC_SLAvatar(GWIC_ACTORS_DIR+params->filename,scManager);
+		slAvatar = new GWIC_SLAvatar(GWIC_ACTORS_DIR+params->filename,irDevice);
 		break;
 	default:
 		std::cerr << "Unsupported or invalid actor type creation requested!" << std::endl;

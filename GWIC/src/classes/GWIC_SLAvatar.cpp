@@ -16,15 +16,16 @@ using namespace io;
 
 namespace gwic {
 
-GWIC_SLAvatar::GWIC_SLAvatar(irr::io::path xmlfile, irr::scene::ISceneManager* mgr) :
-	ISceneNode(NULL,mgr,GWIC_ACTOR_MASK){
-	scManager = mgr;
+GWIC_SLAvatar::GWIC_SLAvatar(irr::io::path xmlfile, irr::IrrlichtDevice* irrdev) :
+	ISceneNode(NULL,irrdev->getSceneManager(),GWIC_ACTOR_MASK){
+	irrDevice = irrdev;
 	Box.reset(0,0,0);
+	body = new GWIC_SLBinMesh(irrdev->getSceneManager(),irrdev->getFileSystem());
 }
 
 GWIC_SLAvatar::~GWIC_SLAvatar()
 {
-	// TODO Auto-generated destructor stub
+	if (body) delete body;
 }
 
 const irr::boundbox& GWIC_SLAvatar::getBoundingBox() const

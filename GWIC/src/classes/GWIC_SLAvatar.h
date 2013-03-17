@@ -21,13 +21,13 @@ namespace gwic {
 
 class GWIC_SLAvatar : public irr::scene::ISceneNode {
 public:
-	GWIC_SLAvatar(irr::io::path xmlfile, irr::scene::ISceneManager* mgr);
+	GWIC_SLAvatar(irr::io::path xmlfile, irr::IrrlichtDevice* irrdev);
 	virtual ~GWIC_SLAvatar();
 	const irr::boundbox& getBoundingBox() const;
 	virtual void OnRegisterSceneNode();
 	virtual void render();
 private:
-	irr::scene::ISceneManager* scManager;
+	irr::IrrlichtDevice* irrDevice;
 	irr::boundbox Box;
 	GWIC_SLBinMesh* body;
 	std::vector<CGWIC_GameObject*> attachments;

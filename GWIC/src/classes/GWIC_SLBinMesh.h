@@ -18,15 +18,33 @@ namespace gwic {
 
 static const char LLBinMesh_Header[24] = "Linden Binary Mesh 1.0";
 
+struct LLVector2 {
+	float x,y;
+};
+
+struct LLVector3 {
+	float x,y,z;
+};
+
+struct LLBinMeshHeader {
+	char headstr[24];
+	u8 hasWeights;
+    u8 hasDetailTexCoords;
+    LLVector3 position;
+    LLVector3 rotationAngles;
+    u8 rotationOrder;
+    LLVector3 scale;
+    u16 numVertices;
+};
+
 class GWIC_SLBinMesh: public scene::IMeshLoader {
 public:
 	GWIC_SLBinMesh(scene::ISceneManager* smgr, io::IFileSystem* fs);
 	virtual ~GWIC_SLBinMesh();
 	virtual bool isALoadableFileExtension(const io::path& filename) const;
-	virtual scene::IAnimatedMesh* createMesh(io::IReadFile* file);
-protected:
-	//
+	virtual scene::ISkinnedMesh* createMesh(io::IReadFile* file);
 private:
+	//scene::CSkinnedMesh* mMesh;
 	//FIXME: this variables copied from C3DSMesh...; discard useless
 	scene::ISceneManager* SceneManager;
 	io::IFileSystem* FileSystem;

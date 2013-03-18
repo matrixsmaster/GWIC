@@ -16,33 +16,24 @@ using namespace io;
 
 namespace gwic {
 
-GWIC_SLAvatar::GWIC_SLAvatar(irr::io::path xmlfile, irr::IrrlichtDevice* irrdev) :
-	ISceneNode(NULL,irrdev->getSceneManager(),GWIC_ACTOR_MASK){
+GWIC_SLAvatar::GWIC_SLAvatar(irr::io::path xmlfile, irr::IrrlichtDevice* irrdev)
+{
 	irrDevice = irrdev;
-	Box.reset(0,0,0);
 	body = NULL;
+	std::cout << "SLAvatar c'tor" << std::endl;
+	// just a test
+	IMesh* mesh = irrDevice->getSceneManager()->getMesh(GWIC_SLRELATIVE_DIR+path("avatar_upper_body.llm"));
+	if (!mesh) {
+		std::cerr << "Unable to load upper body" << std::endl;
+		return;
+	}
+	body = irrDevice->getSceneManager()->addMeshSceneNode(mesh,NULL,GWIC_PICKABLE_MASK | GWIC_ACTOR_MASK);
+	if (body) std::cout << "Mesh loading done" << std::endl;
 }
 
 GWIC_SLAvatar::~GWIC_SLAvatar()
 {
-	//
-}
-
-const irr::boundbox& GWIC_SLAvatar::getBoundingBox() const
-{
-	return Box;
-}
-
-void GWIC_SLAvatar::OnRegisterSceneNode()
-{
-	if (IsVisible)
-		SceneManager->registerNodeForRendering(this);
-	ISceneNode::OnRegisterSceneNode();
-}
-
-void GWIC_SLAvatar::render()
-{
-	IVideoDriver* driver = SceneManager->getVideoDriver();
+	std::cout << "SLAvatar d'tor" << std::endl;
 }
 
 

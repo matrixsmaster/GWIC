@@ -45,6 +45,7 @@ CGWIC_Bot::CGWIC_Bot(BotCreationParams* params, irr::IrrlichtDevice* dev, irrBul
 	camc_tries = 0;
 	mHeight = 1.f;
 	inventory = NULL;
+	slAvatar = NULL;
 	IAnimatedMesh* botmesh = NULL;
 	IAnimatedMeshSceneNode* animnode = NULL;
 	switch (params->type) {
@@ -134,6 +135,9 @@ bool CGWIC_Bot::SetPos(irr::core::vector3df rel_pos)
 	if (head) {
 		rel_pos = getAbsPosition() - head->GetRealPosition();
 		head->Move(rel_pos);
+	}
+	if ((slAvatar) && (slAvatar->GetRoot())) {
+		slAvatar->GetRoot()->setPosition(getAbsPosition());
 	}
 	return true;
 }

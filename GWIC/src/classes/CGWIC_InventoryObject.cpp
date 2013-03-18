@@ -55,9 +55,9 @@ irr::core::stringc CGWIC_InventoryObject::TypeToString(const GWIC_INVENTORY_TYPE
 
 GWIC_INVENTORY_TYPE CGWIC_InventoryObject::StringToType(const irr::core::stringc str)
 {
-	int i = 0;
+	int i = -1;
 	GWIC_INVENTORY_TYPE res;
-	do res = static_cast<GWIC_INVENTORY_TYPE> (i);
+	do res = static_cast<GWIC_INVENTORY_TYPE> (++i);
 	while ((res != GWIC_ITYPE_DUMMY) &&
 			(!str.equals_ignore_case(GWIC_InventoryTypesStrings[i])));
 	//dummy type means dummy or unknown ;)
